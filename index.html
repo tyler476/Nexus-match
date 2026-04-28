@@ -760,7 +760,13 @@ td.name-cell{font-weight:600;color:var(--navy);}
 <nav id="main-nav">
   <span class="nav-tab" id="nav-how" onclick="showView('learn');setNavActive('nav-how')">How It Works</span>
   <span class="nav-tab" id="nav-why" onclick="showView('learn');setNavActive('nav-why');setTimeout(()=>{const el=document.getElementById('why-nexus-anchor');if(el)el.scrollIntoView({behavior:'smooth'})},80)">Why NEXUS.</span>
-  <span class="nav-tab nav-tab-cta" id="nav-cta" onclick="showView('register');setNavActive('nav-cta')">Find My Co-Owner →</span>
+  <!-- Logged-out: shows Login + Find My Co-Owner -->
+  <span class="nav-tab" id="nav-login" onclick="openLoginModal()" style="display:none;">Log In</span>
+  <span class="nav-tab nav-tab-cta" id="nav-cta" onclick="handleFindCoOwnerClick()">Find My Co-Owner →</span>
+  <!-- Logged-in: shows Dashboard + name + logout -->
+  <span class="nav-tab" id="nav-dashboard" onclick="routeForRole()" style="display:none;">Dashboard</span>
+  <span class="nav-tab" id="nav-user-info" style="display:none;color:var(--gray-text);font-weight:500;font-size:.85rem;cursor:default;border-bottom:none;"></span>
+  <span class="nav-tab" id="nav-logout" onclick="handleLogout()" style="display:none;color:var(--gray-text);">Log Out</span>
 </nav>
 
 <!-- ══════════════════════ VIEW: HOME ══════════════════════ -->
@@ -3951,12 +3957,8 @@ function initCAUI() {
 // Citizens Financial Group · NMLS 2503947
 // ══════════════════════════════════════════════════════
 
-// ── SUPABASE CONFIG (replace with real keys before launch) ──
-// Live URL: https://nexus-homes.vercel.app/
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-// const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-// Uncomment above and replace keys when deploying to production.
+// ── SUPABASE CONFIG ── (Real config now lives in the auth wiring script at end of body)
+// Constants SUPABASE_URL, SUPABASE_ANON_KEY, and sb are declared there.
 
 // ── APP STATE ──
 const state = {
@@ -5607,5 +5609,574 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+
+<!-- ══════════════════════ SUPABASE AUTH WIRING ══════════════════════ -->
+<script>
+// ═══ Supabase config ═══
+const SUPABASE_URL = 'https://cdmpthljlwyowsvdmqyi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkbXB0aGxqbHd5b3dzdmRtcXlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMTM3NTYsImV4cCI6MjA5Mjg4OTc1Nn0.yrQ6Y4HZ9NMD1bAHHo0xa6Fgln3YaJk4cbRMtfA3cEQ';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
+
+// ═══ Auth state ═══
+let currentUser = null;       // Supabase auth.user object
+let currentAccount = null;    // accounts table row (with role, tier, etc.)
+let signupRole = 'user';      // selected role at signup time
+
+// ═══ Page load: check session + subscribe to auth changes ═══
+async function initAuth() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      await loadAccount();
+      updateNavForAuthed();
+      // If they have a fresh session (just confirmed email), route to dashboard
+      // Otherwise leave them on whatever view they're on
+      if (window.location.hash.includes('access_token') ||
+          window.location.hash.includes('type=signup') ||
+          window.location.hash.includes('type=magiclink')) {
+        // Coming from email confirmation - clean URL and route
+        history.replaceState(null, '', window.location.pathname);
+        setTimeout(() => routeForRole(), 100);
+      }
+    } else {
+      updateNavForLoggedOut();
+    }
+  } catch (err) {
+    console.error('Auth init error:', err);
+    updateNavForLoggedOut();
+  }
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    console.log('Auth event:', event);
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      await loadAccount();
+      updateNavForAuthed();
+      closeAuthModal();
+      showToast('Logged in!', 'success');
+      setTimeout(() => routeForRole(), 200);
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      currentAccount = null;
+      updateNavForLoggedOut();
+      showView('home');
+    } else if (event === 'TOKEN_REFRESHED' && session) {
+      currentUser = session.user;
+    }
+  });
+}
+
+async function loadAccount() {
+  if (!currentUser) return;
+  const { data, error } = await sb
+    .from('accounts')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+  if (error) {
+    // Account row may not exist yet right after signup — trigger should create it,
+    // but if there's a delay, fall back gracefully
+    console.warn('Could not load account row:', error.message);
+    currentAccount = { id: currentUser.id, email: currentUser.email, role: 'user', tier: 'free' };
+    return;
+  }
+  currentAccount = data;
+  // Update last_login_at (fire-and-forget)
+  sb.from('accounts').update({ last_login_at: new Date().toISOString() }).eq('id', currentUser.id).then(() => {});
+}
+
+// ═══ Nav UI updates ═══
+function updateNavForAuthed() {
+  document.getElementById('nav-login').style.display = 'none';
+  document.getElementById('nav-cta').style.display = 'none';
+  document.getElementById('nav-dashboard').style.display = 'flex';
+  document.getElementById('nav-logout').style.display = 'flex';
+  const info = document.getElementById('nav-user-info');
+  if (info && currentAccount) {
+    const name = currentAccount.full_name || currentAccount.email || '';
+    info.textContent = name;
+    info.style.display = 'flex';
+  }
+}
+function updateNavForLoggedOut() {
+  document.getElementById('nav-login').style.display = 'flex';
+  document.getElementById('nav-cta').style.display = 'flex';
+  document.getElementById('nav-dashboard').style.display = 'none';
+  document.getElementById('nav-logout').style.display = 'none';
+  const info = document.getElementById('nav-user-info');
+  if (info) info.style.display = 'none';
+}
+
+// ═══ Role-based routing ═══
+function routeForRole() {
+  if (!currentAccount) {
+    showView('home');
+    return;
+  }
+  if (currentAccount.role === 'admin') {
+    showView('admin');
+  } else if (currentAccount.role === 'realtor') {
+    // Realtor flow not built yet — show home with placeholder
+    showToast('Realtor portal coming soon. Welcome aboard!', 'success');
+    showView('home');
+  } else {
+    // User: if they've completed their profile, dashboard. Otherwise registration.
+    showView('dashboard');
+  }
+}
+
+// ═══ Find My Co-Owner button: signup gate ═══
+function handleFindCoOwnerClick() {
+  if (currentAccount) {
+    showView('register');
+    setNavActive('nav-cta');
+  } else {
+    openSignupModal();
+  }
+}
+
+// ═══ Modal management ═══
+function openLoginModal() {
+  hideAuthErrors();
+  document.getElementById('auth-modal').classList.add('active');
+  document.getElementById('auth-login-panel').style.display = 'block';
+  document.getElementById('auth-signup-panel').style.display = 'none';
+  document.getElementById('auth-magic-sent-panel').style.display = 'none';
+  setTimeout(() => { const e = document.getElementById('login-email'); if (e) e.focus(); }, 50);
+}
+function openSignupModal() {
+  hideAuthErrors();
+  document.getElementById('auth-modal').classList.add('active');
+  document.getElementById('auth-login-panel').style.display = 'none';
+  document.getElementById('auth-signup-panel').style.display = 'block';
+  document.getElementById('auth-magic-sent-panel').style.display = 'none';
+  document.getElementById('signup-confirm').classList.remove('active');
+  setTimeout(() => { const e = document.getElementById('signup-fullname'); if (e) e.focus(); }, 50);
+}
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.remove('active');
+}
+function switchToLogin() {
+  hideAuthErrors();
+  document.getElementById('auth-login-panel').style.display = 'block';
+  document.getElementById('auth-signup-panel').style.display = 'none';
+}
+function switchToSignup() {
+  hideAuthErrors();
+  document.getElementById('auth-login-panel').style.display = 'none';
+  document.getElementById('auth-signup-panel').style.display = 'block';
+}
+function setSignupRole(role) {
+  signupRole = role;
+  document.getElementById('role-user-btn').classList.toggle('active', role === 'user');
+  document.getElementById('role-realtor-btn').classList.toggle('active', role === 'realtor');
+}
+function showAuthError(panelId, msg) {
+  const el = document.getElementById(panelId);
+  if (el) { el.textContent = msg; el.classList.add('active'); }
+}
+function hideAuthErrors() {
+  document.querySelectorAll('.auth-error').forEach(e => e.classList.remove('active'));
+}
+
+// ═══ Login ═══
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  hideAuthErrors();
+  if (!email || !password) {
+    showAuthError('login-error', 'Please enter your email and password.');
+    return;
+  }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Logging in...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = 'Log In';
+  if (error) {
+    showAuthError('login-error', error.message);
+    return;
+  }
+  // onAuthStateChange handles success
+}
+
+// ═══ Magic link ═══
+async function handleMagicLink() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) {
+    showAuthError('login-error', 'Enter your email above first, then click magic link.');
+    return;
+  }
+  hideAuthErrors();
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin }
+  });
+  if (error) {
+    showAuthError('login-error', error.message);
+    return;
+  }
+  document.getElementById('auth-login-panel').style.display = 'none';
+  document.getElementById('auth-magic-sent-panel').style.display = 'block';
+}
+
+// ═══ Signup ═══
+async function handleSignup() {
+  const fullName = document.getElementById('signup-fullname').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  hideAuthErrors();
+
+  if (!fullName || !email || !password) {
+    showAuthError('signup-error', 'All fields are required.');
+    return;
+  }
+  if (password.length < 8) {
+    showAuthError('signup-error', 'Password must be at least 8 characters.');
+    return;
+  }
+  if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+    showAuthError('signup-error', 'Password must contain both letters and numbers.');
+    return;
+  }
+
+  const btn = document.getElementById('signup-btn');
+  btn.disabled = true; btn.textContent = 'Creating account...';
+
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        role: signupRole
+      },
+      emailRedirectTo: window.location.origin
+    }
+  });
+
+  btn.disabled = false; btn.textContent = 'Create Account';
+
+  if (error) {
+    showAuthError('signup-error', error.message);
+    return;
+  }
+
+  // Show "check your email" panel, hide form fields
+  document.querySelectorAll('#auth-signup-panel .auth-input, #auth-signup-panel .auth-label, #auth-signup-panel .auth-role-toggle, #auth-signup-panel .auth-secondary-link').forEach(el => el.style.display = 'none');
+  document.getElementById('signup-btn').style.display = 'none';
+  document.getElementById('signup-confirm').classList.add('active');
+  document.querySelector('#auth-signup-panel .auth-modal-subtitle').textContent = '';
+  document.querySelector('#auth-signup-panel .auth-modal-title').textContent = "You're almost in";
+}
+
+// ═══ Logout ═══
+async function handleLogout() {
+  await sb.auth.signOut();
+  showToast('Signed out', 'success');
+}
+
+// ═══ Submit user matching profile (overrides the original submitProfile) ═══
+async function submitProfile() {
+  if (!validateStep(5)) return;
+
+  // Must be logged in to save profile
+  if (!currentUser || !currentAccount) {
+    showToast('Please create an account first to save your profile.', 'error');
+    setTimeout(() => openSignupModal(), 800);
+    return;
+  }
+  if (currentAccount.role !== 'user') {
+    showToast('Matching profiles are for homebuyer accounts only.', 'error');
+    return;
+  }
+
+  const firstName = document.getElementById('f-firstname').value.trim();
+  const lastName = document.getElementById('f-lastname').value.trim();
+  const fullName = `${firstName} ${lastName}`.trim();
+
+  // 1. Update accounts row with name + phone
+  showSpinner();
+  const phone = document.getElementById('f-phone').value.trim();
+  const { error: acctErr } = await sb
+    .from('accounts')
+    .update({ full_name: fullName, phone: phone || null })
+    .eq('id', currentUser.id);
+  if (acctErr) {
+    hideSpinner();
+    showToast('Could not save name/phone: ' + acctErr.message, 'error');
+    return;
+  }
+  // refresh local copy
+  currentAccount.full_name = fullName;
+  currentAccount.phone = phone || null;
+
+  // 2. Upsert user_profiles row
+  const profileData = {
+    account_id: currentUser.id,
+    age_range: document.getElementById('f-age').value || null,
+    current_city: document.getElementById('f-current-city').value || null,
+    target_cities: state.selectedLocations || [],
+    employment_status: document.getElementById('f-employment').value || null,
+    income_range: state.radioValues.income,
+    credit_range: state.radioValues.credit,
+    housing_situation: document.getElementById('f-housing').value || null,
+    price_range: state.radioValues.price,
+    timeline: state.radioValues.timeline,
+    story: document.getElementById('f-bio').value.trim() || null,
+    consent_to_realtor_matching: document.getElementById('f-consent').checked,
+    consent_signed_at: document.getElementById('f-consent').checked ? new Date().toISOString() : null,
+    profile_completed: true
+  };
+
+  const { error: profErr } = await sb
+    .from('user_profiles')
+    .upsert(profileData, { onConflict: 'account_id' });
+
+  hideSpinner();
+
+  if (profErr) {
+    showToast('Could not save profile: ' + profErr.message, 'error');
+    console.error(profErr);
+    return;
+  }
+
+  // Update nav with new full name
+  updateNavForAuthed();
+
+  // Show success step
+  state.formData = profileData;
+  const dashName = document.getElementById('dash-name');
+  if (dashName) dashName.textContent = firstName;
+  showStep('success');
+  showToast('Profile saved! 🎉', 'success');
+}
+
+// ═══ Replace admin password gate with real role check ═══
+function checkAdminPass() {
+  // This is called from the legacy form; redirect to login modal
+  if (currentAccount?.role === 'admin') {
+    document.getElementById('admin-gate-wrap').style.display = 'none';
+    document.getElementById('admin-dashboard-wrap').style.display = 'block';
+    initAdminDashboard();
+    showToast('Welcome, Admin', 'success');
+  } else if (!currentUser) {
+    showToast('Please log in', 'error');
+    openLoginModal();
+  } else {
+    showToast('Admin access only', 'error');
+    showView('home');
+  }
+}
+
+// ═══ Override showView's admin gate to use real role ═══
+const _originalShowView = showView;
+showView = function(viewName) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = document.getElementById('view-' + viewName);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  const navMap = { learn: 'nav-how', register: 'nav-cta' };
+  setNavActive(navMap[viewName] || null);
+
+  if (viewName === 'admin') {
+    if (currentAccount?.role === 'admin') {
+      document.getElementById('admin-gate-wrap').style.display = 'none';
+      document.getElementById('admin-dashboard-wrap').style.display = 'block';
+      initAdminDashboard();
+    } else if (!currentUser) {
+      // Show the legacy gate as a "please log in" message OR open login modal
+      openLoginModal();
+      // also keep the home view visible
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-home').classList.add('active');
+      return;
+    } else {
+      showToast('Admin access only', 'error');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-home').classList.add('active');
+      return;
+    }
+  }
+  if (viewName === 'investor' && typeof invAuthed !== 'undefined' && !invAuthed) {
+    document.getElementById('inv-gate-wrap').style.display = 'flex';
+    document.getElementById('inv-dash-wrap').style.display = 'none';
+  }
+};
+
+// ═══ Override admin dashboard init to load real Supabase data ═══
+const _originalInitAdminDashboard = (typeof initAdminDashboard === 'function') ? initAdminDashboard : null;
+async function initAdminDashboardReal() {
+  // Try to fetch real users; fall back to mock if empty/error
+  const { data: profiles, error } = await sb
+    .from('user_profiles')
+    .select(`
+      account_id,
+      age_range,
+      current_city,
+      target_cities,
+      employment_status,
+      income_range,
+      credit_range,
+      timeline,
+      price_range,
+      story,
+      profile_completed,
+      created_at,
+      consent_to_realtor_matching,
+      accounts!user_profiles_account_id_fkey (
+        id, email, full_name, phone, role, tier, status, created_at
+      )
+    `);
+
+  if (!error && profiles && profiles.length > 0) {
+    // Transform to the shape the existing dashboard renderer expects
+    filteredProfiles = profiles.map(p => ({
+      id: p.account_id,
+      name: p.accounts?.full_name || p.accounts?.email || 'Unnamed',
+      city: p.current_city || '—',
+      targetCities: p.target_cities || [],
+      income: p.income_range || '—',
+      credit: p.credit_range || '—',
+      timeline: p.timeline || '—',
+      price: p.price_range || '—',
+      status: 'Queued',
+      lo: null,
+      employment: p.employment_status || '—',
+      comfort: 4,
+      bio: p.story || '',
+      email: p.accounts?.email,
+      phone: p.accounts?.phone,
+      _real: true
+    }));
+    console.log(`Admin dashboard: loaded ${filteredProfiles.length} real profile(s)`);
+  } else {
+    // Empty database or error: use mock data so dashboard isn't blank
+    filteredProfiles = [...MOCK_PROFILES];
+    console.log('Admin dashboard: using mock data (no real profiles yet)');
+  }
+
+  // Run the existing dashboard population logic
+  if (typeof buildAdminCountyOptions === 'function') buildAdminCountyOptions();
+  if (typeof applyFilters === 'function') applyFilters();
+  if (typeof updateAdminStats === 'function') updateAdminStats();
+}
+// Replace the original
+window.initAdminDashboard = initAdminDashboardReal;
+
+// ═══ Boot ═══
+document.addEventListener('DOMContentLoaded', initAuth);
+// In case DOM is already loaded:
+if (document.readyState !== 'loading') initAuth();
+</script>
+
+<style>
+.auth-modal-bg{display:none;position:fixed;inset:0;background:rgba(11,29,62,.65);z-index:9999;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
+.auth-modal-bg.active{display:flex;}
+.auth-modal-card{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:2.25rem 2rem 2rem;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;}
+.auth-modal-close{position:absolute;top:.85rem;right:1rem;font-size:1.4rem;color:#999;cursor:pointer;background:none;border:none;line-height:1;padding:.25rem .5rem;border-radius:6px;}
+.auth-modal-close:hover{color:var(--navy);background:#f3f4f6;}
+.auth-modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.45rem;font-weight:800;color:var(--navy);margin-bottom:.25rem;letter-spacing:-.5px;}
+.auth-modal-subtitle{font-size:.88rem;color:var(--gray-text);margin-bottom:1.5rem;line-height:1.4;}
+.auth-input{width:100%;padding:.75rem 1rem;border:1.5px solid var(--gray);border-radius:8px;font-family:'Inter',sans-serif;font-size:.95rem;outline:none;margin-bottom:.85rem;transition:border-color .15s;box-sizing:border-box;}
+.auth-input:focus{border-color:var(--blue);}
+.auth-label{display:block;font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:.35rem;letter-spacing:.3px;text-transform:uppercase;}
+.auth-btn{width:100%;padding:.85rem 1rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.98rem;cursor:pointer;transition:background .15s,opacity .15s;margin-top:.4rem;}
+.auth-btn:hover{background:#1a4fcc;}
+.auth-btn:disabled{opacity:.55;cursor:not-allowed;}
+.auth-secondary-link{margin-top:1.1rem;text-align:center;font-size:.86rem;color:var(--gray-text);}
+.auth-secondary-link a{color:var(--blue);font-weight:700;cursor:pointer;text-decoration:none;}
+.auth-secondary-link a:hover{text-decoration:underline;}
+.auth-role-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.1rem;}
+.auth-role-btn{padding:.7rem .5rem;border:2px solid var(--gray);background:#fff;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.85rem;color:var(--gray-text);cursor:pointer;transition:all .15s;text-align:center;line-height:1.2;}
+.auth-role-btn.active{border-color:var(--blue);background:rgba(37,99,235,.06);color:var(--blue);}
+.auth-role-btn:hover{border-color:var(--blue);}
+.auth-confirm-msg{display:none;background:rgba(22,163,74,.08);border-left:3px solid #16a34a;padding:1rem 1.1rem;border-radius:6px;font-size:.88rem;color:#15803d;line-height:1.5;}
+.auth-confirm-msg.active{display:block;}
+.auth-confirm-msg strong{display:block;margin-bottom:.25rem;color:#14532d;}
+.auth-error{display:none;background:rgba(220,38,38,.08);border-left:3px solid #dc2626;padding:.65rem .85rem;border-radius:6px;font-size:.82rem;color:#991b1b;margin-bottom:.85rem;}
+.auth-error.active{display:block;}
+.auth-divider{text-align:center;margin:1.1rem 0 .85rem;font-size:.78rem;color:#999;position:relative;}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 30px);height:1px;background:var(--gray);}
+.auth-divider::before{left:0;}
+.auth-divider::after{right:0;}
+.auth-magic-btn{width:100%;padding:.7rem 1rem;background:#fff;color:var(--navy);border:1.5px solid var(--gray);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:all .15s;}
+.auth-magic-btn:hover{border-color:var(--blue);color:var(--blue);}
+</style>
+
+<div class="auth-modal-bg" id="auth-modal">
+  <div class="auth-modal-card">
+    <button class="auth-modal-close" onclick="closeAuthModal()" aria-label="Close">&times;</button>
+
+    <!-- LOGIN PANEL -->
+    <div id="auth-login-panel">
+      <div class="auth-modal-title">Welcome back</div>
+      <div class="auth-modal-subtitle">Log in to your NEXUS account.</div>
+      <div class="auth-error" id="login-error"></div>
+      <label class="auth-label" for="login-email">Email</label>
+      <input class="auth-input" type="email" id="login-email" placeholder="you@email.com" autocomplete="email">
+      <label class="auth-label" for="login-password">Password</label>
+      <input class="auth-input" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
+      <button class="auth-btn" id="login-btn" onclick="handleLogin()">Log In</button>
+      <div class="auth-divider">or</div>
+      <button class="auth-magic-btn" onclick="handleMagicLink()">Send me a magic link</button>
+      <div class="auth-secondary-link">
+        Don't have an account? <a onclick="switchToSignup()">Sign up</a>
+      </div>
+    </div>
+
+    <!-- SIGNUP PANEL -->
+    <div id="auth-signup-panel" style="display:none;">
+      <div class="auth-modal-title">Create your NEXUS account</div>
+      <div class="auth-modal-subtitle">Quick signup. We'll send a confirmation email.</div>
+      <div class="auth-error" id="signup-error"></div>
+
+      <label class="auth-label">I am a:</label>
+      <div class="auth-role-toggle">
+        <button class="auth-role-btn active" id="role-user-btn" onclick="setSignupRole('user')">Homebuyer<br><span style="font-size:.7rem;font-weight:400;opacity:.7;">Looking to co-own</span></button>
+        <button class="auth-role-btn" id="role-realtor-btn" onclick="setSignupRole('realtor')">Real Estate Pro<br><span style="font-size:.7rem;font-weight:400;opacity:.7;">Realtor / Agent</span></button>
+      </div>
+
+      <label class="auth-label" for="signup-fullname">Full Name</label>
+      <input class="auth-input" type="text" id="signup-fullname" placeholder="Maya Johnson" autocomplete="name">
+      <label class="auth-label" for="signup-email">Email</label>
+      <input class="auth-input" type="email" id="signup-email" placeholder="you@email.com" autocomplete="email">
+      <label class="auth-label" for="signup-password">Password <span style="font-weight:400;color:var(--gray-text);font-size:.7rem;text-transform:none;">(8+ chars, letters and numbers)</span></label>
+      <input class="auth-input" type="password" id="signup-password" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleSignup()">
+      <button class="auth-btn" id="signup-btn" onclick="handleSignup()">Create Account</button>
+
+      <div class="auth-confirm-msg" id="signup-confirm">
+        <strong>Check your email!</strong>
+        We sent a confirmation link to your inbox. Click it to verify your account, then come back here to log in.
+      </div>
+
+      <div class="auth-secondary-link">
+        Already have an account? <a onclick="switchToLogin()">Log in</a>
+      </div>
+    </div>
+
+    <!-- MAGIC LINK SENT PANEL -->
+    <div id="auth-magic-sent-panel" style="display:none;">
+      <div class="auth-modal-title">Check your email</div>
+      <div class="auth-modal-subtitle">We sent a magic link to your inbox. Click it to log in instantly.</div>
+      <div class="auth-confirm-msg active">
+        <strong>Magic link sent!</strong>
+        Check your email and click the link to log in. The link expires in 1 hour.
+      </div>
+      <button class="auth-btn" style="margin-top:1rem;" onclick="closeAuthModal()">Got it</button>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>
