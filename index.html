@@ -6296,6 +6296,10 @@ async function initAuth() {
   sb.auth.onAuthStateChange(async (event, session) => {
     console.log('Auth event:', event);
     if (event === 'SIGNED_IN' && session) {
+      // Skip if we already handled this in handleLogin (avoids double-routing)
+      if (currentUser?.id === session.user.id && currentAccount) {
+        return;
+      }
       currentUser = session.user;
       await loadAccount();
       updateNavForAuthed();
@@ -6374,12 +6378,24 @@ function routeForRole() {
 
 // ═══ Find My Co-Owner button: signup gate ═══
 function handleFindCoOwnerClick() {
-  if (currentAccount) {
-    showView('register');
-    setNavActive('nav-cta');
-  } else {
+  if (!currentAccount) {
     openSignupModal();
+    return;
   }
+  // Logged in — route based on role
+  if (currentAccount.role === 'admin') {
+    showView('admin');
+    return;
+  }
+  if (currentAccount.role === 'realtor') {
+    // Realtors don't have a co-owner search — send them home in their portal
+    showToast('Realtors don\'t use the co-owner search. Heading to your dashboard.', 'success');
+    routeForRole();
+    return;
+  }
+  // Regular user → matching form
+  showView('register');
+  setNavActive('nav-cta');
 }
 
 // ═══ Modal management ═══
@@ -6438,12 +6454,25 @@ async function handleLogin() {
   const btn = document.getElementById('login-btn');
   btn.disabled = true; btn.textContent = 'Logging in...';
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  btn.disabled = false; btn.textContent = 'Log In';
   if (error) {
+    btn.disabled = false; btn.textContent = 'Log In';
     showAuthError('login-error', error.message);
     return;
   }
-  // onAuthStateChange handles success
+
+  // Login succeeded — close modal and update UI immediately, don't wait
+  // for onAuthStateChange (which can take 100-300ms and feels broken)
+  if (data?.session) {
+    currentUser = data.session.user;
+    await loadAccount();
+    closeAuthModal();
+    updateNavForAuthed();
+    btn.textContent = 'Log In';
+    showToast('Logged in!', 'success');
+    setTimeout(() => routeForRole(), 50);
+  } else {
+    btn.disabled = false; btn.textContent = 'Log In';
+  }
 }
 
 // ═══ Magic link ═══
@@ -7434,20 +7463,41 @@ async function selectThisRealtor() {
 // ─────────────────── ROUTING UPDATES ───────────────────
 // Update routeForRole to send realtors and users to their respective places
 const _origRouteForRole = routeForRole;
-routeForRole = function() {
+routeForRole = async function() {
   if (!currentAccount) {
     showView('home');
     return;
   }
   if (currentAccount.role === 'admin') {
     showView('admin');
-  } else if (currentAccount.role === 'realtor') {
+    return;
+  }
+  if (currentAccount.role === 'realtor') {
+    // Check if their realtor_profiles row exists & is completed
+    // If not, send to onboarding directly so we don't flash the dashboard
+    try {
+      const { data: profile } = await sb
+        .from('realtor_profiles')
+        .select('profile_completed')
+        .eq('account_id', currentUser.id)
+        .maybeSingle();
+      if (!profile || !profile.profile_completed) {
+        showView('realtor-onboard');
+        setTimeout(() => ronboardSetStep(1), 50);
+        return;
+      }
+    } catch (e) {
+      console.warn('Profile check failed, sending to onboarding:', e);
+      showView('realtor-onboard');
+      setTimeout(() => ronboardSetStep(1), 50);
+      return;
+    }
     showView('realtor-dashboard');
     setTimeout(() => loadRealtorDashboard(), 100);
-  } else {
-    // User: route to dashboard if profile complete, otherwise registration
-    showView('dashboard');
+    return;
   }
+  // User: route to matching dashboard
+  showView('dashboard');
 };
 
 // Hook view-find-realtor and view-realtor-dashboard into showView
