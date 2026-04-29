@@ -1157,6 +1157,7 @@ td.name-cell{font-weight:600;color:var(--navy);}
           <a href="https://citizensfinancial.co" target="_blank">citizensfinancial.co</a>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);" onclick="showView('admin')">Admin</span>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('investor')">Investor</span>
+          <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('revenue-model')">Revenue Model</span>
         </div>
       </div>
       <hr class="footer-divider">
@@ -1676,6 +1677,7 @@ td.name-cell{font-weight:600;color:var(--navy);}
           <a href="https://citizensfinancial.co" target="_blank">citizensfinancial.co</a>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);" onclick="showView('admin')">Admin</span>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('investor')">Investor</span>
+          <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('revenue-model')">Revenue Model</span>
         </div>
       </div>
       <hr class="footer-divider">
@@ -3473,40 +3475,40 @@ td.name-cell{font-weight:600;color:var(--navy);}
 <div id="view-realtor-onboard" class="view">
   <div class="rp-section">
     <h1 class="rp-h1">Welcome to <span class="accent">NEXUS.</span></h1>
-    <p class="rp-sub">Let's set up your realtor profile. This takes about 5 minutes. You can edit anything later from your dashboard.</p>
+    <p class="rp-sub">Let's set up your realtor profile. About 7 minutes. You can edit anything later from your dashboard.</p>
 
     <div class="rp-step-pills">
-      <div class="rp-step-pill" id="rp-step-pill-1">1. Profile</div>
-      <div class="rp-step-pill" id="rp-step-pill-2">2. Cities</div>
-      <div class="rp-step-pill" id="rp-step-pill-3">3. Payment Model</div>
-      <div class="rp-step-pill" id="rp-step-pill-4">4. Certification</div>
+      <div class="rp-step-pill" id="rp-step-pill-1">1. Identity</div>
+      <div class="rp-step-pill" id="rp-step-pill-2">2. ZIP Codes</div>
+      <div class="rp-step-pill" id="rp-step-pill-3">3. Specialties &amp; Interests</div>
+      <div class="rp-step-pill" id="rp-step-pill-4">4. Working Style</div>
+      <div class="rp-step-pill" id="rp-step-pill-5">5. Payment &amp; Activate</div>
     </div>
 
-    <!-- STEP 1: PROFILE -->
+    <!-- STEP 1: IDENTITY & PROFESSIONAL INFO -->
     <div class="rp-card" id="rp-onboard-step-1">
       <div class="rp-card-head">
         <div>
-          <h3 class="rp-card-title">Tell users about yourself</h3>
-          <div class="rp-card-sub">This is what users see when they browse for realtors. Strong profiles get picked.</div>
+          <h3 class="rp-card-title">Identity &amp; professional credentials</h3>
+          <div class="rp-card-sub">Your full legal info. Required by your broker of record and verified before you go visible.</div>
+        </div>
+      </div>
+
+      <div class="rp-grid-2">
+        <div class="rp-row">
+          <label class="rp-label" for="ro-fullname">Full Legal Name *</label>
+          <input class="rp-input" id="ro-fullname" placeholder="Maya Johnson">
+        </div>
+        <div class="rp-row">
+          <label class="rp-label" for="ro-phone">Phone *</label>
+          <input class="rp-input" id="ro-phone" placeholder="(555) 123-4567">
         </div>
       </div>
 
       <div class="rp-grid-2">
         <div class="rp-row">
           <label class="rp-label" for="ro-dre">CA DRE License # *</label>
-          <input class="rp-input" id="ro-dre" placeholder="e.g., 01234567" maxlength="20">
-          <div class="rp-helper">Required. Public records will verify before you go visible.</div>
-        </div>
-        <div class="rp-row">
-          <label class="rp-label" for="ro-brokerage">Brokerage *</label>
-          <input class="rp-input" id="ro-brokerage" placeholder="e.g., Compass California">
-        </div>
-      </div>
-
-      <div class="rp-grid-2">
-        <div class="rp-row">
-          <label class="rp-label" for="ro-years">Years of Experience *</label>
-          <input class="rp-input" id="ro-years" type="number" min="0" max="60" placeholder="e.g., 8">
+          <input class="rp-input" id="ro-dre" placeholder="01234567" maxlength="20">
         </div>
         <div class="rp-row">
           <label class="rp-label" for="ro-nmls">NMLS # <span style="font-weight:400;text-transform:none;color:var(--gray-text);">(optional)</span></label>
@@ -3514,26 +3516,47 @@ td.name-cell{font-weight:600;color:var(--navy);}
         </div>
       </div>
 
-      <div class="rp-row">
-        <label class="rp-label" for="ro-bio">Bio *</label>
-        <textarea class="rp-textarea" id="ro-bio" placeholder="A few sentences about your approach, what neighborhoods you know, and why co-ownership clients should pick you. (Min 80 characters.)" rows="4"></textarea>
-        <div class="rp-helper">This is the most important part of your profile. Write like you'd talk to a client over coffee, not like a Yelp listing.</div>
+      <div class="rp-grid-2">
+        <div class="rp-row">
+          <label class="rp-label" for="ro-brokerage">Brokerage / Company *</label>
+          <input class="rp-input" id="ro-brokerage" placeholder="Compass California">
+        </div>
+        <div class="rp-row">
+          <label class="rp-label" for="ro-team">Team Name <span style="font-weight:400;text-transform:none;color:var(--gray-text);">(optional)</span></label>
+          <input class="rp-input" id="ro-team" placeholder="The Johnson Group">
+        </div>
+      </div>
+
+      <div class="rp-grid-2">
+        <div class="rp-row">
+          <label class="rp-label" for="ro-bor-name">Broker of Record - Full Name *</label>
+          <input class="rp-input" id="ro-bor-name" placeholder="Pat Williams">
+        </div>
+        <div class="rp-row">
+          <label class="rp-label" for="ro-bor-license">Broker of Record - DRE License # *</label>
+          <input class="rp-input" id="ro-bor-license" placeholder="01987654" maxlength="20">
+        </div>
       </div>
 
       <div class="rp-row">
-        <label class="rp-label">Specialties (pick all that apply)</label>
-        <div id="ro-specialties" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;">
-          <span class="rp-tag" data-spec="first-time-buyers" onclick="toggleSpecialty(this)" style="cursor:pointer;">First-time buyers</span>
-          <span class="rp-tag" data-spec="co-ownership" onclick="toggleSpecialty(this)" style="cursor:pointer;">Co-ownership</span>
-          <span class="rp-tag" data-spec="va-loans" onclick="toggleSpecialty(this)" style="cursor:pointer;">VA loans</span>
-          <span class="rp-tag" data-spec="fha-loans" onclick="toggleSpecialty(this)" style="cursor:pointer;">FHA loans</span>
-          <span class="rp-tag" data-spec="luxury" onclick="toggleSpecialty(this)" style="cursor:pointer;">Luxury</span>
-          <span class="rp-tag" data-spec="condos" onclick="toggleSpecialty(this)" style="cursor:pointer;">Condos / townhomes</span>
-          <span class="rp-tag" data-spec="multi-unit" onclick="toggleSpecialty(this)" style="cursor:pointer;">Multi-unit / ADU</span>
-          <span class="rp-tag" data-spec="investors" onclick="toggleSpecialty(this)" style="cursor:pointer;">Investment properties</span>
-          <span class="rp-tag" data-spec="bilingual-spanish" onclick="toggleSpecialty(this)" style="cursor:pointer;">Bilingual (Spanish)</span>
-          <span class="rp-tag" data-spec="bilingual-other" onclick="toggleSpecialty(this)" style="cursor:pointer;">Bilingual (other)</span>
-        </div>
+        <label class="rp-label" for="ro-years">Years of Experience *</label>
+        <input class="rp-input" id="ro-years" type="number" min="0" max="60" placeholder="8" style="max-width:160px;">
+      </div>
+
+      <div class="rp-row">
+        <label class="rp-label" for="ro-bio">Bio *</label>
+        <textarea class="rp-textarea" id="ro-bio" placeholder="A few sentences about your approach, what areas you know, and why co-ownership clients should pick you. Min 80 characters." rows="4"></textarea>
+        <div class="rp-helper">This is the most important part of your profile. Write like you'd talk to a client over coffee.</div>
+      </div>
+
+      <div class="rp-info-banner">
+        <strong>Terms of Service &amp; Performance Partner Agreement</strong><br>
+        By continuing, you acknowledge: (a) NEXUS is a matching platform, not a brokerage; (b) Your participation is governed by your own brokerage's policies and applicable real estate law; (c) Any close with a NEXUS-introduced buyer within 24 months of first contact triggers a 25% buyer's-agent commission to NEXUS; (d) Final agreement terms will be provided in full at activation and reviewed by counsel.
+      </div>
+
+      <div class="rp-checkbox-row">
+        <input type="checkbox" id="ro-terms" />
+        <label for="ro-terms" style="cursor:pointer;font-size:.9rem;">I acknowledge and agree to the NEXUS Terms of Service and Performance Partner framework above.</label>
       </div>
 
       <div class="rp-btn-bar">
@@ -3541,24 +3564,36 @@ td.name-cell{font-weight:600;color:var(--navy);}
       </div>
     </div>
 
-    <!-- STEP 2: CITIES -->
+    <!-- STEP 2: ZIP CODES -->
     <div class="rp-card" id="rp-onboard-step-2" style="display:none;">
       <div class="rp-card-head">
         <div>
-          <h3 class="rp-card-title">Where do you want users to find you?</h3>
-          <div class="rp-card-sub">Pick the cities you serve. You can choose 1 city to start. Subscribers can choose up to 3.</div>
+          <h3 class="rp-card-title">Where do you serve?</h3>
+          <div class="rp-card-sub">Pick the ZIP codes you actively work. Users browsing in their target cities will only see realtors who cover at least one matching ZIP.</div>
         </div>
       </div>
 
       <div class="rp-info-banner">
-        <strong>Why cities matter:</strong> When users browse for realtors, they're filtered to their target cities. You'll only appear to users whose target cities overlap yours. You can swap cities once every 30 days.
+        <strong>Your tier includes 3 ZIP codes.</strong> Add 3 more for $29.99/mo (no charges yet — billing launches separately). ZIP codes can be changed once every 30 days after activation.
       </div>
 
       <div class="rp-row">
-        <label class="rp-label">Selected cities <span id="ro-city-count" style="color:var(--blue);">(0/3)</span></label>
-        <div id="ro-city-chips" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0;min-height:36px;"></div>
-        <input class="rp-input" id="ro-city-search" placeholder="Type to search cities..." oninput="searchRealtorCities(this.value)" autocomplete="off">
-        <div id="ro-city-results" style="background:#fff;border:1px solid var(--gray);border-radius:8px;margin-top:.4rem;max-height:240px;overflow-y:auto;display:none;"></div>
+        <label class="rp-label">Selected ZIP codes <span id="ro-zip-count" style="color:var(--blue);">(0/3)</span></label>
+        <div id="ro-zip-chips" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0;min-height:36px;"></div>
+        <input class="rp-input" id="ro-zip-search" placeholder="Type ZIP or city — e.g., 94596 or Walnut Creek..." oninput="searchZips(this.value, 'ro')" autocomplete="off">
+        <div id="ro-zip-results" style="background:#fff;border:1px solid var(--gray);border-radius:8px;margin-top:.4rem;max-height:240px;overflow-y:auto;display:none;"></div>
+      </div>
+
+      <div class="rp-row" style="background:#f9fafb;padding:1rem 1.25rem;border-radius:10px;border:1px dashed var(--gray);">
+        <label class="rp-label" style="margin-bottom:.5rem;">ZIP add-on packs</label>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <button type="button" class="rp-btn rp-btn-secondary" onclick="adjustZipAddons(-1)" style="padding:.5rem .9rem;">−</button>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.05rem;color:var(--navy);min-width:200px;">
+            <span id="ro-addon-count">0</span> add-on pack(s) · $<span id="ro-addon-cost">0.00</span>/mo
+          </div>
+          <button type="button" class="rp-btn" onclick="adjustZipAddons(1)" style="padding:.5rem .9rem;">+ Add 3 ZIPs ($29.99/mo)</button>
+        </div>
+        <div class="rp-helper" style="margin-top:.5rem;">Each pack unlocks 3 additional ZIP codes. Your total ZIP allowance: <strong id="ro-max-zips">3</strong></div>
       </div>
 
       <div class="rp-btn-bar">
@@ -3567,80 +3602,62 @@ td.name-cell{font-weight:600;color:var(--navy);}
       </div>
     </div>
 
-    <!-- STEP 3: PAYMENT MODEL -->
+    <!-- STEP 3: SPECIALTIES & INTERESTS -->
     <div class="rp-card" id="rp-onboard-step-3" style="display:none;">
       <div class="rp-card-head">
         <div>
-          <h3 class="rp-card-title">Choose your payment model</h3>
-          <div class="rp-card-sub">You can change this any time. Final billing happens after certification.</div>
+          <h3 class="rp-card-title">What you do &amp; what you love</h3>
+          <div class="rp-card-sub">Specialties tell users what kind of deals you're great at. Interests help us match you with users whose values and lifestyle align with yours.</div>
         </div>
       </div>
 
-      <div class="rp-info-banner">
-        <strong>Coming soon — payment processing.</strong> For now, your selection is recorded but no charges occur. We'll notify you when billing goes live so you can confirm your model before any payment is taken.
+      <div class="rp-row">
+        <label class="rp-label">Specialties (pick all that apply)</label>
+        <div id="ro-specialties" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;">
+          <span class="rp-tag" data-spec="first-time-buyers" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">First-time buyers</span>
+          <span class="rp-tag" data-spec="va-loans" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">VA loans</span>
+          <span class="rp-tag" data-spec="fha-loans" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">FHA loans</span>
+          <span class="rp-tag" data-spec="conventional" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Conventional / jumbo</span>
+          <span class="rp-tag" data-spec="luxury" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Luxury ($1M+)</span>
+          <span class="rp-tag" data-spec="condos" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Condos / townhomes</span>
+          <span class="rp-tag" data-spec="multi-unit" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Multi-unit / ADU</span>
+          <span class="rp-tag" data-spec="investors" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Investment properties</span>
+          <span class="rp-tag" data-spec="new-construction" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">New construction</span>
+          <span class="rp-tag" data-spec="fixer-uppers" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Fixer-uppers / rehab</span>
+          <span class="rp-tag" data-spec="bilingual-spanish" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Bilingual: Spanish</span>
+          <span class="rp-tag" data-spec="bilingual-other" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Bilingual: other</span>
+          <span class="rp-tag" data-spec="veterans" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Veterans / military</span>
+          <span class="rp-tag" data-spec="first-responders" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">First responders</span>
+          <span class="rp-tag" data-spec="self-employed" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Self-employed / 1099</span>
+          <span class="rp-tag" data-spec="credit-rebuilding" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Credit-rebuilding</span>
+        </div>
+        <div class="rp-helper">Pick at least 2 specialties so users can find you for the right kind of deal.</div>
       </div>
 
-      <div class="rp-tier-grid">
-        <!-- SUBSCRIPTION -->
-        <div class="rp-tier-card" id="rp-tier-subscription" onclick="selectPaymentModel('subscription')">
-          <span class="rp-tier-tag" style="background:var(--blue);">Subscription</span>
-          <div class="rp-tier-name">NEXUS Network</div>
-          <div class="rp-tier-price">$49.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/mo</span></div>
-          <div class="rp-tier-price-sub">Or $133.99/3mo · $253.99/6mo</div>
-          <ul class="rp-tier-features">
-            <li>Up to 3 cities</li>
-            <li>Boost placement above non-subscribers</li>
-            <li>Network badge on your profile</li>
-            <li>Expanded profile (bio, video, photos)</li>
-            <li>Profile analytics</li>
-            <li>Keep 100% of commissions</li>
-          </ul>
-        </div>
+      <hr class="rp-divider">
 
-        <!-- PERFORMANCE -->
-        <div class="rp-tier-card" id="rp-tier-performance" onclick="selectPaymentModel('performance')">
-          <span class="rp-tier-tag" style="background:#1f2937;">Performance</span>
-          <div class="rp-tier-name">Nexus Partner Agent</div>
-          <div class="rp-tier-price" style="color:#1f2937;">$0<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/up front</span></div>
-          <div class="rp-tier-price-sub">Pay only on close</div>
-          <ul class="rp-tier-features">
-            <li>Zero monthly cost</li>
-            <li>Up to 3 cities</li>
-            <li>Boost placement (subject to ranking)</li>
-            <li>Partner Agent badge</li>
-            <li><strong>25% commission</strong> on closes from NEXUS-introduced buyers</li>
-            <li><strong>15% partner rate</strong> when buyer finances through Citizens</li>
-          </ul>
+      <div class="rp-row">
+        <label class="rp-label">Personal interests (pick the ones that genuinely fit you)</label>
+        <div style="font-size:.86rem;color:var(--gray-text);margin-bottom:.6rem;line-height:1.5;">
+          Home buying is personal. Users describe themselves with these same tags — picking the ones that actually fit you helps us match you with people whose lifestyle and values genuinely align. Be honest, not aspirational.
         </div>
-
-        <!-- BOTH -->
-        <div class="rp-tier-card" id="rp-tier-both" onclick="selectPaymentModel('both')">
-          <span class="rp-tier-tag" style="background:linear-gradient(90deg,#1f2937,var(--blue));">Stacked · Top placement</span>
-          <div class="rp-tier-name">NEXUS Network <em>+</em> Partner Agent</div>
-          <div class="rp-tier-price">$49.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/mo + close fees</span></div>
-          <div class="rp-tier-price-sub">Maximum visibility</div>
-          <ul class="rp-tier-features">
-            <li>Everything in Subscription</li>
-            <li>Everything in Performance</li>
-            <li><strong>Highest placement priority</strong> in your cities</li>
-            <li>"Stacked" status badge</li>
-            <li>Best for serious agents committed to NEXUS</li>
-          </ul>
-        </div>
-      </div>
-
-      <div id="ro-perf-disclosure" style="display:none;">
-        <hr class="rp-divider">
-        <div class="rp-info-banner" style="background:#fff7ed;border-left-color:#ea580c;">
-          <strong>Performance Partner Agreement (preview).</strong> By selecting a Performance tier, you'll be asked to electronically sign an agreement at activation. Key terms in plain English:
-          <ul style="margin:.5rem 0 0 1.2rem;line-height:1.6;font-size:.86rem;">
-            <li>Obligation triggers at <strong>first contact</strong> through NEXUS — when a user formally selects you and you accept</li>
-            <li>If you close a home purchase with that buyer (whether on or off NEXUS, immediately or later), the commission rate applies</li>
-            <li><strong>25%</strong> of your commission goes to NEXUS at closing — baseline rate</li>
-            <li><strong>15%</strong> partner rate if the buyer also finances through Citizens Financial</li>
-            <li>The obligation persists if the buyer goes off-platform (anti-circumvention)</li>
-            <li>Final contract terms will be reviewed by counsel and provided in full at activation</li>
-          </ul>
+        <div id="ro-interests" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;">
+          <span class="rp-tag" data-int="travel" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Travel</span>
+          <span class="rp-tag" data-int="outdoor" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Outdoor activities</span>
+          <span class="rp-tag" data-int="fitness" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Fitness</span>
+          <span class="rp-tag" data-int="cooking" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Cooking</span>
+          <span class="rp-tag" data-int="arts-music" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Arts / Music</span>
+          <span class="rp-tag" data-int="tech" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Tech</span>
+          <span class="rp-tag" data-int="investing" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Investing</span>
+          <span class="rp-tag" data-int="family" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Family-focused</span>
+          <span class="rp-tag" data-int="pets" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Pet owners</span>
+          <span class="rp-tag" data-int="faith" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Faith-based community</span>
+          <span class="rp-tag" data-int="volunteer" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Volunteer work</span>
+          <span class="rp-tag" data-int="foodie" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Foodie / dining</span>
+          <span class="rp-tag" data-int="sports" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Sports fan</span>
+          <span class="rp-tag" data-int="reading" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Reading</span>
+          <span class="rp-tag" data-int="gaming" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Gaming</span>
+          <span class="rp-tag" data-int="entrepreneurship" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Entrepreneurship</span>
         </div>
       </div>
 
@@ -3650,41 +3667,129 @@ td.name-cell{font-weight:600;color:var(--navy);}
       </div>
     </div>
 
-    <!-- STEP 4: CERTIFICATION -->
+    <!-- STEP 4: WORKING STYLE -->
     <div class="rp-card" id="rp-onboard-step-4" style="display:none;">
       <div class="rp-card-head">
         <div>
-          <h3 class="rp-card-title">NEXUS Certification</h3>
-          <div class="rp-card-sub">Required to be visible to users. Free for all realtors.</div>
+          <h3 class="rp-card-title">How you work</h3>
+          <div class="rp-card-sub">Five sliders. Honest answers help us match you with users whose preferred working style matches yours. No right or wrong — just self-aware.</div>
         </div>
       </div>
 
-      <div class="rp-cert-status-card">
-        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;">
-          <span style="font-size:1.6rem;">🎓</span>
-          <div>
-            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Certification — Coming Soon</div>
-            <div style="font-size:.84rem;color:var(--text);margin-top:.15rem;">Estimated 30–45 minutes. Designed by our broker team.</div>
-          </div>
-        </div>
-        <p style="font-size:.9rem;line-height:1.55;color:var(--text);margin:.6rem 0;">
-          Every NEXUS realtor completes a brief certification course before going visible to users. It covers co-ownership mechanics, working with NEXUS-matched buyers, RESPA &amp; compliance basics for realtors, and platform best practices. <strong>You'll be notified the moment it launches.</strong>
-        </p>
-        <div class="rp-cert-pill-list">
-          <span class="rp-cert-module">Module 1 · Co-Ownership Fundamentals</span>
-          <span class="rp-cert-module">Module 2 · Working with NEXUS Buyers</span>
-          <span class="rp-cert-module">Module 3 · RESPA &amp; Compliance for Realtors</span>
-          <span class="rp-cert-module">Module 4 · Platform Best Practices</span>
-        </div>
+      <div class="rp-row">
+        <label class="rp-label">Communication cadence</label>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--gray-text);margin-bottom:.4rem;"><span>Weekly summaries</span><span>Daily updates</span></div>
+        <input type="range" id="ro-style-comm" min="1" max="5" value="3" style="width:100%;" oninput="updateStyleLabel('comm', this.value)">
+        <div style="text-align:center;font-size:.85rem;color:var(--blue);font-weight:600;margin-top:.3rem;">Currently: <span id="ro-style-comm-label">Balanced</span></div>
       </div>
 
-      <div class="rp-info-banner" style="margin-top:1rem;">
-        <strong>What happens until then:</strong> You can finish setting up your profile, choose your payment model, and prepare for launch. You won't appear in user search results until your certification is complete.
+      <div class="rp-row">
+        <label class="rp-label">Decision style</label>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--gray-text);margin-bottom:.4rem;"><span>Hands-off ("you decide")</span><span>Hands-on ("here's what I'd do")</span></div>
+        <input type="range" id="ro-style-dec" min="1" max="5" value="3" style="width:100%;" oninput="updateStyleLabel('dec', this.value)">
+        <div style="text-align:center;font-size:.85rem;color:var(--blue);font-weight:600;margin-top:.3rem;">Currently: <span id="ro-style-dec-label">Balanced</span></div>
+      </div>
+
+      <div class="rp-row">
+        <label class="rp-label">Pace</label>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--gray-text);margin-bottom:.4rem;"><span>Patient ("right deal")</span><span>Aggressive ("move fast")</span></div>
+        <input type="range" id="ro-style-pace" min="1" max="5" value="3" style="width:100%;" oninput="updateStyleLabel('pace', this.value)">
+        <div style="text-align:center;font-size:.85rem;color:var(--blue);font-weight:600;margin-top:.3rem;">Currently: <span id="ro-style-pace-label">Balanced</span></div>
+      </div>
+
+      <div class="rp-row">
+        <label class="rp-label">Education depth</label>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--gray-text);margin-bottom:.4rem;"><span>Concise ("just the facts")</span><span>Educational ("let me explain")</span></div>
+        <input type="range" id="ro-style-edu" min="1" max="5" value="3" style="width:100%;" oninput="updateStyleLabel('edu', this.value)">
+        <div style="text-align:center;font-size:.85rem;color:var(--blue);font-weight:600;margin-top:.3rem;">Currently: <span id="ro-style-edu-label">Balanced</span></div>
+      </div>
+
+      <div class="rp-row">
+        <label class="rp-label">Negotiation posture</label>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--gray-text);margin-bottom:.4rem;"><span>Collaborative</span><span>Hard-charging</span></div>
+        <input type="range" id="ro-style-neg" min="1" max="5" value="3" style="width:100%;" oninput="updateStyleLabel('neg', this.value)">
+        <div style="text-align:center;font-size:.85rem;color:var(--blue);font-weight:600;margin-top:.3rem;">Currently: <span id="ro-style-neg-label">Balanced</span></div>
       </div>
 
       <div class="rp-btn-bar">
         <button class="rp-btn rp-btn-secondary" onclick="ronboardBack(4)">← Back</button>
-        <button class="rp-btn" onclick="ronboardComplete()">Finish Setup</button>
+        <button class="rp-btn" onclick="ronboardNext(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: PAYMENT MODEL & ACTIVATION -->
+    <div class="rp-card" id="rp-onboard-step-5" style="display:none;">
+      <div class="rp-card-head">
+        <div>
+          <h3 class="rp-card-title">Activate your visibility</h3>
+          <div class="rp-card-sub">Visibility requires three gates: paid tier active, profile complete, certification complete. Your selection here is recorded; billing goes live in a separate launch.</div>
+        </div>
+      </div>
+
+      <div class="rp-info-banner">
+        <strong>Coming soon — payment processing.</strong> No charges occur today. Your model is recorded and will be confirmed before any charge when billing goes live.
+      </div>
+
+      <div class="rp-tier-grid">
+        <div class="rp-tier-card" id="rp-tier-subscription" onclick="selectPaymentModel('subscription')">
+          <span class="rp-tier-tag" style="background:var(--blue);">Subscription only</span>
+          <div class="rp-tier-name">NEXUS Network</div>
+          <div class="rp-tier-price">$49.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/mo</span></div>
+          <div class="rp-tier-price-sub">Required minimum to be visible · 3 ZIPs included</div>
+          <ul class="rp-tier-features">
+            <li>Visibility unlocked (with cert)</li>
+            <li>3 ZIP codes (add 3 more for $29.99)</li>
+            <li>NEXUS Network badge</li>
+            <li>Expanded profile (bio, photos)</li>
+            <li>Keep 100% of commissions</li>
+            <li>No 24-month obligation</li>
+          </ul>
+        </div>
+
+        <div class="rp-tier-card" id="rp-tier-performance" onclick="selectPaymentModel('performance')">
+          <span class="rp-tier-tag" style="background:#1f2937;">Performance only</span>
+          <div class="rp-tier-name">Nexus Partner Agent</div>
+          <div class="rp-tier-price" style="color:#1f2937;">$0<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/up front</span></div>
+          <div class="rp-tier-price-sub">No subscription · pay only on close</div>
+          <ul class="rp-tier-features">
+            <li><strong>Not visible by itself</strong> — combine with Subscription to be shown</li>
+            <li>25% of buyer's-agent commission on close</li>
+            <li>24-month obligation from first contact</li>
+            <li>Anti-circumvention contract</li>
+          </ul>
+        </div>
+
+        <div class="rp-tier-card selected" id="rp-tier-both" onclick="selectPaymentModel('both')">
+          <span class="rp-tier-tag" style="background:linear-gradient(90deg,#1f2937,var(--blue));">Stacked · Top placement</span>
+          <div class="rp-tier-name">Network + Partner Agent</div>
+          <div class="rp-tier-price">$49.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/mo + 25% on close</span></div>
+          <div class="rp-tier-price-sub">Maximum visibility &amp; alignment</div>
+          <ul class="rp-tier-features">
+            <li>Highest placement priority</li>
+            <li>Subscription + Performance combined</li>
+            <li>Stacked status badge</li>
+            <li>Best for serious agents committed to NEXUS</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="ro-perf-disclosure" style="display:block;">
+        <hr class="rp-divider">
+        <div class="rp-info-banner" style="background:#fff7ed;border-left-color:#ea580c;">
+          <strong>Performance Partner terms (preview).</strong>
+          <ul style="margin:.5rem 0 0 1.2rem;line-height:1.6;font-size:.86rem;">
+            <li>Obligation triggers at <strong>first contact</strong> through NEXUS — when a user formally selects you and you accept, OR when you respond to a NEXUS-introduced inquiry</li>
+            <li><strong>25%</strong> of your buyer's-agent commission goes to NEXUS on any close from a NEXUS-introduced buyer</li>
+            <li>Window: <strong>24 months</strong> from first contact, on or off NEXUS</li>
+            <li>Anti-circumvention: applies whether the buyer goes off-platform or to a different financing source</li>
+            <li>Final contract reviewed by counsel and provided in full at activation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rp-btn-bar">
+        <button class="rp-btn rp-btn-secondary" onclick="ronboardBack(5)">← Back</button>
+        <button class="rp-btn" onclick="ronboardComplete()">Finish &amp; activate</button>
       </div>
     </div>
 
@@ -3714,7 +3819,7 @@ td.name-cell{font-weight:600;color:var(--navy);}
       </div>
       <div class="rp-stat">
         <div class="rp-stat-num" id="rd-stat-cities">0</div>
-        <div class="rp-stat-label">Cities Selected</div>
+        <div class="rp-stat-label">ZIP Codes</div>
       </div>
     </div>
 
@@ -3750,7 +3855,7 @@ td.name-cell{font-weight:600;color:var(--navy);}
           <span class="rp-detail-value" id="rd-payment-summary">Not selected</span>
         </div>
         <div class="rp-detail-row">
-          <span class="rp-detail-label">Cities</span>
+          <span class="rp-detail-label">ZIPs</span>
           <span class="rp-detail-value" id="rd-cities-summary">None selected</span>
         </div>
         <div class="rp-detail-row">
@@ -3775,8 +3880,8 @@ td.name-cell{font-weight:600;color:var(--navy);}
       <div class="rp-card">
         <div class="rp-card-head">
           <div>
-            <h3 class="rp-card-title">Edit Your Profile</h3>
-            <div class="rp-card-sub">Changes save automatically when you click Save.</div>
+            <h3 class="rp-card-title">Edit your profile</h3>
+            <div class="rp-card-sub">Changes save when you click Save Profile.</div>
           </div>
         </div>
 
@@ -3804,27 +3909,58 @@ td.name-cell{font-weight:600;color:var(--navy);}
           <label class="rp-label">Bio</label>
           <textarea class="rp-textarea" id="rd-bio" rows="4"></textarea>
         </div>
+
         <div class="rp-row">
           <label class="rp-label">Specialties</label>
           <div id="rd-specialties" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;">
-            <span class="rp-tag" data-spec="first-time-buyers" onclick="toggleSpecialty(this)" style="cursor:pointer;">First-time buyers</span>
-            <span class="rp-tag" data-spec="co-ownership" onclick="toggleSpecialty(this)" style="cursor:pointer;">Co-ownership</span>
-            <span class="rp-tag" data-spec="va-loans" onclick="toggleSpecialty(this)" style="cursor:pointer;">VA loans</span>
-            <span class="rp-tag" data-spec="fha-loans" onclick="toggleSpecialty(this)" style="cursor:pointer;">FHA loans</span>
-            <span class="rp-tag" data-spec="luxury" onclick="toggleSpecialty(this)" style="cursor:pointer;">Luxury</span>
-            <span class="rp-tag" data-spec="condos" onclick="toggleSpecialty(this)" style="cursor:pointer;">Condos / townhomes</span>
-            <span class="rp-tag" data-spec="multi-unit" onclick="toggleSpecialty(this)" style="cursor:pointer;">Multi-unit / ADU</span>
-            <span class="rp-tag" data-spec="investors" onclick="toggleSpecialty(this)" style="cursor:pointer;">Investment properties</span>
-            <span class="rp-tag" data-spec="bilingual-spanish" onclick="toggleSpecialty(this)" style="cursor:pointer;">Bilingual (Spanish)</span>
-            <span class="rp-tag" data-spec="bilingual-other" onclick="toggleSpecialty(this)" style="cursor:pointer;">Bilingual (other)</span>
+            <span class="rp-tag" data-spec="first-time-buyers" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">First-time buyers</span>
+            <span class="rp-tag" data-spec="va-loans" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">VA loans</span>
+            <span class="rp-tag" data-spec="fha-loans" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">FHA loans</span>
+            <span class="rp-tag" data-spec="conventional" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Conventional / jumbo</span>
+            <span class="rp-tag" data-spec="luxury" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Luxury ($1M+)</span>
+            <span class="rp-tag" data-spec="condos" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Condos / townhomes</span>
+            <span class="rp-tag" data-spec="multi-unit" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Multi-unit / ADU</span>
+            <span class="rp-tag" data-spec="investors" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Investment properties</span>
+            <span class="rp-tag" data-spec="new-construction" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">New construction</span>
+            <span class="rp-tag" data-spec="fixer-uppers" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Fixer-uppers / rehab</span>
+            <span class="rp-tag" data-spec="bilingual-spanish" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Bilingual: Spanish</span>
+            <span class="rp-tag" data-spec="bilingual-other" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Bilingual: other</span>
+            <span class="rp-tag" data-spec="veterans" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Veterans / military</span>
+            <span class="rp-tag" data-spec="first-responders" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">First responders</span>
+            <span class="rp-tag" data-spec="self-employed" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Self-employed / 1099</span>
+            <span class="rp-tag" data-spec="credit-rebuilding" onclick="toggleTag(this,'specialties')" style="cursor:pointer;">Credit-rebuilding</span>
           </div>
         </div>
+
         <div class="rp-row">
-          <label class="rp-label">Cities <span id="rd-city-count" style="color:var(--blue);">(0/3)</span></label>
-          <div id="rd-city-chips" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0;min-height:36px;"></div>
-          <input class="rp-input" id="rd-city-search" placeholder="Add a city..." oninput="searchDashboardCities(this.value)" autocomplete="off">
-          <div id="rd-city-results" style="background:#fff;border:1px solid var(--gray);border-radius:8px;margin-top:.4rem;max-height:240px;overflow-y:auto;display:none;"></div>
-          <div class="rp-helper" id="rd-city-swap-helper">Cities can be changed once every 30 days.</div>
+          <label class="rp-label">Personal interests</label>
+          <div style="font-size:.82rem;color:var(--gray-text);margin-bottom:.5rem;">Used for matching with users whose lifestyle aligns with yours.</div>
+          <div id="rd-interests" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;">
+            <span class="rp-tag" data-int="travel" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Travel</span>
+            <span class="rp-tag" data-int="outdoor" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Outdoor activities</span>
+            <span class="rp-tag" data-int="fitness" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Fitness</span>
+            <span class="rp-tag" data-int="cooking" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Cooking</span>
+            <span class="rp-tag" data-int="arts-music" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Arts / Music</span>
+            <span class="rp-tag" data-int="tech" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Tech</span>
+            <span class="rp-tag" data-int="investing" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Investing</span>
+            <span class="rp-tag" data-int="family" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Family-focused</span>
+            <span class="rp-tag" data-int="pets" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Pet owners</span>
+            <span class="rp-tag" data-int="faith" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Faith-based community</span>
+            <span class="rp-tag" data-int="volunteer" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Volunteer work</span>
+            <span class="rp-tag" data-int="foodie" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Foodie / dining</span>
+            <span class="rp-tag" data-int="sports" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Sports fan</span>
+            <span class="rp-tag" data-int="reading" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Reading</span>
+            <span class="rp-tag" data-int="gaming" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Gaming</span>
+            <span class="rp-tag" data-int="entrepreneurship" onclick="toggleTag(this,'interests')" style="cursor:pointer;">Entrepreneurship</span>
+          </div>
+        </div>
+
+        <div class="rp-row">
+          <label class="rp-label">ZIP codes <span id="rd-zip-count" style="color:var(--blue);">(0/3)</span></label>
+          <div id="rd-zip-chips" style="display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0;min-height:36px;"></div>
+          <input class="rp-input" id="rd-zip-search" placeholder="Add a ZIP — type ZIP or city..." oninput="searchZips(this.value, 'rd')" autocomplete="off">
+          <div id="rd-zip-results" style="background:#fff;border:1px solid var(--gray);border-radius:8px;margin-top:.4rem;max-height:240px;overflow-y:auto;display:none;"></div>
+          <div class="rp-helper">ZIPs can be changed once every 30 days.</div>
         </div>
 
         <div class="rp-btn-bar">
@@ -4002,6 +4138,205 @@ td.name-cell{font-weight:600;color:var(--navy);}
       </div>
     </div>
 
+  </div>
+</div>
+
+
+<!-- ─── USER-SIDE: DOCUMENTS (CO-OWNERSHIP TEMPLATES) ─── -->
+<div id="view-documents" class="view">
+  <div class="rp-section">
+    <h1 class="rp-h1">Co-ownership <span class="accent">documents.</span></h1>
+    <p class="rp-sub">When you and your co-buyers find your home, you'll use these six agreements to formalize your partnership. Built by NEXUS, designed to protect every co-owner equally.</p>
+
+    <div class="rp-info-banner">
+      <strong>Coming soon — collaborative completion.</strong> Right now you can preview each agreement. Soon, you and your co-buyers will fill them out together inside NEXUS, with your realtor as a guide. E-signature integration is in development.
+    </div>
+
+    <div class="rp-grid-3" style="margin-top:1.5rem;">
+      <div class="rp-card" style="border-left:4px solid var(--blue);margin-bottom:0;">
+        <span class="rp-badge rp-badge-pending">Coming soon</span>
+        <h3 class="rp-card-title" style="margin-top:.5rem;">1. Operating Agreement</h3>
+        <p style="font-size:.88rem;color:var(--text);line-height:1.5;margin:.5rem 0;">The foundation. Defines TIC vs RLT structure, equity shares, usage rights, voting authority, and dispute resolution.</p>
+        <button class="rp-btn rp-btn-secondary" disabled style="opacity:.6;width:100%;margin-top:.5rem;">Preview (PDF) — coming soon</button>
+      </div>
+      <div class="rp-card" style="border-left:4px solid var(--green);margin-bottom:0;">
+        <span class="rp-badge rp-badge-pending">Coming soon</span>
+        <h3 class="rp-card-title" style="margin-top:.5rem;">2. Shared Reserve Account</h3>
+        <p style="font-size:.88rem;color:var(--text);line-height:1.5;margin:.5rem 0;">Joint property savings account governance. Multi-signer rules, withdrawal thresholds, monthly contributions.</p>
+        <button class="rp-btn rp-btn-secondary" disabled style="opacity:.6;width:100%;margin-top:.5rem;">Preview (PDF) — coming soon</button>
+      </div>
+      <div class="rp-card" style="border-left:4px solid #8b5cf6;margin-bottom:0;">
+        <span class="rp-badge rp-badge-pending">Coming soon</span>
+        <h3 class="rp-card-title" style="margin-top:.5rem;">3. Advisory Board Charter</h3>
+        <p style="font-size:.88rem;color:var(--text);line-height:1.5;margin:.5rem 0;">Independent panel of trusted advisors who mediate disputes and prevent equity deadlock.</p>
+        <button class="rp-btn rp-btn-secondary" disabled style="opacity:.6;width:100%;margin-top:.5rem;">Preview (PDF) — coming soon</button>
+      </div>
+    </div>
+
+    <div class="rp-grid-3" style="margin-top:1.25rem;">
+      <div class="rp-card" style="border-left:4px solid #f59e0b;margin-bottom:0;">
+        <span class="rp-badge rp-badge-pending">Coming soon</span>
+        <h3 class="rp-card-title" style="margin-top:.5rem;">4. Democratic Decision Making</h3>
+        <p style="font-size:.88rem;color:var(--text);line-height:1.5;margin:.5rem 0;">Voting categories and thresholds for routine, standard, major, and removal decisions.</p>
+        <button class="rp-btn rp-btn-secondary" disabled style="opacity:.6;width:100%;margin-top:.5rem;">Preview (PDF) — coming soon</button>
+      </div>
+      <div class="rp-card" style="border-left:4px solid #ec4899;margin-bottom:0;">
+        <span class="rp-badge rp-badge-pending">Coming soon</span>
+        <h3 class="rp-card-title" style="margin-top:.5rem;">5. Co-Living Standards</h3>
+        <p style="font-size:.88rem;color:var(--text);line-height:1.5;margin:.5rem 0;">Personal space rights, shared space rules, privacy and communication protections.</p>
+        <button class="rp-btn rp-btn-secondary" disabled style="opacity:.6;width:100%;margin-top:.5rem;">Preview (PDF) — coming soon</button>
+      </div>
+      <div class="rp-card" style="border-left:4px solid #ef4444;margin-bottom:0;">
+        <span class="rp-badge rp-badge-pending">Coming soon</span>
+        <h3 class="rp-card-title" style="margin-top:.5rem;">6. Exit &amp; Acceleration</h3>
+        <p style="font-size:.88rem;color:var(--text);line-height:1.5;margin:.5rem 0;">Equity protection, removal process, and forced refinance/sale to prevent deadlock or breach.</p>
+        <button class="rp-btn rp-btn-secondary" disabled style="opacity:.6;width:100%;margin-top:.5rem;">Preview (PDF) — coming soon</button>
+      </div>
+    </div>
+
+    <div class="rp-card" style="margin-top:2rem;background:linear-gradient(135deg,rgba(37,99,235,.04),rgba(47,215,145,.04));">
+      <h3 class="rp-card-title">How it'll work when launched</h3>
+      <ol style="margin:.5rem 0 0 1.2rem;line-height:1.7;font-size:.92rem;color:var(--text);">
+        <li>You and your co-buyers complete each agreement together — fields fill in real-time as everyone contributes</li>
+        <li>Your matched realtor reviews drafts with you and answers questions as they fill them out</li>
+        <li>Each co-buyer reviews and approves before anything is signed</li>
+        <li>E-signature is collected from every party (DocuSign or Adobe Sign integration)</li>
+        <li>Signed copies are stored securely and accessible to all co-buyers and your realtor</li>
+        <li>If any agreement needs to be amended later, the same multi-party flow applies</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── PUBLIC: REVENUE MODEL PAGE ─── -->
+<div id="view-revenue-model" class="view">
+  <div class="rp-section" style="max-width:920px;">
+    <h1 class="rp-h1">NEXUS <span class="accent">revenue model.</span></h1>
+    <p class="rp-sub">How NEXUS Match makes money. Two revenue streams, neither requires upfront cost from the parties NEXUS connects.</p>
+
+    <div class="rp-info-banner" style="margin-bottom:2rem;">
+      <strong>Reference document.</strong> This page describes the planned NEXUS Match monetization framework. Final pricing and contract terms are subject to compliance review and may be adjusted prior to launch.
+    </div>
+
+    <h2 class="rp-h2">The two-sided model</h2>
+    <p style="font-size:.95rem;line-height:1.6;color:var(--text);margin-bottom:1rem;">
+      NEXUS Match is a two-sided marketplace connecting California co-buyers with each other and with vetted realtors. Revenue comes from two streams: <strong>users pay for premium matching access</strong>, and <strong>realtors pay for visibility plus a performance commission on closed deals</strong>.
+    </p>
+
+    <hr class="rp-divider">
+
+    <h2 class="rp-h2">User-side pricing</h2>
+    <p style="font-size:.95rem;line-height:1.6;color:var(--text);margin-bottom:1rem;">Users can engage NEXUS for free at the most basic level. To unlock full matching access, contacting matched co-buyers, and the realtor browse, they upgrade to NEXUS Home.</p>
+
+    <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
+      <tr style="background:#f3f4f6;">
+        <th style="text-align:left;padding:.7rem 1rem;border:1px solid var(--gray);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);">Tier</th>
+        <th style="text-align:left;padding:.7rem 1rem;border:1px solid var(--gray);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);">Price</th>
+        <th style="text-align:left;padding:.7rem 1rem;border:1px solid var(--gray);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);">What's unlocked</th>
+      </tr>
+      <tr>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);"><strong>NEXUS Connect</strong></td>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">Free</td>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">Profile creation, match count visibility, basic browsing</td>
+      </tr>
+      <tr>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);" rowspan="4"><strong>NEXUS Home</strong></td>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$99 one-time (12 months)</td>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);" rowspan="4">Full match details, contact co-buyers, browse realtors, select realtors, document tab access</td>
+      </tr>
+      <tr>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$29.99 / month</td>
+      </tr>
+      <tr>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$79.99 / 3 months</td>
+      </tr>
+      <tr>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$151.99 / 6 months</td>
+      </tr>
+    </table>
+
+    <hr class="rp-divider">
+
+    <h2 class="rp-h2">Realtor-side pricing</h2>
+    <p style="font-size:.95rem;line-height:1.6;color:var(--text);margin-bottom:1rem;">Realtor pricing is structured around two ideas: <strong>(1) you only pay to be visible</strong>, and <strong>(2) you only pay a commission when you actually close a deal</strong> with a NEXUS-introduced buyer. Realtors can engage with one or both.</p>
+
+    <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy);margin:1.25rem 0 .5rem;">Visibility tier (required)</h3>
+    <p style="font-size:.92rem;line-height:1.55;color:var(--text);">There is no free realtor visibility on NEXUS. Realtors must complete certification AND maintain an active subscription to appear in user searches.</p>
+    <ul style="line-height:1.7;font-size:.92rem;margin:.5rem 0 1rem 1.5rem;">
+      <li><strong>Base subscription: $49.99/month</strong> — includes 3 ZIP codes of service area</li>
+      <li><strong>ZIP add-ons: +$29.99/month per pack</strong> — each pack adds 3 more ZIP codes</li>
+      <li>ZIPs can be swapped once every 30 days</li>
+    </ul>
+
+    <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy);margin:1.25rem 0 .5rem;">Performance commission (Nexus Partner Agent)</h3>
+    <p style="font-size:.92rem;line-height:1.55;color:var(--text);">Once a realtor accepts a NEXUS-introduced buyer, a 24-month commission obligation window begins. If a deal closes within that window, NEXUS earns a flat percentage of the realtor's buyer-side commission.</p>
+    <ul style="line-height:1.7;font-size:.92rem;margin:.5rem 0 1rem 1.5rem;">
+      <li><strong>25% of buyer's-agent commission</strong> on any close from a NEXUS-introduced buyer</li>
+      <li><strong>Window: 24 months</strong> from first contact, regardless of where the deal closes</li>
+      <li><strong>Anti-circumvention</strong>: applies whether the buyer goes off-platform or to different financing</li>
+      <li>Either-party trigger: applies whether the user initiated contact OR the realtor accepted a NEXUS-routed inquiry</li>
+    </ul>
+
+    <hr class="rp-divider">
+
+    <h2 class="rp-h2">Illustrative close — how the math works</h2>
+    <p style="font-size:.92rem;line-height:1.55;color:var(--text);">Hypothetical example for explanation purposes only. Actual commission rates vary by market and brokerage agreement.</p>
+    <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;">
+      <tr style="background:#f3f4f6;">
+        <th style="text-align:left;padding:.6rem 1rem;border:1px solid var(--gray);">Item</th>
+        <th style="text-align:right;padding:.6rem 1rem;border:1px solid var(--gray);">Amount</th>
+      </tr>
+      <tr>
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);">Home purchase price</td>
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);text-align:right;">$650,000</td>
+      </tr>
+      <tr>
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);">Buyer's-agent commission (typical 2.5%)</td>
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);text-align:right;">$16,250</td>
+      </tr>
+      <tr style="background:rgba(37,99,235,.05);">
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);"><strong>NEXUS share at 25%</strong></td>
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);text-align:right;"><strong>$4,062.50</strong></td>
+      </tr>
+      <tr>
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);">Realtor's net</td>
+        <td style="padding:.6rem 1rem;border:1px solid var(--gray);text-align:right;">$12,187.50</td>
+      </tr>
+    </table>
+
+    <hr class="rp-divider">
+
+    <h2 class="rp-h2">Why this works for both sides</h2>
+    <div class="rp-grid-2" style="margin-top:1rem;">
+      <div class="rp-card" style="margin:0;">
+        <h3 class="rp-card-title">Why realtors choose NEXUS</h3>
+        <ul style="line-height:1.7;font-size:.9rem;margin:.5rem 0 0 1.2rem;color:var(--text);">
+          <li>$49.99/mo entry vs Zillow Premier $600-$3,000/zip</li>
+          <li>25% on close vs Zillow Flex 35-40%</li>
+          <li>Pre-vetted, pre-matched buyers — not cold leads</li>
+          <li>Co-ownership market positioning is differentiated</li>
+          <li>Keep 75% of every commission you earn</li>
+        </ul>
+      </div>
+      <div class="rp-card" style="margin:0;">
+        <h3 class="rp-card-title">Why users choose NEXUS</h3>
+        <ul style="line-height:1.7;font-size:.9rem;margin:.5rem 0 0 1.2rem;color:var(--text);">
+          <li>Affordable home buying via co-ownership</li>
+          <li>Compatible co-buyer matching (5 dimensions)</li>
+          <li>Vetted, certified realtors only</li>
+          <li>Co-ownership legal framework included</li>
+          <li>Bumble Boost model — users always pick first</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="rp-divider">
+
+    <h2 class="rp-h2">Compliance posture</h2>
+    <p style="font-size:.92rem;line-height:1.55;color:var(--text);">NEXUS is operated by Citizens Financial / Badges Broker (NMLS #2503947). The realtor-side commission structure is being reviewed by compliance counsel under RESPA Section 8 and California real estate referral law prior to launch. Final terms may be modified to align with regulatory requirements. The performance commission is structured to attach to realtor compensation, not to mortgage settlement services.</p>
+
+    <p style="font-size:.85rem;color:var(--gray-text);margin-top:2rem;text-align:center;">Last updated: April 2026 · For internal review and partner discussions · Not yet final</p>
   </div>
 </div>
 
@@ -6771,76 +7106,134 @@ async function initAdminDashboardReal() {
 window.initAdminDashboard = initAdminDashboardReal;
 
 // ═══ Boot ═══
+console.log('%c🏠 NEXUS Match — build 2026-04-29-v4 (ZIPs, interests, 5-step onboard, match scoring, docs, revenue)', 'color:#2FD791;font-weight:bold;font-size:14px;');
 document.addEventListener('DOMContentLoaded', initAuth);
 // In case DOM is already loaded:
 if (document.readyState !== 'loading') initAuth();
 
 // ════════════════════════════════════════════════════════════════════
-// ║                  REALTOR PORTAL — STATE & LOGIC                   ║
+// ║                  REALTOR PORTAL — STATE & LOGIC v3                ║
 // ════════════════════════════════════════════════════════════════════
 
+// California ZIP code lookup (compact reference set covering major metros)
+const CA_ZIPS = {"90001": "Los Angeles", "90002": "Los Angeles", "90003": "Los Angeles", "90004": "Los Angeles", "90005": "Los Angeles", "90006": "Los Angeles", "90007": "Los Angeles", "90008": "Los Angeles", "90010": "Los Angeles", "90011": "Los Angeles", "90012": "Los Angeles", "90013": "Los Angeles", "90014": "Los Angeles", "90015": "Los Angeles", "90016": "Los Angeles", "90017": "Los Angeles", "90018": "Los Angeles", "90019": "Los Angeles", "90020": "Los Angeles", "90021": "Los Angeles", "90023": "Los Angeles", "90024": "Los Angeles", "90025": "Los Angeles", "90026": "Los Angeles", "90027": "Los Angeles", "90028": "Los Angeles", "90029": "Los Angeles", "90031": "Los Angeles", "90032": "Los Angeles", "90033": "Los Angeles", "90034": "Los Angeles", "90035": "Los Angeles", "90036": "Los Angeles", "90037": "Los Angeles", "90038": "Los Angeles", "90039": "Los Angeles", "90041": "Los Angeles", "90042": "Los Angeles", "90043": "Los Angeles", "90044": "Los Angeles", "90045": "Los Angeles", "90046": "Los Angeles", "90047": "Los Angeles", "90048": "Los Angeles", "90049": "Los Angeles", "90056": "Los Angeles", "90057": "Los Angeles", "90058": "Los Angeles", "90059": "Los Angeles", "90061": "Los Angeles", "90062": "Los Angeles", "90063": "Los Angeles", "90064": "Los Angeles", "90065": "Los Angeles", "90066": "Los Angeles", "90067": "Los Angeles", "90068": "Los Angeles", "90069": "Los Angeles", "90071": "Los Angeles", "90077": "Los Angeles", "90210": "Beverly Hills", "90211": "Beverly Hills", "90212": "Beverly Hills", "90240": "Downey", "90241": "Downey", "90242": "Downey", "90291": "Venice", "90292": "Marina Del Rey", "90293": "Playa Del Rey", "90401": "Santa Monica", "90402": "Santa Monica", "90403": "Santa Monica", "90404": "Santa Monica", "90405": "Santa Monica", "90601": "Whittier", "90602": "Whittier", "90603": "Whittier", "90604": "Whittier", "90605": "Whittier", "90606": "Whittier", "90630": "Cypress", "90701": "Cerritos", "90802": "Long Beach", "90803": "Long Beach", "90804": "Long Beach", "90805": "Long Beach", "90806": "Long Beach", "90807": "Long Beach", "90808": "Long Beach", "90810": "Long Beach", "90813": "Long Beach", "90814": "Long Beach", "90815": "Long Beach", "91101": "Pasadena", "91103": "Pasadena", "91104": "Pasadena", "91105": "Pasadena", "91106": "Pasadena", "91107": "Pasadena", "91108": "Pasadena", "91182": "Pasadena", "91201": "Glendale", "91202": "Glendale", "91203": "Glendale", "91204": "Glendale", "91205": "Glendale", "91206": "Glendale", "91207": "Glendale", "91208": "Glendale", "91501": "Burbank", "91502": "Burbank", "91504": "Burbank", "91505": "Burbank", "91506": "Burbank", "91604": "Studio City", "91708": "Chino", "91709": "Chino Hills", "91710": "Chino", "91761": "Ontario", "91762": "Ontario", "91764": "Ontario", "91786": "Upland", "91902": "Bonita", "91910": "Chula Vista", "91911": "Chula Vista", "91913": "Chula Vista", "91914": "Chula Vista", "91915": "Chula Vista", "92007": "Cardiff", "92008": "Carlsbad", "92009": "Carlsbad", "92010": "Carlsbad", "92011": "Carlsbad", "92024": "Encinitas", "92025": "Escondido", "92026": "Escondido", "92027": "Escondido", "92029": "Escondido", "92054": "Oceanside", "92056": "Oceanside", "92057": "Oceanside", "92058": "Oceanside", "92069": "San Marcos", "92078": "San Marcos", "92101": "San Diego", "92102": "San Diego", "92103": "San Diego", "92104": "San Diego", "92105": "San Diego", "92106": "San Diego", "92107": "San Diego", "92108": "San Diego", "92109": "San Diego", "92110": "San Diego", "92111": "San Diego", "92113": "San Diego", "92114": "San Diego", "92115": "San Diego", "92116": "San Diego", "92117": "San Diego", "92118": "Coronado", "92119": "San Diego", "92120": "San Diego", "92121": "San Diego", "92122": "San Diego", "92123": "San Diego", "92124": "San Diego", "92126": "San Diego", "92127": "San Diego", "92128": "San Diego", "92129": "San Diego", "92130": "San Diego", "92131": "San Diego", "92201": "Indio", "92211": "Palm Desert", "92260": "Palm Desert", "92262": "Palm Springs", "92264": "Palm Springs", "92335": "Fontana", "92336": "Fontana", "92337": "Fontana", "92376": "Rialto", "92404": "San Bernardino", "92405": "San Bernardino", "92407": "San Bernardino", "92408": "San Bernardino", "92501": "Riverside", "92503": "Riverside", "92504": "Riverside", "92505": "Riverside", "92506": "Riverside", "92507": "Riverside", "92508": "Riverside", "92509": "Riverside", "92591": "Temecula", "92592": "Temecula", "92602": "Tustin", "92603": "Irvine", "92604": "Irvine", "92606": "Irvine", "92612": "Irvine", "92614": "Irvine", "92617": "Irvine", "92618": "Irvine", "92620": "Irvine", "92625": "Corona Del Mar", "92626": "Costa Mesa", "92627": "Costa Mesa", "92646": "Huntington Beach", "92647": "Huntington Beach", "92648": "Huntington Beach", "92649": "Huntington Beach", "92651": "Laguna Beach", "92653": "Laguna Hills", "92660": "Newport Beach", "92661": "Newport Beach", "92662": "Newport Beach", "92663": "Newport Beach", "92675": "San Juan Capistrano", "92703": "Santa Ana", "92704": "Santa Ana", "92705": "Santa Ana", "92706": "Santa Ana", "92707": "Santa Ana", "92708": "Fountain Valley", "92780": "Tustin", "92802": "Anaheim", "92804": "Anaheim", "92805": "Anaheim", "92806": "Anaheim", "92807": "Anaheim", "92808": "Anaheim", "92831": "Fullerton", "92832": "Fullerton", "92833": "Fullerton", "92835": "Fullerton", "92840": "Garden Grove", "92841": "Garden Grove", "92843": "Garden Grove", "92844": "Garden Grove", "92866": "Orange", "92867": "Orange", "92868": "Orange", "92869": "Orange", "93101": "Santa Barbara", "93103": "Santa Barbara", "93105": "Santa Barbara", "93108": "Santa Barbara", "93109": "Santa Barbara", "93110": "Santa Barbara", "93111": "Santa Barbara", "93301": "Bakersfield", "93304": "Bakersfield", "93305": "Bakersfield", "93306": "Bakersfield", "93307": "Bakersfield", "93308": "Bakersfield", "93309": "Bakersfield", "93311": "Bakersfield", "93312": "Bakersfield", "93313": "Bakersfield", "93314": "Bakersfield", "93401": "San Luis Obispo", "93405": "San Luis Obispo", "93420": "Arroyo Grande", "93701": "Fresno", "93702": "Fresno", "93703": "Fresno", "93704": "Fresno", "93705": "Fresno", "93706": "Fresno", "93710": "Fresno", "93711": "Fresno", "93720": "Fresno", "93721": "Fresno", "93722": "Fresno", "93723": "Fresno", "93725": "Fresno", "93726": "Fresno", "93727": "Fresno", "93728": "Fresno", "93730": "Fresno", "93737": "Fresno", "93940": "Monterey", "93950": "Pacific Grove", "94002": "Belmont", "94010": "Burlingame", "94014": "Daly City", "94015": "Daly City", "94022": "Los Altos", "94024": "Los Altos", "94025": "Menlo Park", "94040": "Mountain View", "94041": "Mountain View", "94043": "Mountain View", "94061": "Redwood City", "94062": "Redwood City", "94063": "Redwood City", "94065": "Redwood City", "94070": "San Carlos", "94085": "Sunnyvale", "94086": "Sunnyvale", "94087": "Sunnyvale", "94089": "Sunnyvale", "94102": "San Francisco", "94103": "San Francisco", "94104": "San Francisco", "94105": "San Francisco", "94107": "San Francisco", "94108": "San Francisco", "94109": "San Francisco", "94110": "San Francisco", "94112": "San Francisco", "94114": "San Francisco", "94115": "San Francisco", "94116": "San Francisco", "94117": "San Francisco", "94118": "San Francisco", "94121": "San Francisco", "94122": "San Francisco", "94123": "San Francisco", "94124": "San Francisco", "94131": "San Francisco", "94132": "San Francisco", "94133": "San Francisco", "94134": "San Francisco", "94301": "Palo Alto", "94303": "Palo Alto", "94304": "Palo Alto", "94306": "Palo Alto", "94401": "San Mateo", "94402": "San Mateo", "94403": "San Mateo", "94404": "San Mateo", "94501": "Alameda", "94502": "Alameda", "94506": "Danville", "94518": "Concord", "94519": "Concord", "94520": "Concord", "94521": "Concord", "94526": "Danville", "94533": "Fairfield", "94534": "Fairfield", "94536": "Fremont", "94538": "Fremont", "94539": "Fremont", "94555": "Fremont", "94558": "Napa", "94559": "Napa", "94585": "Suisun City", "94589": "Vallejo", "94590": "Vallejo", "94591": "Vallejo", "94592": "Vallejo", "94595": "Walnut Creek", "94596": "Walnut Creek", "94597": "Walnut Creek", "94598": "Walnut Creek", "94601": "Oakland", "94602": "Oakland", "94603": "Oakland", "94605": "Oakland", "94606": "Oakland", "94607": "Oakland", "94608": "Oakland", "94609": "Oakland", "94610": "Oakland", "94611": "Oakland", "94612": "Oakland", "94618": "Oakland", "94619": "Oakland", "94621": "Oakland", "94703": "Berkeley", "94704": "Berkeley", "94705": "Berkeley", "94706": "Berkeley", "94707": "Berkeley", "94708": "Berkeley", "94709": "Berkeley", "94710": "Berkeley", "94901": "San Rafael", "94903": "San Rafael", "94904": "Greenbrae", "94920": "Tiburon", "94939": "Larkspur", "94941": "Mill Valley", "94952": "Petaluma", "94965": "Sausalito", "95014": "Cupertino", "95050": "Santa Clara", "95051": "Santa Clara", "95054": "Santa Clara", "95060": "Santa Cruz", "95062": "Santa Cruz", "95065": "Santa Cruz", "95110": "San Jose", "95111": "San Jose", "95112": "San Jose", "95113": "San Jose", "95116": "San Jose", "95117": "San Jose", "95118": "San Jose", "95119": "San Jose", "95120": "San Jose", "95121": "San Jose", "95122": "San Jose", "95123": "San Jose", "95124": "San Jose", "95125": "San Jose", "95126": "Santa Clara", "95127": "San Jose", "95128": "San Jose", "95129": "San Jose", "95130": "San Jose", "95131": "San Jose", "95132": "San Jose", "95133": "San Jose", "95134": "San Jose", "95135": "San Jose", "95136": "San Jose", "95138": "San Jose", "95139": "San Jose", "95148": "San Jose", "95202": "Stockton", "95203": "Stockton", "95204": "Stockton", "95205": "Stockton", "95206": "Stockton", "95207": "Stockton", "95209": "Stockton", "95210": "Stockton", "95211": "Stockton", "95212": "Stockton", "95215": "Stockton", "95219": "Stockton", "95301": "Modesto", "95350": "Modesto", "95351": "Modesto", "95354": "Modesto", "95355": "Modesto", "95356": "Modesto", "95357": "Modesto", "95358": "Modesto", "95401": "Santa Rosa", "95403": "Santa Rosa", "95404": "Santa Rosa", "95405": "Santa Rosa", "95407": "Santa Rosa", "95476": "Sonoma", "95501": "Eureka", "95503": "Eureka", "95603": "Auburn", "95608": "Carmichael", "95624": "Elk Grove", "95630": "Folsom", "95661": "Roseville", "95678": "Roseville", "95687": "Vacaville", "95688": "Vacaville", "95696": "Vacaville", "95747": "Roseville", "95757": "Elk Grove", "95758": "Elk Grove", "95814": "Sacramento", "95815": "Sacramento", "95816": "Sacramento", "95817": "Sacramento", "95818": "Sacramento", "95819": "Sacramento", "95820": "Sacramento", "95821": "Sacramento", "95822": "Sacramento", "95823": "Sacramento", "95824": "Sacramento", "95825": "Sacramento", "95826": "Sacramento", "95827": "Sacramento", "95828": "Sacramento", "95829": "Sacramento", "95831": "Sacramento", "95832": "Sacramento", "95833": "Sacramento", "95834": "Sacramento", "95835": "Sacramento", "95838": "Sacramento", "95841": "Sacramento", "95842": "Sacramento", "95945": "Grass Valley", "96001": "Redding", "96002": "Redding", "96003": "Redding"};
+
 const realtorState = {
-  // Onboarding
   step: 1,
   selectedSpecialties: new Set(),
-  selectedCities: [],          // array of "City, County" strings
-  paymentModel: null,          // 'subscription' | 'performance' | 'both' | null
-
-  // Cached data
-  profile: null,               // realtor_profiles row from DB
-  citiesAllowed: 1             // 1 if free, 3 if paid
+  selectedInterests: new Set(),
+  selectedZips: [],
+  zipAddons: 0,
+  styles: { comm: 3, dec: 3, pace: 3, edu: 3, neg: 3 },
+  paymentModel: 'both',  // default to stacked = highest visibility
+  termsAccepted: false,
+  profile: null
 };
 
 const SPEC_LABELS = {
   'first-time-buyers': 'First-time buyers',
-  'co-ownership': 'Co-ownership',
   'va-loans': 'VA loans',
   'fha-loans': 'FHA loans',
-  'luxury': 'Luxury',
+  'conventional': 'Conventional / jumbo',
+  'luxury': 'Luxury ($1M+)',
   'condos': 'Condos / townhomes',
   'multi-unit': 'Multi-unit / ADU',
   'investors': 'Investment properties',
-  'bilingual-spanish': 'Bilingual (Spanish)',
-  'bilingual-other': 'Bilingual (other)'
+  'new-construction': 'New construction',
+  'fixer-uppers': 'Fixer-uppers / rehab',
+  'bilingual-spanish': 'Bilingual: Spanish',
+  'bilingual-other': 'Bilingual: other',
+  'veterans': 'Veterans / military',
+  'first-responders': 'First responders',
+  'self-employed': 'Self-employed / 1099',
+  'credit-rebuilding': 'Credit-rebuilding'
 };
 
-// ─────────────────── ONBOARDING ───────────────────
+const INT_LABELS = {
+  'travel': 'Travel',
+  'outdoor': 'Outdoor activities',
+  'fitness': 'Fitness',
+  'cooking': 'Cooking',
+  'arts-music': 'Arts / Music',
+  'tech': 'Tech',
+  'investing': 'Investing',
+  'family': 'Family-focused',
+  'pets': 'Pet owners',
+  'faith': 'Faith-based community',
+  'volunteer': 'Volunteer work',
+  'foodie': 'Foodie / dining',
+  'sports': 'Sports fan',
+  'reading': 'Reading',
+  'gaming': 'Gaming',
+  'entrepreneurship': 'Entrepreneurship'
+};
 
+const STYLE_LABELS = {
+  comm: ['Weekly summaries', 'Mostly weekly', 'Balanced', 'Mostly daily', 'Daily updates'],
+  dec: ['Hands-off', 'Mostly hands-off', 'Balanced', 'Mostly hands-on', 'Hands-on'],
+  pace: ['Patient', 'Patient-leaning', 'Balanced', 'Aggressive-leaning', 'Aggressive'],
+  edu: ['Concise', 'Mostly concise', 'Balanced', 'Mostly educational', 'Educational'],
+  neg: ['Collaborative', 'Mostly collaborative', 'Balanced', 'Mostly hard-charging', 'Hard-charging']
+};
+
+// ─────────────────── ONBOARDING STEP CONTROL ───────────────────
 function ronboardSetStep(step) {
   realtorState.step = step;
-  for (let i = 1; i <= 4; i++) {
-    document.getElementById(`rp-onboard-step-${i}`).style.display = (i === step) ? 'block' : 'none';
-    const pill = document.getElementById(`rp-step-pill-${i}`);
-    pill.classList.remove('active', 'done');
-    if (i < step) pill.classList.add('done');
-    else if (i === step) pill.classList.add('active');
+  for (let i = 1; i <= 5; i++) {
+    const card = document.getElementById('rp-onboard-step-' + i);
+    const pill = document.getElementById('rp-step-pill-' + i);
+    if (card) card.style.display = (i === step) ? 'block' : 'none';
+    if (pill) {
+      pill.classList.remove('active', 'done');
+      if (i < step) pill.classList.add('done');
+      else if (i === step) pill.classList.add('active');
+    }
   }
   window.scrollTo(0, 0);
 }
 
 function ronboardNext(currentStep) {
-  // Validate current step
   if (currentStep === 1) {
+    const fullName = document.getElementById('ro-fullname').value.trim();
+    const phone = document.getElementById('ro-phone').value.trim();
     const dre = document.getElementById('ro-dre').value.trim();
     const brokerage = document.getElementById('ro-brokerage').value.trim();
+    const borName = document.getElementById('ro-bor-name').value.trim();
+    const borLicense = document.getElementById('ro-bor-license').value.trim();
     const years = document.getElementById('ro-years').value.trim();
     const bio = document.getElementById('ro-bio').value.trim();
-    if (!dre) { showToast('DRE license number is required', 'error'); return; }
-    if (!brokerage) { showToast('Brokerage is required', 'error'); return; }
-    if (!years) { showToast('Years of experience is required', 'error'); return; }
-    if (bio.length < 80) { showToast(`Bio needs at least 80 characters (you have ${bio.length})`, 'error'); return; }
+    const terms = document.getElementById('ro-terms').checked;
+
+    if (!fullName) return showToast('Full legal name is required', 'error');
+    if (!phone) return showToast('Phone is required', 'error');
+    if (!dre) return showToast('DRE license number is required', 'error');
+    if (!brokerage) return showToast('Brokerage is required', 'error');
+    if (!borName) return showToast('Broker of record name is required', 'error');
+    if (!borLicense) return showToast('Broker of record license is required', 'error');
+    if (!years) return showToast('Years of experience is required', 'error');
+    if (bio.length < 80) return showToast('Bio needs at least 80 characters (you have ' + bio.length + ')', 'error');
+    if (!terms) return showToast('Please acknowledge the Terms of Service to continue', 'error');
+    realtorState.termsAccepted = true;
   }
   if (currentStep === 2) {
-    if (realtorState.selectedCities.length === 0) {
-      showToast('Pick at least one city to continue', 'error');
-      return;
+    if (realtorState.selectedZips.length === 0) {
+      return showToast('Pick at least one ZIP code to continue', 'error');
     }
   }
   if (currentStep === 3) {
-    if (!realtorState.paymentModel) {
-      showToast('Choose a payment model to continue', 'error');
-      return;
+    if (realtorState.selectedSpecialties.size < 2) {
+      return showToast('Pick at least 2 specialties', 'error');
     }
+    if (realtorState.selectedInterests.size === 0) {
+      return showToast('Pick at least 1 interest — this powers user matching', 'error');
+    }
+  }
+  if (currentStep === 4) {
+    realtorState.styles.comm = parseInt(document.getElementById('ro-style-comm').value, 10);
+    realtorState.styles.dec = parseInt(document.getElementById('ro-style-dec').value, 10);
+    realtorState.styles.pace = parseInt(document.getElementById('ro-style-pace').value, 10);
+    realtorState.styles.edu = parseInt(document.getElementById('ro-style-edu').value, 10);
+    realtorState.styles.neg = parseInt(document.getElementById('ro-style-neg').value, 10);
   }
   ronboardSetStep(currentStep + 1);
 }
@@ -6849,24 +7242,31 @@ function ronboardBack(currentStep) {
   ronboardSetStep(currentStep - 1);
 }
 
-// Specialty toggle (works for both onboarding and dashboard)
-function toggleSpecialty(el) {
-  const spec = el.dataset.spec;
-  if (realtorState.selectedSpecialties.has(spec)) {
-    realtorState.selectedSpecialties.delete(spec);
+// Style slider live label
+function updateStyleLabel(key, val) {
+  const labelEl = document.getElementById('ro-style-' + key + '-label');
+  if (labelEl) labelEl.textContent = STYLE_LABELS[key][val - 1];
+}
+
+// ─────────────────── TAG TOGGLE (specialties + interests) ───────────────────
+function toggleTag(el, kind) {
+  const target = (kind === 'interests') ? realtorState.selectedInterests : realtorState.selectedSpecialties;
+  const key = (kind === 'interests') ? el.dataset.int : el.dataset.spec;
+  if (target.has(key)) {
+    target.delete(key);
     el.style.background = '#f3f4f6';
     el.style.color = 'var(--text)';
   } else {
-    realtorState.selectedSpecialties.add(spec);
+    target.add(key);
     el.style.background = 'var(--blue)';
     el.style.color = '#fff';
   }
 }
 
-function refreshSpecialtyTags(containerId) {
-  document.querySelectorAll(`#${containerId} .rp-tag`).forEach(el => {
-    const spec = el.dataset.spec;
-    if (realtorState.selectedSpecialties.has(spec)) {
+function refreshTagContainer(containerId, selectedSet, dataAttr) {
+  document.querySelectorAll('#' + containerId + ' .rp-tag').forEach(el => {
+    const k = el.getAttribute('data-' + dataAttr);
+    if (selectedSet.has(k)) {
       el.style.background = 'var(--blue)';
       el.style.color = '#fff';
     } else {
@@ -6876,98 +7276,121 @@ function refreshSpecialtyTags(containerId) {
   });
 }
 
-// City search — uses the existing CA_DATA structure already in the page
-function searchRealtorCities(query) {
-  searchCitiesGeneric(query, 'ro-city-results', (cityLabel) => {
-    if (realtorState.selectedCities.includes(cityLabel)) return;
-    if (realtorState.selectedCities.length >= 3) {
-      showToast('Maximum 3 cities. Remove one first.', 'error');
-      return;
-    }
-    realtorState.selectedCities.push(cityLabel);
-    renderCityChips('ro-city-chips', 'ro-city-count');
-    document.getElementById('ro-city-search').value = '';
-    document.getElementById('ro-city-results').style.display = 'none';
-  });
-}
-
-function searchDashboardCities(query) {
-  searchCitiesGeneric(query, 'rd-city-results', (cityLabel) => {
-    if (realtorState.selectedCities.includes(cityLabel)) return;
-    if (realtorState.selectedCities.length >= realtorState.citiesAllowed) {
-      showToast(`Your tier allows up to ${realtorState.citiesAllowed} cit${realtorState.citiesAllowed === 1 ? 'y' : 'ies'}`, 'error');
-      return;
-    }
-    realtorState.selectedCities.push(cityLabel);
-    renderCityChips('rd-city-chips', 'rd-city-count');
-    document.getElementById('rd-city-search').value = '';
-    document.getElementById('rd-city-results').style.display = 'none';
-  });
-}
-
-function searchCitiesGeneric(query, resultsId, onPick) {
-  const results = document.getElementById(resultsId);
-  const q = (query || '').toLowerCase().trim();
+// ─────────────────── ZIP CODE PICKER ───────────────────
+function searchZips(query, prefix) {
+  const results = document.getElementById(prefix + '-zip-results');
+  const q = (query || '').trim().toLowerCase();
   if (q.length < 2) { results.style.display = 'none'; return; }
 
   const matches = [];
-  if (typeof CA_DATA !== 'undefined') {
-    Object.entries(CA_DATA).forEach(([county, cities]) => {
-      cities.forEach(city => {
-        if (city.toLowerCase().includes(q)) {
-          matches.push(`${city}, ${county}`);
-        }
-      });
-    });
-  }
+  Object.entries(CA_ZIPS).forEach(([zip, city]) => {
+    if (zip.startsWith(q) || city.toLowerCase().includes(q)) {
+      matches.push({ zip, city });
+    }
+  });
 
   if (matches.length === 0) {
-    results.innerHTML = `<div style="padding:.6rem .85rem;color:var(--gray-text);font-size:.85rem;">No matches</div>`;
+    results.innerHTML = '<div style="padding:.6rem .85rem;color:var(--gray-text);font-size:.85rem;">No matches</div>';
     results.style.display = 'block';
     return;
   }
 
-  results.innerHTML = matches.slice(0, 25).map(m =>
-    `<div style="padding:.55rem .85rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f3f4f6;" onmouseenter="this.style.background='#f3f4f6'" onmouseleave="this.style.background='#fff'" onclick='__pickCity(${JSON.stringify(m)})'>${m}</div>`
-  ).join('');
+  matches.sort((a, b) => a.zip.localeCompare(b.zip));
+
+  results.innerHTML = matches.slice(0, 30).map(m => {
+    return '<div style="padding:.55rem .85rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;" onmouseenter="this.style.background=\'#f3f4f6\'" onmouseleave="this.style.background=\'#fff\'" onclick="pickZip(\'' + m.zip + '\',\'' + prefix + '\')"><span><strong>' + m.zip + '</strong> <span style="color:var(--gray-text);">— ' + m.city + '</span></span><span style="font-size:.75rem;color:var(--blue);">+ Add</span></div>';
+  }).join('');
   results.style.display = 'block';
-  // Stash the callback for use by the inline onclick
-  window.__pickCity = onPick;
 }
 
-function renderCityChips(containerId, counterId) {
-  const container = document.getElementById(containerId);
-  const counter = document.getElementById(counterId);
-  if (counter) counter.textContent = `(${realtorState.selectedCities.length}/${realtorState.citiesAllowed})`;
-  if (realtorState.selectedCities.length === 0) {
-    container.innerHTML = `<span style="color:var(--gray-text);font-size:.86rem;font-style:italic;">No cities selected yet</span>`;
+function pickZip(zip, prefix) {
+  if (realtorState.selectedZips.includes(zip)) {
+    showToast('Already selected', 'error');
     return;
   }
-  container.innerHTML = realtorState.selectedCities.map((c, i) =>
-    `<span class="rp-tag" style="background:rgba(37,99,235,.1);color:var(--blue);font-weight:600;cursor:pointer;" onclick="removeRealtorCity(${i})">✕ ${c}</span>`
-  ).join('');
-}
-
-function removeRealtorCity(idx) {
-  realtorState.selectedCities.splice(idx, 1);
-  // Re-render whichever chip container is currently visible
-  if (document.getElementById('rp-onboard-step-2').style.display !== 'none') {
-    renderCityChips('ro-city-chips', 'ro-city-count');
-  } else {
-    renderCityChips('rd-city-chips', 'rd-city-count');
+  const max = 3 + (realtorState.zipAddons * 3);
+  if (realtorState.selectedZips.length >= max) {
+    showToast('Tier limit reached. Add another pack to continue.', 'error');
+    return;
   }
+  realtorState.selectedZips.push(zip);
+  renderZipChips(prefix);
+  document.getElementById(prefix + '-zip-search').value = '';
+  document.getElementById(prefix + '-zip-results').style.display = 'none';
 }
 
+function renderZipChips(prefix) {
+  const container = document.getElementById(prefix + '-zip-chips');
+  const counter = document.getElementById(prefix + '-zip-count');
+  const max = 3 + (realtorState.zipAddons * 3);
+  if (counter) counter.textContent = '(' + realtorState.selectedZips.length + '/' + max + ')';
+  if (realtorState.selectedZips.length === 0) {
+    container.innerHTML = '<span style="color:var(--gray-text);font-size:.86rem;font-style:italic;">No ZIPs selected yet</span>';
+    return;
+  }
+  container.innerHTML = realtorState.selectedZips.map((z, i) => {
+    const city = CA_ZIPS[z] || '?';
+    return '<span class="rp-tag" style="background:rgba(37,99,235,.1);color:var(--blue);font-weight:600;cursor:pointer;" onclick="removeZip(' + i + ',\'' + prefix + '\')">✕ ' + z + ' (' + city + ')</span>';
+  }).join('');
+}
+
+function removeZip(idx, prefix) {
+  realtorState.selectedZips.splice(idx, 1);
+  renderZipChips(prefix);
+}
+
+function adjustZipAddons(delta) {
+  const newCount = Math.max(0, Math.min(20, realtorState.zipAddons + delta));
+  // If reducing, make sure we aren't holding more ZIPs than allowed
+  const newMax = 3 + (newCount * 3);
+  if (realtorState.selectedZips.length > newMax) {
+    showToast('Remove ' + (realtorState.selectedZips.length - newMax) + ' ZIP(s) first before reducing add-on packs', 'error');
+    return;
+  }
+  realtorState.zipAddons = newCount;
+  document.getElementById('ro-addon-count').textContent = newCount;
+  document.getElementById('ro-addon-cost').textContent = (newCount * 29.99).toFixed(2);
+  document.getElementById('ro-max-zips').textContent = (3 + newCount * 3);
+  renderZipChips('ro');
+}
+
+// ─────────────────── PAYMENT MODEL ───────────────────
 function selectPaymentModel(model) {
   realtorState.paymentModel = model;
   ['subscription', 'performance', 'both'].forEach(m => {
-    document.getElementById(`rp-tier-${m}`).classList.toggle('selected', m === model);
+    const el = document.getElementById('rp-tier-' + m);
+    if (el) el.classList.toggle('selected', m === model);
   });
-  document.getElementById('ro-perf-disclosure').style.display = (model === 'performance' || model === 'both') ? 'block' : 'none';
-  // Update allowed cities based on tier
-  realtorState.citiesAllowed = (model === 'subscription' || model === 'both') ? 3 : (model === 'performance' ? 3 : 1);
+  // Performance disclosure shows for performance or both
+  const disc = document.getElementById('ro-perf-disclosure');
+  if (disc) disc.style.display = (model === 'performance' || model === 'both') ? 'block' : 'none';
 }
 
+// Also called from dashboard tier cards (wrapper)
+function changePaymentModel(model) {
+  if (!currentUser) return;
+  if (model === realtorState.paymentModel) return;
+  if (realtorState.paymentModel) {
+    if (!confirm('Change payment model from ' + realtorState.paymentModel + ' to ' + model + '? You can switch again later.')) return;
+  }
+  sb.from('audit_log').insert({
+    actor_id: currentUser.id,
+    action: 'realtor_payment_model_selected',
+    target_type: 'account',
+    target_id: currentUser.id,
+    metadata: { model: model, selected_at: new Date().toISOString() }
+  }).then(() => {
+    realtorState.paymentModel = model;
+    ['subscription', 'performance', 'both'].forEach(m => {
+      const el = document.getElementById('rd-tier-' + m);
+      if (el) el.classList.toggle('selected', m === model);
+    });
+    showToast('Payment model updated', 'success');
+    loadRealtorDashboard();
+  });
+}
+
+// ─────────────────── COMPLETE ONBOARDING ───────────────────
 async function ronboardComplete() {
   if (!currentUser || !currentAccount) {
     showToast('Please log in first', 'error');
@@ -6976,29 +7399,40 @@ async function ronboardComplete() {
 
   showSpinner();
 
-  // Compute tier flags from payment model
-  let tierValue = 'free';
-  let modelMeta = realtorState.paymentModel;
-  if (realtorState.paymentModel === 'subscription' || realtorState.paymentModel === 'both') {
-    // We're not actually charging yet, so we don't promote tier here. We'll record
-    // the chosen model in metadata and let Phase 3 / Stripe webhook flip the tier
-    // when payment actually clears. For now: tier stays 'free', selected_model is logged.
+  const fullName = document.getElementById('ro-fullname').value.trim();
+  const phone = document.getElementById('ro-phone').value.trim();
+
+  // Update accounts row with full_name + phone
+  await sb.from('accounts').update({
+    full_name: fullName,
+    phone: phone
+  }).eq('id', currentUser.id);
+  if (currentAccount) {
+    currentAccount.full_name = fullName;
+    currentAccount.phone = phone;
   }
 
-  // Update accounts row name (from auth metadata) just in case
-  const fullName = currentAccount.full_name || currentUser.user_metadata?.full_name || '';
-
-  // Upsert realtor_profiles
   const profileData = {
     account_id: currentUser.id,
     dre_number: document.getElementById('ro-dre').value.trim(),
     nmls_number: document.getElementById('ro-nmls').value.trim() || null,
     brokerage: document.getElementById('ro-brokerage').value.trim(),
+    team_name: document.getElementById('ro-team').value.trim() || null,
+    broker_of_record_name: document.getElementById('ro-bor-name').value.trim(),
+    broker_of_record_license: document.getElementById('ro-bor-license').value.trim(),
     bio: document.getElementById('ro-bio').value.trim(),
     years_experience: parseInt(document.getElementById('ro-years').value, 10) || null,
     specialties: Array.from(realtorState.selectedSpecialties),
-    selected_cities: realtorState.selectedCities,
-    cities_last_changed_at: new Date().toISOString(),
+    interests: Array.from(realtorState.selectedInterests),
+    selected_zips: realtorState.selectedZips,
+    zip_addons_count: realtorState.zipAddons,
+    style_communication: realtorState.styles.comm,
+    style_decision: realtorState.styles.dec,
+    style_pace: realtorState.styles.pace,
+    style_education: realtorState.styles.edu,
+    style_negotiation: realtorState.styles.neg,
+    terms_accepted_at: new Date().toISOString(),
+    terms_version: 'v1.0-2026-04',
     profile_completed: true
   };
 
@@ -7013,14 +7447,13 @@ async function ronboardComplete() {
     return;
   }
 
-  // Record the chosen payment model on the account (we're stashing it as metadata
-  // until Stripe is wired up — the audit_log table is the cleanest spot for this)
+  // Record payment model selection
   await sb.from('audit_log').insert({
     actor_id: currentUser.id,
     action: 'realtor_payment_model_selected',
     target_type: 'account',
     target_id: currentUser.id,
-    metadata: { model: realtorState.paymentModel, selected_at: new Date().toISOString() }
+    metadata: { model: realtorState.paymentModel, zip_addons: realtorState.zipAddons, selected_at: new Date().toISOString() }
   });
 
   hideSpinner();
@@ -7032,15 +7465,11 @@ async function ronboardComplete() {
 }
 
 // ─────────────────── DASHBOARD ───────────────────
-
-let _dashboardLoaded = false;
-
 async function loadRealtorDashboard() {
   if (!currentUser || currentAccount?.role !== 'realtor') return;
 
   showSpinner();
 
-  // Fetch realtor profile
   const { data: profile, error } = await sb
     .from('realtor_profiles')
     .select('*')
@@ -7055,7 +7484,6 @@ async function loadRealtorDashboard() {
   }
 
   if (!profile || !profile.profile_completed) {
-    // Not yet onboarded — send to onboarding flow
     hideSpinner();
     showView('realtor-onboard');
     ronboardSetStep(1);
@@ -7063,10 +7491,19 @@ async function loadRealtorDashboard() {
   }
 
   realtorState.profile = profile;
-  realtorState.selectedCities = profile.selected_cities || [];
+  realtorState.selectedZips = profile.selected_zips || [];
+  realtorState.zipAddons = profile.zip_addons_count || 0;
   realtorState.selectedSpecialties = new Set(profile.specialties || []);
+  realtorState.selectedInterests = new Set(profile.interests || []);
+  realtorState.styles = {
+    comm: profile.style_communication || 3,
+    dec: profile.style_decision || 3,
+    pace: profile.style_pace || 3,
+    edu: profile.style_education || 3,
+    neg: profile.style_negotiation || 3
+  };
 
-  // Find latest payment model selection from audit_log
+  // Find latest payment model selection
   const { data: auditRows } = await sb
     .from('audit_log')
     .select('metadata, created_at')
@@ -7077,15 +7514,11 @@ async function loadRealtorDashboard() {
   if (auditRows && auditRows.length > 0) {
     realtorState.paymentModel = auditRows[0].metadata?.model || null;
   }
-  realtorState.citiesAllowed = (realtorState.paymentModel === 'performance' && !realtorState.profile.tier ? 3 : (realtorState.paymentModel ? 3 : 1));
 
-  // ─── Populate greeting
   const firstName = (currentAccount.full_name || '').split(' ')[0] || 'Realtor';
   document.getElementById('rd-greeting-name').textContent = firstName;
 
-  // ─── Populate stats
-  document.getElementById('rd-stat-cities').textContent = realtorState.selectedCities.length;
-  // Selections count
+  document.getElementById('rd-stat-cities').textContent = realtorState.selectedZips.length;
   const { count: selCount } = await sb
     .from('realtor_selections')
     .select('id', { count: 'exact', head: true })
@@ -7098,71 +7531,84 @@ async function loadRealtorDashboard() {
     .in('status', ['connected', 'completed']);
   document.getElementById('rd-stat-active').textContent = activeCount || 0;
 
-  // ─── Overview tab
-  document.getElementById('rd-visibility').innerHTML = profile.is_visible
-    ? '<span class="rp-badge rp-badge-cert">Visible to users</span>'
-    : '<span class="rp-badge rp-badge-pending">Not visible — certification required</span>';
-
-  let certHtml = '<span class="rp-badge rp-badge-pending">Pending</span> Coming soon — content from broker team';
-  if (profile.cert_status === 'certified') {
-    certHtml = `<span class="rp-badge rp-badge-cert">Certified</span> ${profile.cert_version || 'v1.0'}`;
-  } else if (profile.cert_status === 'in_progress') {
-    certHtml = `<span class="rp-badge rp-badge-pending">In progress</span>`;
-  } else if (profile.cert_status === 'update_required') {
-    certHtml = `<span class="rp-badge rp-badge-pending">Update required</span>`;
+  // Visibility status
+  let visibilityHtml;
+  if (profile.is_visible) {
+    if (profile.test_visibility_override) {
+      visibilityHtml = '<span class="rp-badge rp-badge-cert">✓ Visible (test override)</span> <span style="font-size:.8rem;color:var(--gray-text);">Admin enabled this for testing</span>';
+    } else {
+      visibilityHtml = '<span class="rp-badge rp-badge-cert">✓ Visible to users</span>';
+    }
+  } else {
+    const reasons = [];
+    if (profile.cert_status !== 'certified') reasons.push('certification pending');
+    if (currentAccount.tier !== 'paid') reasons.push('paid tier required');
+    if (!profile.profile_completed) reasons.push('profile incomplete');
+    visibilityHtml = '<span class="rp-badge rp-badge-pending">Not visible</span> <span style="font-size:.82rem;color:var(--gray-text);">' + reasons.join(' · ') + '</span>';
   }
+  document.getElementById('rd-visibility').innerHTML = visibilityHtml;
+
+  let certHtml = '<span class="rp-badge rp-badge-pending">Pending</span> Coming soon';
+  if (profile.cert_status === 'certified') certHtml = '<span class="rp-badge rp-badge-cert">Certified</span>';
+  else if (profile.cert_status === 'in_progress') certHtml = '<span class="rp-badge rp-badge-pending">In progress</span>';
   document.getElementById('rd-cert-summary').innerHTML = certHtml;
 
   document.getElementById('rd-payment-summary').innerHTML = paymentModelLabel(realtorState.paymentModel);
-  document.getElementById('rd-cities-summary').textContent = realtorState.selectedCities.length > 0
-    ? realtorState.selectedCities.join(' · ')
-    : 'None selected';
+
+  // Cities summary -> ZIPs
+  const citiesSum = document.getElementById('rd-cities-summary');
+  if (citiesSum) {
+    citiesSum.textContent = realtorState.selectedZips.length > 0
+      ? realtorState.selectedZips.map(z => z + ' (' + (CA_ZIPS[z] || '?') + ')').join(' · ')
+      : 'None selected';
+  }
 
   let completeness = 0;
-  if (profile.dre_number) completeness += 20;
-  if (profile.brokerage) completeness += 15;
-  if (profile.bio && profile.bio.length >= 80) completeness += 20;
-  if ((profile.specialties || []).length > 0) completeness += 15;
-  if ((profile.selected_cities || []).length > 0) completeness += 15;
-  if (realtorState.paymentModel) completeness += 15;
-  document.getElementById('rd-completeness').textContent = `${completeness}%`;
+  if (profile.dre_number) completeness += 15;
+  if (profile.brokerage) completeness += 10;
+  if (profile.broker_of_record_name && profile.broker_of_record_license) completeness += 10;
+  if (profile.bio && profile.bio.length >= 80) completeness += 15;
+  if ((profile.specialties || []).length >= 2) completeness += 15;
+  if ((profile.interests || []).length >= 1) completeness += 10;
+  if ((profile.selected_zips || []).length >= 1) completeness += 15;
+  if (profile.style_communication) completeness += 5;
+  if (realtorState.paymentModel) completeness += 5;
+  document.getElementById('rd-completeness').textContent = completeness + '%';
 
-  // Next steps
   const steps = [];
   if (profile.cert_status !== 'certified') steps.push('Complete certification (coming soon)');
+  if (currentAccount.tier !== 'paid' && !profile.test_visibility_override) steps.push('Activate paid subscription ($49.99/mo) — required for visibility');
   if (!realtorState.paymentModel) steps.push('Choose a payment model');
-  if ((profile.selected_cities || []).length === 0) steps.push('Add at least one city');
+  if ((profile.selected_zips || []).length === 0) steps.push('Add at least one ZIP code');
+  if ((profile.interests || []).length === 0) steps.push('Pick at least one personal interest');
   if (!profile.bio || profile.bio.length < 80) steps.push('Write a bio (80+ characters)');
   if (steps.length === 0) {
-    document.getElementById('rd-next-steps-list').innerHTML = '<p style="color:#15803d;font-size:.9rem;">✓ Your setup is complete. You\'ll be visible to users as soon as certification launches.</p>';
+    document.getElementById('rd-next-steps-list').innerHTML = '<p style="color:#15803d;font-size:.9rem;">✓ Setup complete. You\'ll be visible to users as soon as certification launches.</p>';
   } else {
-    document.getElementById('rd-next-steps-list').innerHTML = steps.map(s => `<div style="padding:.5rem 0;border-bottom:1px solid #f3f4f6;font-size:.92rem;">• ${s}</div>`).join('');
+    document.getElementById('rd-next-steps-list').innerHTML = steps.map(s => '<div style="padding:.5rem 0;border-bottom:1px solid #f3f4f6;font-size:.92rem;">• ' + s + '</div>').join('');
   }
 
-  // ─── Profile tab fields
-  document.getElementById('rd-dre').value = profile.dre_number || '';
-  document.getElementById('rd-brokerage').value = profile.brokerage || '';
-  document.getElementById('rd-years').value = profile.years_experience || '';
-  document.getElementById('rd-nmls').value = profile.nmls_number || '';
-  document.getElementById('rd-bio').value = profile.bio || '';
-  refreshSpecialtyTags('rd-specialties');
-  renderCityChips('rd-city-chips', 'rd-city-count');
+  // Profile tab fields (if dashboard markup has these IDs, populate)
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  setVal('rd-dre', profile.dre_number);
+  setVal('rd-brokerage', profile.brokerage);
+  setVal('rd-years', profile.years_experience);
+  setVal('rd-nmls', profile.nmls_number);
+  setVal('rd-bio', profile.bio);
 
-  // ─── Cert tab — already set up via static markup, just update status text
-  if (profile.cert_status === 'certified') {
-    document.getElementById('rd-cert-status-card-inner').classList.add('certified');
-    document.getElementById('rd-cert-icon').textContent = '✓';
-    document.getElementById('rd-cert-title').textContent = 'Certified';
-    document.getElementById('rd-cert-status-text').textContent = 'You completed certification on ' + (profile.cert_completed_at ? new Date(profile.cert_completed_at).toLocaleDateString() : '—');
-  }
+  // Refresh tag highlighting in profile tab
+  refreshTagContainer('rd-specialties', realtorState.selectedSpecialties, 'spec');
+  refreshTagContainer('rd-interests', realtorState.selectedInterests, 'int');
+  // Render ZIP chips in profile tab
+  renderZipChips('rd');
 
-  // ─── Payment tab — highlight currently selected
+  // Highlight selected payment tier in the dashboard
   ['subscription', 'performance', 'both'].forEach(m => {
-    document.getElementById(`rd-tier-${m}`)?.classList.toggle('selected', m === realtorState.paymentModel);
+    const el = document.getElementById('rd-tier-' + m);
+    if (el) el.classList.toggle('selected', m === realtorState.paymentModel);
   });
 
   hideSpinner();
-  _dashboardLoaded = true;
 }
 
 function paymentModelLabel(model) {
@@ -7174,20 +7620,16 @@ function paymentModelLabel(model) {
 
 function rdTab(tab) {
   ['overview', 'profile', 'cert', 'payment', 'selections'].forEach(t => {
-    document.getElementById(`rd-tab-${t}`).classList.toggle('active', t === tab);
-    document.getElementById(`rd-content-${t}`).style.display = (t === tab) ? 'block' : 'none';
+    const tabEl = document.getElementById('rd-tab-' + t);
+    const contentEl = document.getElementById('rd-content-' + t);
+    if (tabEl) tabEl.classList.toggle('active', t === tab);
+    if (contentEl) contentEl.style.display = (t === tab) ? 'block' : 'none';
   });
 }
 
 async function saveRealtorProfile() {
   if (!currentUser) return;
   showSpinner();
-
-  // Detect if cities have changed (for the 30-day swap rule)
-  const oldCities = realtorState.profile?.selected_cities || [];
-  const newCities = realtorState.selectedCities;
-  const citiesChanged = JSON.stringify(oldCities.slice().sort()) !== JSON.stringify(newCities.slice().sort());
-
   const updates = {
     account_id: currentUser.id,
     dre_number: document.getElementById('rd-dre').value.trim() || null,
@@ -7196,51 +7638,77 @@ async function saveRealtorProfile() {
     bio: document.getElementById('rd-bio').value.trim() || null,
     years_experience: parseInt(document.getElementById('rd-years').value, 10) || null,
     specialties: Array.from(realtorState.selectedSpecialties),
-    selected_cities: newCities
+    interests: Array.from(realtorState.selectedInterests),
+    selected_zips: realtorState.selectedZips,
+    zip_addons_count: realtorState.zipAddons
   };
-
   const { error } = await sb.from('realtor_profiles').upsert(updates, { onConflict: 'account_id' });
-
   hideSpinner();
-
   if (error) {
     showToast(error.message || 'Could not save', 'error');
     return;
   }
-
   showToast('Profile saved', 'success');
   setTimeout(() => loadRealtorDashboard(), 200);
 }
 
-async function changePaymentModel(model) {
-  if (!currentUser) return;
-  if (model === realtorState.paymentModel) return;
+// ─────────────────── MATCH SCORING ───────────────────
+// Compute alignment score for a single realtor against the current user's profile
+function computeMatchScore(realtor, userProfile) {
+  if (!userProfile) return { score: 0, bucket: 'unknown' };
 
-  // Confirm before switching
-  if (realtorState.paymentModel) {
-    if (!confirm(`Change payment model from ${realtorState.paymentModel} to ${model}? You can switch again later.`)) return;
+  // Specialty overlap
+  const userSpecs = new Set(userProfile.specialties || []);
+  const realtorSpecs = new Set(realtor.specialties || []);
+  let specOverlap = 0;
+  if (userSpecs.size > 0) {
+    let shared = 0;
+    userSpecs.forEach(s => { if (realtorSpecs.has(s)) shared++; });
+    specOverlap = shared / userSpecs.size;
+  } else {
+    specOverlap = 0.5; // neutral if user has no specialties
   }
 
-  await sb.from('audit_log').insert({
-    actor_id: currentUser.id,
-    action: 'realtor_payment_model_selected',
-    target_type: 'account',
-    target_id: currentUser.id,
-    metadata: { model: model, selected_at: new Date().toISOString() }
-  });
+  // Interest overlap
+  const userInts = new Set(userProfile.interests || []);
+  const realtorInts = new Set(realtor.interests || []);
+  let intOverlap = 0;
+  if (userInts.size > 0) {
+    let shared = 0;
+    userInts.forEach(s => { if (realtorInts.has(s)) shared++; });
+    intOverlap = shared / userInts.size;
+  } else {
+    intOverlap = 0.5;
+  }
 
-  realtorState.paymentModel = model;
-  realtorState.citiesAllowed = (model === 'subscription' || model === 'performance' || model === 'both') ? 3 : 1;
-  ['subscription', 'performance', 'both'].forEach(m => {
-    document.getElementById(`rd-tier-${m}`)?.classList.toggle('selected', m === model);
+  // Working style alignment
+  let styleDist = 0, styleCount = 0;
+  ['style_communication', 'style_decision', 'style_pace', 'style_education', 'style_negotiation'].forEach(k => {
+    if (userProfile[k] != null && realtor[k] != null) {
+      styleDist += Math.abs(userProfile[k] - realtor[k]);
+      styleCount++;
+    }
   });
-  showToast('Payment model updated', 'success');
-  loadRealtorDashboard();
+  const styleAlign = styleCount > 0 ? (1 - (styleDist / (styleCount * 4))) : 0.5;
+
+  const score = (specOverlap * 0.35) + (intOverlap * 0.30) + (styleAlign * 0.35);
+
+  let bucket;
+  if (score >= 0.85) bucket = 'excellent';
+  else if (score >= 0.70) bucket = 'strong';
+  else if (score >= 0.55) bucket = 'good';
+  else bucket = 'low';
+
+  return {
+    score,
+    bucket,
+    components: { spec: specOverlap, interest: intOverlap, style: styleAlign }
+  };
 }
 
 // ─────────────────── USER-SIDE: BROWSE REALTORS ───────────────────
-
 let _allRealtors = [];
+let _userProfile = null;
 
 async function loadFindRealtor() {
   if (!currentUser || currentAccount?.role !== 'user') {
@@ -7248,61 +7716,59 @@ async function loadFindRealtor() {
     return;
   }
 
-  // Get user's target cities
   const { data: profile } = await sb
     .from('user_profiles')
-    .select('target_cities')
+    .select('*')
     .eq('account_id', currentUser.id)
     .maybeSingle();
+  _userProfile = profile;
 
   const targetCities = profile?.target_cities || [];
 
   if (targetCities.length === 0) {
-    document.getElementById('fr-realtor-list').innerHTML = `
-      <div class="rp-empty-state">
-        <div class="rp-empty-state-icon">🏙️</div>
-        <div>Set your target cities first.</div>
-        <div style="font-size:.85rem;margin-top:.4rem;">Complete your matching profile so we can show you realtors in the right area.</div>
-        <button class="rp-btn" style="margin-top:1rem;" onclick="showView('register')">Update my profile</button>
-      </div>`;
+    document.getElementById('fr-realtor-list').innerHTML =
+      '<div class="rp-empty-state"><div class="rp-empty-state-icon">🏙️</div><div>Set your target cities first.</div><div style="font-size:.85rem;margin-top:.4rem;">Complete your matching profile so we can show you realtors in the right area.</div><button class="rp-btn" style="margin-top:1rem;" onclick="showView(\'register\')">Update my profile</button></div>';
     return;
   }
 
-  // Populate city filter dropdown
+  // Compute set of ZIPs that fall within user's target cities
+  const userZipSet = new Set();
+  Object.entries(CA_ZIPS).forEach(([zip, city]) => {
+    targetCities.forEach(targetCity => {
+      // user target_cities may be "City, County" — extract city portion
+      const cityName = targetCity.split(',')[0].trim().toLowerCase();
+      if (city.toLowerCase() === cityName) userZipSet.add(zip);
+    });
+  });
+
   const filter = document.getElementById('fr-city-filter');
   filter.innerHTML = '<option value="">All my target cities</option>' +
-    targetCities.map(c => `<option value="${c}">${c}</option>`).join('');
+    targetCities.map(c => '<option value="' + c + '">' + c + '</option>').join('');
 
-  // Fetch all visible realtors
   const { data: realtors, error } = await sb
     .from('realtor_profiles')
-    .select(`
-      account_id,
-      bio,
-      brokerage,
-      years_experience,
-      specialties,
-      selected_cities,
-      cert_status,
-      is_visible,
-      accounts!realtor_profiles_account_id_fkey(id, full_name, role, tier, status)
-    `);
+    .select('account_id, bio, brokerage, team_name, years_experience, specialties, interests, selected_zips, cert_status, is_visible, test_visibility_override, style_communication, style_decision, style_pace, style_education, style_negotiation, accounts!realtor_profiles_account_id_fkey(id, full_name, role, tier, status)');
 
   if (error) {
-    document.getElementById('fr-realtor-list').innerHTML = `<div class="rp-empty-state"><div class="rp-empty-state-icon">⚠️</div><div>Could not load realtors. ${error.message}</div></div>`;
+    document.getElementById('fr-realtor-list').innerHTML =
+      '<div class="rp-empty-state"><div class="rp-empty-state-icon">⚠️</div><div>Could not load realtors. ' + error.message + '</div></div>';
     console.error(error);
     return;
   }
 
-  // Filter to those with target-city overlap and visible
+  // Filter: visible AND (real ZIP overlap OR test override with no overlap restriction)
   _allRealtors = (realtors || []).filter(r => {
     if (!r.is_visible) return false;
     if (!r.accounts || r.accounts.status !== 'active') return false;
-    const overlap = (r.selected_cities || []).some(c => targetCities.includes(c));
+    // ZIP overlap with user's target cities
+    const realtorZips = r.selected_zips || [];
+    const overlap = realtorZips.some(z => userZipSet.has(z));
+    // For testing: if test_override is on and realtor has no ZIPs yet, still show them
+    if (r.test_visibility_override && realtorZips.length === 0) return true;
     return overlap;
   });
 
-  // Get review aggregates per realtor
+  // Reviews
   if (_allRealtors.length > 0) {
     const realtorIds = _allRealtors.map(r => r.account_id);
     const { data: reviews } = await sb
@@ -7319,6 +7785,11 @@ async function loadFindRealtor() {
       const m = reviewMap[r.account_id];
       r._avg_rating = m ? (m.sum / m.count) : null;
       r._review_count = m ? m.count : 0;
+      // Compute match score
+      const ms = computeMatchScore(r, _userProfile);
+      r._match_score = ms.score;
+      r._match_bucket = ms.bucket;
+      r._match_components = ms.components;
     });
   }
 
@@ -7329,34 +7800,49 @@ function filterRealtors() {
   const search = (document.getElementById('fr-search').value || '').toLowerCase();
   const city = document.getElementById('fr-city-filter').value;
 
+  // City filter: if set, only show realtors with ZIPs in that city
+  let cityZips = null;
+  if (city) {
+    cityZips = new Set();
+    const cityName = city.split(',')[0].trim().toLowerCase();
+    Object.entries(CA_ZIPS).forEach(([zip, c]) => {
+      if (c.toLowerCase() === cityName) cityZips.add(zip);
+    });
+  }
+
   let filtered = _allRealtors.filter(r => {
-    if (city && !(r.selected_cities || []).includes(city)) return false;
+    if (cityZips) {
+      const overlap = (r.selected_zips || []).some(z => cityZips.has(z));
+      if (!overlap && !(r.test_visibility_override && (r.selected_zips || []).length === 0)) return false;
+    }
     if (search) {
-      const hay = `${r.accounts?.full_name || ''} ${(r.specialties || []).join(' ')} ${r.bio || ''}`.toLowerCase();
+      const hay = ((r.accounts?.full_name || '') + ' ' +
+        (r.specialties || []).map(s => SPEC_LABELS[s] || s).join(' ') + ' ' +
+        (r.interests || []).map(i => INT_LABELS[i] || i).join(' ') + ' ' +
+        (r.bio || '')).toLowerCase();
       if (!hay.includes(search)) return false;
     }
     return true;
   });
 
-  // Sort: paid first, then by review score, then by experience
+  // Sort: match bucket first, then paid stacked first, then review score, then experience
+  const bucketOrder = { excellent: 4, strong: 3, good: 2, low: 1, unknown: 0 };
   filtered.sort((a, b) => {
+    const ab = bucketOrder[a._match_bucket] || 0;
+    const bb = bucketOrder[b._match_bucket] || 0;
+    if (ab !== bb) return bb - ab;
     const aPaid = (a.accounts?.tier === 'paid') ? 1 : 0;
     const bPaid = (b.accounts?.tier === 'paid') ? 1 : 0;
     if (aPaid !== bPaid) return bPaid - aPaid;
-    const aRating = a._avg_rating || 0;
-    const bRating = b._avg_rating || 0;
-    if (aRating !== bRating) return bRating - aRating;
+    const ar = a._avg_rating || 0;
+    const br = b._avg_rating || 0;
+    if (ar !== br) return br - ar;
     return (b.years_experience || 0) - (a.years_experience || 0);
   });
 
   const container = document.getElementById('fr-realtor-list');
   if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="rp-empty-state">
-        <div class="rp-empty-state-icon">🔍</div>
-        <div>No NEXUS-certified realtors in your area yet.</div>
-        <div style="font-size:.85rem;margin-top:.4rem;">We're recruiting actively. You'll be notified when realtors in your cities become available.</div>
-      </div>`;
+    container.innerHTML = '<div class="rp-empty-state"><div class="rp-empty-state-icon">🔍</div><div>No NEXUS-certified realtors in your area yet.</div><div style="font-size:.85rem;margin-top:.4rem;">We\'re recruiting actively. You\'ll be notified when realtors in your cities become available.</div></div>';
     return;
   }
 
@@ -7366,23 +7852,32 @@ function filterRealtors() {
     const lastInitial = fullName.split(' ')[1] ? fullName.split(' ')[1][0] + '.' : '';
     const initials = (firstName[0] || 'N') + (lastInitial[0] || '');
     const tier = r.accounts?.tier;
-    const featuredClass = tier === 'paid' ? 'featured' : '';
+    const featuredClass = (tier === 'paid' || r._match_bucket === 'excellent') ? 'featured' : '';
     const stars = r._avg_rating ? '★'.repeat(Math.round(r._avg_rating)) + '☆'.repeat(5 - Math.round(r._avg_rating)) : '';
-    let badge = '';
-    if (tier === 'paid') badge = '<span class="rp-badge rp-badge-network">NEXUS Network</span>';
-    badge += '<span class="rp-badge rp-badge-cert">✓ Certified</span>';
 
-    return `
-      <div class="rp-realtor-card ${featuredClass}" onclick="viewRealtor('${r.account_id}')">
-        <div class="rp-realtor-photo">${initials.toUpperCase()}</div>
-        <div class="rp-realtor-meta">
-          <div style="margin-bottom:.3rem;">${badge}</div>
-          <h3 class="rp-realtor-name">${firstName} ${lastInitial}</h3>
-          <div class="rp-realtor-brokerage">${r.brokerage || ''} · ${r.years_experience || '?'} yrs experience</div>
-          <div class="rp-realtor-cities">${(r.selected_cities || []).slice(0, 3).join(' · ')}</div>
-          ${r._avg_rating ? `<div class="rp-realtor-rating"><span class="rp-stars">${stars}</span> <span>${r._avg_rating.toFixed(1)} (${r._review_count} review${r._review_count === 1 ? '' : 's'})</span></div>` : '<div style="font-size:.82rem;color:var(--gray-text);margin-top:.5rem;">No reviews yet</div>'}
-        </div>
-      </div>`;
+    let matchBadge = '';
+    if (r._match_bucket === 'excellent') matchBadge = '<span class="rp-badge" style="background:rgba(22,163,74,.12);color:#15803d;">★ Excellent match</span>';
+    else if (r._match_bucket === 'strong') matchBadge = '<span class="rp-badge" style="background:rgba(37,99,235,.12);color:var(--blue);">Strong match</span>';
+    else if (r._match_bucket === 'good') matchBadge = '<span class="rp-badge" style="background:rgba(107,114,128,.12);color:#4b5563;">Good match</span>';
+
+    let badges = matchBadge;
+    if (tier === 'paid') badges += '<span class="rp-badge rp-badge-network">NEXUS Network</span>';
+    badges += '<span class="rp-badge rp-badge-cert">✓ Certified</span>';
+
+    const cityList = (r.selected_zips || []).slice(0, 4).map(z => CA_ZIPS[z] || z);
+    const uniqueCities = [...new Set(cityList)].slice(0, 3).join(' · ');
+
+    return '<div class="rp-realtor-card ' + featuredClass + '" onclick="viewRealtor(\'' + r.account_id + '\')">' +
+      '<div class="rp-realtor-photo">' + initials.toUpperCase() + '</div>' +
+      '<div class="rp-realtor-meta">' +
+      '<div style="margin-bottom:.3rem;">' + badges + '</div>' +
+      '<h3 class="rp-realtor-name">' + firstName + ' ' + lastInitial + '</h3>' +
+      '<div class="rp-realtor-brokerage">' + (r.brokerage || '') + (r.team_name ? ' — ' + r.team_name : '') + ' · ' + (r.years_experience || '?') + ' yrs experience</div>' +
+      (uniqueCities ? '<div class="rp-realtor-cities">' + uniqueCities + '</div>' : '') +
+      (r._avg_rating
+        ? '<div class="rp-realtor-rating"><span class="rp-stars">' + stars + '</span> <span>' + r._avg_rating.toFixed(1) + ' (' + r._review_count + ' review' + (r._review_count === 1 ? '' : 's') + ')</span></div>'
+        : '<div style="font-size:.82rem;color:var(--gray-text);margin-top:.5rem;">No reviews yet</div>') +
+      '</div></div>';
   }).join('');
 }
 
@@ -7402,28 +7897,48 @@ async function viewRealtor(realtorId) {
   const initials = (firstName[0] || 'N') + (lastInitial[0] || '');
 
   document.getElementById('rpf-photo').textContent = initials.toUpperCase();
-  document.getElementById('rpf-name').textContent = `${firstName} ${lastInitial}`;
-  document.getElementById('rpf-brokerage').textContent = r.brokerage || '';
-  document.getElementById('rpf-experience').textContent = `${r.years_experience || '?'} years of experience`;
+  document.getElementById('rpf-name').textContent = firstName + ' ' + lastInitial;
+  document.getElementById('rpf-brokerage').textContent = (r.brokerage || '') + (r.team_name ? ' — ' + r.team_name : '');
+  document.getElementById('rpf-experience').textContent = (r.years_experience || '?') + ' years of experience';
   document.getElementById('rpf-bio').textContent = r.bio || '';
 
   let badges = '<span class="rp-badge rp-badge-cert">✓ NEXUS Certified</span>';
   if (r.accounts?.tier === 'paid') badges += '<span class="rp-badge rp-badge-network">NEXUS Network</span>';
+  if (r._match_bucket === 'excellent') badges += '<span class="rp-badge" style="background:rgba(22,163,74,.12);color:#15803d;">★ Excellent match</span>';
+  else if (r._match_bucket === 'strong') badges += '<span class="rp-badge" style="background:rgba(37,99,235,.12);color:var(--blue);">Strong match</span>';
+  else if (r._match_bucket === 'good') badges += '<span class="rp-badge" style="background:rgba(107,114,128,.12);color:#4b5563;">Good match</span>';
   document.getElementById('rpf-badges').innerHTML = badges;
 
   document.getElementById('rpf-rating').innerHTML = r._avg_rating
-    ? `<span class="rp-stars">${'★'.repeat(Math.round(r._avg_rating))}${'☆'.repeat(5 - Math.round(r._avg_rating))}</span> <span>${r._avg_rating.toFixed(1)} from ${r._review_count} review${r._review_count === 1 ? '' : 's'}</span>`
+    ? '<span class="rp-stars">' + '★'.repeat(Math.round(r._avg_rating)) + '☆'.repeat(5 - Math.round(r._avg_rating)) + '</span> <span>' + r._avg_rating.toFixed(1) + ' from ' + r._review_count + ' review' + (r._review_count === 1 ? '' : 's') + '</span>'
     : '<span style="color:var(--gray-text);font-size:.85rem;">No reviews yet</span>';
 
   document.getElementById('rpf-specialties').innerHTML = (r.specialties || []).map(s =>
-    `<span class="rp-tag">${SPEC_LABELS[s] || s}</span>`
+    '<span class="rp-tag">' + (SPEC_LABELS[s] || s) + '</span>'
   ).join('') || '<span style="color:var(--gray-text);font-size:.85rem;">None listed</span>';
 
-  document.getElementById('rpf-cities').innerHTML = (r.selected_cities || []).map(c =>
-    `<span class="rp-tag">${c}</span>`
+  // Add interests display (if container exists; if not, append after specialties)
+  let intsContainer = document.getElementById('rpf-interests');
+  if (!intsContainer) {
+    intsContainer = document.createElement('div');
+    intsContainer.id = 'rpf-interests';
+    intsContainer.style.cssText = 'display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem;';
+    const specsContainer = document.getElementById('rpf-specialties');
+    const heading = document.createElement('h3');
+    heading.className = 'rp-card-title';
+    heading.style.cssText = 'margin-top:1.5rem;margin-bottom:.6rem;';
+    heading.textContent = 'Personal interests';
+    specsContainer.parentNode.insertBefore(heading, specsContainer.nextSibling);
+    specsContainer.parentNode.insertBefore(intsContainer, heading.nextSibling);
+  }
+  intsContainer.innerHTML = (r.interests || []).map(i =>
+    '<span class="rp-tag" style="background:rgba(47,215,145,.12);color:#15803d;">' + (INT_LABELS[i] || i) + '</span>'
+  ).join('') || '<span style="color:var(--gray-text);font-size:.85rem;">None listed</span>';
+
+  document.getElementById('rpf-cities').innerHTML = (r.selected_zips || []).map(z =>
+    '<span class="rp-tag">' + z + ' (' + (CA_ZIPS[z] || '?') + ')</span>'
   ).join('');
 
-  // Check if user has already selected this realtor
   const { data: existing } = await sb
     .from('realtor_selections')
     .select('id, status')
@@ -7434,7 +7949,7 @@ async function viewRealtor(realtorId) {
   const btn = document.getElementById('rpf-select-btn');
   if (existing) {
     btn.disabled = true;
-    btn.textContent = `Already selected (status: ${existing.status})`;
+    btn.textContent = 'Already selected (status: ' + existing.status + ')';
   } else {
     btn.disabled = false;
     btn.textContent = 'Select this realtor';
@@ -7443,12 +7958,14 @@ async function viewRealtor(realtorId) {
 
 async function selectThisRealtor() {
   if (!_viewingRealtor || !currentUser) return;
-  if (!confirm(`Select ${_viewingRealtor.accounts?.full_name?.split(' ')[0] || 'this realtor'} as your NEXUS realtor? They'll be notified and can accept the connection.`)) return;
+  const firstName = (_viewingRealtor.accounts?.full_name || 'this realtor').split(' ')[0];
+  if (!confirm('Select ' + firstName + ' as your NEXUS realtor? They\'ll be notified and can accept the connection. This starts the 24-month commission obligation window if a deal closes.')) return;
   showSpinner();
   const { error } = await sb.from('realtor_selections').insert({
     user_id: currentUser.id,
     realtor_id: _viewingRealtor.account_id,
-    status: 'pending_acceptance'
+    status: 'pending_acceptance',
+    initiated_by: 'user'
   });
   hideSpinner();
   if (error) {
@@ -7461,7 +7978,6 @@ async function selectThisRealtor() {
 }
 
 // ─────────────────── ROUTING UPDATES ───────────────────
-// Update routeForRole to send realtors and users to their respective places
 const _origRouteForRole = routeForRole;
 routeForRole = async function() {
   if (!currentAccount) {
@@ -7473,8 +7989,6 @@ routeForRole = async function() {
     return;
   }
   if (currentAccount.role === 'realtor') {
-    // Check if their realtor_profiles row exists & is completed
-    // If not, send to onboarding directly so we don't flash the dashboard
     try {
       const { data: profile } = await sb
         .from('realtor_profiles')
@@ -7487,7 +8001,7 @@ routeForRole = async function() {
         return;
       }
     } catch (e) {
-      console.warn('Profile check failed, sending to onboarding:', e);
+      console.warn('Profile check failed:', e);
       showView('realtor-onboard');
       setTimeout(() => ronboardSetStep(1), 50);
       return;
@@ -7496,11 +8010,9 @@ routeForRole = async function() {
     setTimeout(() => loadRealtorDashboard(), 100);
     return;
   }
-  // User: route to matching dashboard
   showView('dashboard');
 };
 
-// Hook view-find-realtor and view-realtor-dashboard into showView
 const _showViewBeforeRealtor = showView;
 showView = function(viewName) {
   _showViewBeforeRealtor(viewName);
@@ -7529,33 +8041,43 @@ showView = function(viewName) {
       showToast('Realtor account required', 'error');
       return;
     }
-    setTimeout(() => ronboardSetStep(1), 50);
+    setTimeout(() => {
+      ronboardSetStep(1);
+      // Pre-fill name from auth metadata if present
+      const nameField = document.getElementById('ro-fullname');
+      if (nameField && !nameField.value && currentAccount?.full_name) {
+        nameField.value = currentAccount.full_name;
+      }
+      const phoneField = document.getElementById('ro-phone');
+      if (phoneField && !phoneField.value && currentAccount?.phone) {
+        phoneField.value = currentAccount.phone;
+      }
+    }, 50);
   }
 };
 
-// When a realtor signs up, send them to onboarding (not the homebuyer dashboard)
-// We patch the SIGNED_IN handler that auth scripts already have
-// by intercepting routeForRole, which runs after signin.
-
-// Add "Find a Realtor" link to user dashboard if it exists
+// Add helper links (Find a Realtor + Documents) to user dashboard
 document.addEventListener('DOMContentLoaded', () => {
-  // Patch user dashboard with a Find Realtor button if not present
   const userDash = document.getElementById('view-dashboard');
   if (userDash && !document.getElementById('user-find-realtor-link')) {
     const helperBlock = document.createElement('div');
     helperBlock.id = 'user-find-realtor-link';
-    helperBlock.style.cssText = 'max-width:1080px;margin:1.5rem auto 0;padding:0 1.5rem;';
-    helperBlock.innerHTML = `
-      <div style="background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(47,215,145,.04));border:1px solid var(--gray);border-radius:12px;padding:1.25rem 1.4rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.85rem;">
-        <div>
-          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Ready to find your NEXUS realtor?</div>
-          <div style="color:var(--gray-text);font-size:.88rem;margin-top:.2rem;">Browse certified realtors in your target cities.</div>
-        </div>
-        <button class="rp-btn" onclick="showView('find-realtor')">Find a realtor →</button>
-      </div>`;
+    helperBlock.style.cssText = 'max-width:1080px;margin:1.5rem auto 0;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;';
+    helperBlock.innerHTML =
+      '<div style="background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(47,215,145,.04));border:1px solid var(--gray);border-radius:12px;padding:1.25rem 1.4rem;">' +
+      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Find your NEXUS realtor</div>' +
+      '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Browse certified realtors in your target cities.</div>' +
+      '<button class="rp-btn" onclick="showView(\'find-realtor\')">Find a realtor →</button>' +
+      '</div>' +
+      '<div style="background:linear-gradient(135deg,rgba(139,92,246,.06),rgba(37,99,235,.04));border:1px solid var(--gray);border-radius:12px;padding:1.25rem 1.4rem;">' +
+      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Co-ownership documents</div>' +
+      '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Preview the 6 agreements that protect your equity.</div>' +
+      '<button class="rp-btn rp-btn-secondary" onclick="showView(\'documents\')">View documents →</button>' +
+      '</div>';
     userDash.appendChild(helperBlock);
   }
 });
+
 </script>
 
 <style>
