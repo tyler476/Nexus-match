@@ -2620,11 +2620,26 @@ body.is-impersonating{padding-top:50px;}
 <div id="view-dashboard" class="view">
   <div class="dash-wrap">
     <div class="dash-header">
-      <h2>Welcome back, <span id="dash-name">Maya</span> 👋</h2>
-      <p>Your co-ownership journey is underway. Here's where things stand.</p>
+      <h2>Welcome back, <span id="dash-name">there</span> 👋</h2>
+      <p id="dash-subtitle">Your co-ownership journey is underway. Here's where things stand.</p>
     </div>
 
-    <div class="dash-grid">
+    <!-- ─── Real user profile summary (rendered by loadUserDashboard from Supabase) ─── -->
+    <div id="user-real-dash" style="max-width:1080px;margin:0 auto;padding:0 1.5rem;display:none;">
+      <div id="user-profile-card" style="background:var(--white);border:1.5px solid var(--gray);border-radius:14px;padding:1.75rem;margin-bottom:1.25rem;display:grid;grid-template-columns:120px 1fr;gap:1.5rem;align-items:start;">
+        <!-- Populated by JS -->
+      </div>
+      <div id="user-meta-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.25rem;">
+        <!-- 4 small stat cards: looking in, price range, timeline, household -->
+      </div>
+      <div id="user-interests-row" style="background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
+        <!-- Interests + working style -->
+      </div>
+      <div id="user-pending-selections" style="margin-bottom:1.25rem;"></div>
+    </div>
+
+    <!-- ─── Static demo grid (shown when there's no profile_completed=true OR for marketing) ─── -->
+    <div class="dash-grid" id="user-demo-grid">
 
       <!-- Match Status Card -->
       <div class="dash-card match-status-card" id="match-card">
@@ -6679,15 +6694,18 @@ async function initAuth() {
       currentUser = session.user;
       await loadAccount();
       updateNavForAuthed();
-      // If they have a fresh session (just confirmed email), route to dashboard
-      // Otherwise leave them on whatever view they're on
+
+      // Clean any auth-redirect tokens from URL
       if (window.location.hash.includes('access_token') ||
           window.location.hash.includes('type=signup') ||
           window.location.hash.includes('type=magiclink')) {
-        // Coming from email confirmation - clean URL and route
         history.replaceState(null, '', window.location.pathname);
-        setTimeout(() => routeForRole(), 100);
       }
+
+      // Always route logged-in users to their dashboard. The home/landing view
+      // is for anonymous visitors. Once you're signed in (especially when admin
+      // impersonates a mock account), you should land on the right portal.
+      setTimeout(() => routeForRole(), 100);
     } else {
       updateNavForLoggedOut();
     }
@@ -7969,6 +7987,216 @@ function computeMatchScore(realtor, userProfile) {
 let _allRealtors = [];
 let _userProfile = null;
 
+// ════════════════════════════════════════════════════════════════════
+// USER-SIDE DASHBOARD (impersonation-aware)
+// Pulls the signed-in user's profile + selections from Supabase and
+// renders a clean summary card. Hides the static "Maya/David K." demo
+// content when real data is available.
+// ════════════════════════════════════════════════════════════════════
+async function loadUserDashboard() {
+  if (!currentUser || currentAccount?.role !== 'user') return;
+
+  // Load profile + photo
+  const { data: profile, error } = await sb
+    .from('user_profiles')
+    .select('*')
+    .eq('account_id', currentUser.id)
+    .maybeSingle();
+
+  if (error) {
+    console.warn('Could not load user_profile:', error.message);
+    return;
+  }
+
+  // Update header name
+  const fullName = currentAccount.full_name || currentAccount.email || 'there';
+  const firstName = fullName.split(' ')[0];
+  const dashNameEl = document.getElementById('dash-name');
+  if (dashNameEl) dashNameEl.textContent = firstName;
+
+  const realDash = document.getElementById('user-real-dash');
+  const demoGrid = document.getElementById('user-demo-grid');
+
+  // If profile isn't completed yet, show the marketing/demo content
+  if (!profile || !profile.profile_completed) {
+    if (realDash) realDash.style.display = 'none';
+    if (demoGrid) demoGrid.style.display = '';
+    const subtitle = document.getElementById('dash-subtitle');
+    if (subtitle) {
+      subtitle.innerHTML = 'Finish your matching profile to start finding co-buyers and realtors. <a href="#" onclick="event.preventDefault();showView(\'register\')" style="color:var(--blue);font-weight:700;">Complete profile →</a>';
+    }
+    return;
+  }
+
+  // Real profile available — hide demo, render real card
+  if (realDash) realDash.style.display = 'block';
+  if (demoGrid) demoGrid.style.display = 'none';
+
+  // Update subtitle
+  const subtitle = document.getElementById('dash-subtitle');
+  if (subtitle) {
+    subtitle.textContent = `Here's your matching profile and what's happening next.`;
+  }
+
+  // Build profile card
+  const photo = profile.photo_url || '';
+  const initials = fullName.split(' ').map(s => s[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || '?';
+  const householdLabel = HOUSEHOLD_LABELS[profile.household_setup] || profile.household_setup || '—';
+  const targetCitiesStr = (profile.target_cities || []).join(', ') || '—';
+
+  const card = document.getElementById('user-profile-card');
+  if (card) {
+    card.innerHTML = `
+      ${photo
+        ? `<div style="width:120px;height:120px;border-radius:14px;background-image:url('${escapeHtml(photo)}');background-size:cover;background-position:center;border:2px solid var(--gray);box-shadow:0 4px 12px rgba(0,0,0,.06);"></div>`
+        : `<div style="width:120px;height:120px;border-radius:14px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-size:2.5rem;font-weight:800;display:flex;align-items:center;justify-content:center;">${escapeHtml(initials)}</div>`
+      }
+      <div>
+        <div style="font-size:1.45rem;font-weight:800;color:var(--navy);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.1;margin-bottom:.4rem;">${escapeHtml(fullName)}</div>
+        <div style="font-size:.92rem;color:var(--gray-text);margin-bottom:.75rem;">
+          ${escapeHtml(profile.age_range || '')} · ${escapeHtml(householdLabel)} · 📍 ${escapeHtml(profile.current_city || 'Location not set')}
+        </div>
+        <div style="background:var(--bg);border-left:3px solid var(--blue);padding:.85rem 1.1rem;border-radius:0 8px 8px 0;font-size:.9rem;line-height:1.55;color:#374151;font-style:italic;max-width:680px;">
+          “${escapeHtml(profile.story || 'No story yet — head to your profile to add some context for your future co-buyer.')}”
+        </div>
+        <div style="margin-top:.85rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="rp-btn rp-btn-secondary" onclick="showView('register')">Edit profile →</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Build meta grid (4 stat cards)
+  const meta = document.getElementById('user-meta-grid');
+  if (meta) {
+    meta.innerHTML = `
+      <div style="background:var(--white);border:1.5px solid var(--gray);border-radius:10px;padding:1rem 1.1rem;">
+        <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.25rem;">Looking in</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--navy);line-height:1.3;">${escapeHtml(targetCitiesStr)}</div>
+      </div>
+      <div style="background:var(--white);border:1.5px solid var(--gray);border-radius:10px;padding:1rem 1.1rem;">
+        <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.25rem;">Price range</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--navy);">${escapeHtml(profile.price_range || '—')}</div>
+      </div>
+      <div style="background:var(--white);border:1.5px solid var(--gray);border-radius:10px;padding:1rem 1.1rem;">
+        <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.25rem;">Timeline</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--navy);">${escapeHtml(profile.timeline || '—')}</div>
+      </div>
+      <div style="background:var(--white);border:1.5px solid var(--gray);border-radius:10px;padding:1rem 1.1rem;">
+        <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.25rem;">Credit · Income</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--navy);">${escapeHtml(profile.credit_range || '—')} · ${escapeHtml(profile.income_range || '—')}</div>
+      </div>
+    `;
+  }
+
+  // Build interests + working-style row
+  const interests = profile.interests || [];
+  const ints = document.getElementById('user-interests-row');
+  if (ints) {
+    const interestPills = interests.map(i =>
+      `<span style="display:inline-block;background:var(--bg);color:var(--navy);padding:.4rem .9rem;border-radius:18px;font-size:.82rem;font-weight:600;border:1px solid var(--gray);">${escapeHtml(INTEREST_LABELS[i] || i)}</span>`
+    ).join(' ');
+    const styleBars = [
+      ['style_communication', 'Communication', 'Light touch ↔ Hands-on'],
+      ['style_decision', 'Decision style', 'Cautious ↔ Decisive'],
+      ['style_pace', 'Pace', 'Patient ↔ Fast'],
+      ['style_education', 'Education', 'Knows market ↔ First-timer'],
+      ['style_negotiation', 'Negotiation', 'Diplomatic ↔ Aggressive']
+    ].map(([key, label]) => {
+      const v = profile[key] || 3;
+      return `
+        <div style="margin-bottom:.5rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.2rem;">
+            <span style="color:var(--gray-text);font-weight:600;">${label}</span>
+            <span style="color:var(--navy);font-weight:700;">${v}/5</span>
+          </div>
+          <div style="height:5px;background:var(--gray);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${(v/5)*100}%;background:linear-gradient(90deg,var(--blue),var(--green));"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    ints.innerHTML = `
+      <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.6rem;">Personal interests</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem;">${interestPills || '<span style="color:var(--gray-text);">None set</span>'}</div>
+      <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.6rem;">Working-style preferences</div>
+      ${styleBars}
+    `;
+  }
+
+  // Pending selections (status = pending_acceptance / connected)
+  const pendingDiv = document.getElementById('user-pending-selections');
+  if (pendingDiv) {
+    const { data: selections } = await sb
+      .from('realtor_selections')
+      .select('id, status, notes, first_contact_at, realtor_id, realtor:accounts!realtor_selections_realtor_id_fkey(id, full_name), realtor_profile:realtor_profiles!realtor_selections_realtor_id_fkey(headshot_url, brokerage)')
+      .eq('user_id', currentUser.id)
+      .order('first_contact_at', { ascending: false });
+
+    if (selections && selections.length > 0) {
+      pendingDiv.innerHTML = `
+        <div style="background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;">
+          <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.85rem;">Your realtor selections (${selections.length})</div>
+          <div style="display:flex;flex-direction:column;gap:.65rem;">
+            ${selections.map(s => {
+              const photoUrl = s.realtor_profile?.headshot_url;
+              const photoHtml = photoUrl
+                ? `<div style="width:42px;height:42px;border-radius:50%;background-image:url('${escapeHtml(photoUrl)}');background-size:cover;flex-shrink:0;"></div>`
+                : `<div style="width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">${(s.realtor?.full_name || '?').split(' ').map(p=>p[0]).slice(0,2).join('')}</div>`;
+              const statusColor = STATUS_COLORS[s.status] || '#9CA3AF';
+              return `
+                <div style="display:flex;gap:.85rem;align-items:center;padding:.65rem;border:1px solid var(--gray);border-radius:9px;">
+                  ${photoHtml}
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;color:var(--navy);font-size:.92rem;">${escapeHtml(s.realtor?.full_name || 'Unknown')}</div>
+                    <div style="font-size:.78rem;color:var(--gray-text);">${escapeHtml(s.realtor_profile?.brokerage || '')}</div>
+                  </div>
+                  <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:${statusColor};padding:.3rem .7rem;border-radius:14px;white-space:nowrap;">${escapeHtml(STATUS_LABELS[s.status] || s.status)}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      pendingDiv.innerHTML = '';
+    }
+  }
+}
+window.loadUserDashboard = loadUserDashboard;
+
+// Lookup tables for prettifying values
+const HOUSEHOLD_LABELS = {
+  'single': 'Single buyer',
+  'single_parent': 'Single parent',
+  'couple_no_kids': 'Couple, no kids',
+  'family_with_kids': 'Family with kids',
+  'multigenerational': 'Multi-generational',
+  'co_buying_partner': 'Co-buying with partner',
+  'co_buying_friends': 'Co-buying with friends'
+};
+const INTEREST_LABELS = {
+  'family':'👨‍👩‍👧 Family','tech':'💻 Tech','foodie':'🍽 Foodie','fitness':'🏋️ Fitness',
+  'outdoor':'🏞 Outdoor','cooking':'🍳 Cooking','travel':'✈️ Travel','arts-music':'🎨 Arts & music',
+  'reading':'📚 Reading','sports':'⚽ Sports','faith':'🙏 Faith','volunteer':'🤝 Volunteer',
+  'pets':'🐶 Pets','investing':'💰 Investing','entrepreneurship':'🚀 Entrepreneurship'
+};
+const STATUS_LABELS = {
+  'pending_acceptance':'Awaiting realtor',
+  'connected':'Connected',
+  'declined':'Declined',
+  'completed':'Completed',
+  'closed_with_realtor':'Closed deal'
+};
+const STATUS_COLORS = {
+  'pending_acceptance':'#F59E0B',
+  'connected':'#10B981',
+  'declined':'#9CA3AF',
+  'completed':'#6366F1',
+  'closed_with_realtor':'#0F766E'
+};
+
 async function loadFindRealtor() {
   if (!currentUser || currentAccount?.role !== 'user') {
     showToast('Sign up as a homebuyer to browse realtors', 'error');
@@ -8270,11 +8498,18 @@ routeForRole = async function() {
     return;
   }
   showView('dashboard');
+  setTimeout(() => { if (typeof loadUserDashboard === 'function') loadUserDashboard(); }, 100);
 };
 
 const _showViewBeforeRealtor = showView;
 showView = function(viewName) {
   _showViewBeforeRealtor(viewName);
+
+  if (viewName === 'dashboard') {
+    if (currentUser && currentAccount?.role === 'user') {
+      setTimeout(() => { if (typeof loadUserDashboard === 'function') loadUserDashboard(); }, 50);
+    }
+  }
 
   if (viewName === 'realtor-dashboard') {
     if (!currentUser) { openLoginModal(); return; }
