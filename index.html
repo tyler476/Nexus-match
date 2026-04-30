@@ -3533,6 +3533,103 @@ body.is-impersonating{padding-top:50px;}
 .rp-cert-status-card.certified{background:linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%);border-color:#10b981;}
 .rp-cert-pill-list{display:flex;flex-wrap:wrap;gap:.45rem;margin:.85rem 0;}
 .rp-cert-module{background:#fff;padding:.45rem .8rem;border-radius:6px;font-size:.78rem;color:var(--text);border:1px solid rgba(0,0,0,.08);}
+
+/* ── CERT COURSE: full-page module view ── */
+#view-cert-course{background:var(--bg);min-height:calc(100vh - 64px);padding:2rem 1.25rem;}
+.cc-wrap{max-width:1080px;margin:0 auto;}
+.cc-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1.5px solid var(--gray);}
+.cc-header h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--navy);margin:0;line-height:1.2;}
+.cc-header .cc-sub{font-size:.92rem;color:var(--gray-text);margin-top:.3rem;}
+.cc-back{background:none;border:none;color:var(--blue);font-weight:600;font-size:.88rem;cursor:pointer;padding:.4rem .15rem;display:inline-flex;align-items:center;gap:.3rem;}
+.cc-back:hover{color:var(--navy);}
+
+/* Progress pills along the top */
+.cc-progress{display:flex;gap:.5rem;margin-bottom:1.75rem;flex-wrap:wrap;}
+.cc-progress-pill{flex:1;min-width:120px;background:var(--white);border:1.5px solid var(--gray);border-radius:8px;padding:.7rem .85rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;transition:all .15s;font-size:.78rem;font-weight:600;color:var(--gray-text);}
+.cc-progress-pill:hover{border-color:var(--blue);}
+.cc-progress-pill .pill-num{width:22px;height:22px;border-radius:50%;background:var(--gray);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;}
+.cc-progress-pill.active{background:linear-gradient(135deg,var(--navy),var(--blue));border-color:var(--navy);color:#fff;}
+.cc-progress-pill.active .pill-num{background:#fff;color:var(--navy);}
+.cc-progress-pill.done{border-color:var(--green);color:var(--green);}
+.cc-progress-pill.done .pill-num{background:var(--green);}
+.cc-progress-pill.done .pill-num::before{content:"✓";}
+.cc-progress-pill.done .pill-num span{display:none;}
+
+/* Module body */
+.cc-module{background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:2rem 2.25rem;margin-bottom:1.5rem;}
+.cc-module-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;font-size:.78rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;}
+.cc-module-meta .cc-time-badge{background:var(--bg);padding:.25rem .65rem;border-radius:12px;color:var(--navy);font-weight:700;}
+.cc-module h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:var(--navy);margin:.25rem 0 1rem;line-height:1.25;}
+.cc-module h3{font-size:1.1rem;font-weight:700;color:var(--navy);margin:1.6rem 0 .55rem;}
+.cc-module h4{font-size:.95rem;font-weight:700;color:var(--navy);margin:1.2rem 0 .4rem;}
+.cc-module p{font-size:.95rem;line-height:1.65;color:#374151;margin:0 0 .85rem;}
+.cc-module strong{color:var(--navy);}
+.cc-module ul,.cc-module ol{margin:.5rem 0 1rem;padding-left:1.4rem;}
+.cc-module li{font-size:.93rem;line-height:1.6;color:#374151;margin-bottom:.4rem;}
+
+.cc-callout{background:linear-gradient(135deg,rgba(29,111,164,.06),rgba(47,215,145,.04));border-left:4px solid var(--blue);padding:1rem 1.25rem;margin:1.25rem 0;border-radius:0 8px 8px 0;}
+.cc-callout strong{display:block;color:var(--navy);font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem;}
+.cc-callout.warning{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.03));border-left-color:#f59e0b;}
+.cc-callout.danger{background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(239,68,68,.03));border-left-color:#ef4444;}
+
+.cc-doc-card{background:var(--bg);border:1px solid var(--gray);border-left:4px solid var(--blue);border-radius:8px;padding:1.1rem 1.4rem;margin:1rem 0;}
+.cc-doc-card .cc-doc-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;margin-bottom:.25rem;}
+.cc-doc-card .cc-doc-purpose{font-size:.85rem;color:var(--gray-text);margin-bottom:.75rem;font-style:italic;}
+.cc-doc-card .cc-doc-key-clauses{font-size:.86rem;color:#374151;line-height:1.55;}
+.cc-doc-card.green{border-left-color:var(--green);}
+.cc-doc-card.purple{border-left-color:#8b5cf6;}
+.cc-doc-card.amber{border-left-color:#f59e0b;}
+.cc-doc-card.pink{border-left-color:#ec4899;}
+.cc-doc-card.red{border-left-color:#ef4444;}
+
+/* Quiz */
+.cc-quiz{background:linear-gradient(135deg,rgba(29,111,164,.04),rgba(47,215,145,.02));border:1.5px solid var(--blue);border-radius:12px;padding:1.5rem 1.75rem;margin-top:2rem;}
+.cc-quiz-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.15rem;margin-bottom:.5rem;}
+.cc-quiz-sub{font-size:.85rem;color:var(--gray-text);margin-bottom:1.25rem;}
+.cc-question{background:var(--white);border:1px solid var(--gray);border-radius:8px;padding:1.1rem 1.25rem;margin-bottom:.85rem;}
+.cc-question .qnum{font-size:.72rem;color:var(--gray-text);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;}
+.cc-question .qtext{font-weight:700;color:var(--navy);font-size:.98rem;margin-bottom:.85rem;line-height:1.4;}
+.cc-options{display:flex;flex-direction:column;gap:.45rem;}
+.cc-option{display:flex;align-items:flex-start;gap:.6rem;padding:.7rem .85rem;background:var(--bg);border:1.5px solid var(--gray);border-radius:7px;cursor:pointer;transition:all .12s;font-size:.9rem;line-height:1.4;color:#374151;}
+.cc-option:hover{border-color:var(--blue);background:rgba(29,111,164,.04);}
+.cc-option input{margin-top:2px;flex-shrink:0;accent-color:var(--blue);cursor:pointer;}
+.cc-option.selected{border-color:var(--blue);background:rgba(29,111,164,.08);}
+.cc-option.correct{border-color:var(--green);background:rgba(47,215,145,.1);}
+.cc-option.wrong{border-color:#ef4444;background:rgba(239,68,68,.08);}
+.cc-option .opt-feedback{display:block;font-size:.78rem;font-weight:600;margin-top:.3rem;}
+.cc-option.correct .opt-feedback{color:#15803d;}
+.cc-option.wrong .opt-feedback{color:#b91c1c;}
+
+.cc-attest{background:rgba(245,158,11,.07);border:1.5px dashed #f59e0b;border-radius:8px;padding:.95rem 1.2rem;margin:1.5rem 0;display:flex;align-items:flex-start;gap:.65rem;font-size:.88rem;line-height:1.5;color:#374151;}
+.cc-attest input[type="checkbox"]{margin-top:3px;flex-shrink:0;accent-color:#f59e0b;cursor:pointer;width:16px;height:16px;}
+
+/* Footer nav */
+.cc-footer{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding-top:1rem;border-top:1.5px solid var(--gray);}
+.cc-footer-info{font-size:.82rem;color:var(--gray-text);}
+.cc-btn{padding:.7rem 1.4rem;font-size:.92rem;font-weight:700;border-radius:8px;cursor:pointer;border:1.5px solid var(--gray);background:var(--white);color:var(--navy);transition:all .15s;}
+.cc-btn:hover:not(:disabled){border-color:var(--navy);}
+.cc-btn:disabled{opacity:.45;cursor:not-allowed;}
+.cc-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+.cc-btn.primary:hover:not(:disabled){background:#0f5b8a;border-color:#0f5b8a;}
+.cc-btn.success{background:var(--green);color:var(--navy);border-color:var(--green);font-weight:800;}
+.cc-btn.success:hover:not(:disabled){background:#26b87a;border-color:#26b87a;}
+
+/* Final exam result */
+.cc-result{padding:2rem;text-align:center;border-radius:12px;}
+.cc-result.pass{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:2px solid #10b981;}
+.cc-result.fail{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;}
+.cc-result-icon{font-size:3rem;margin-bottom:.5rem;}
+.cc-result h2{font-size:1.6rem;margin-bottom:.4rem;}
+.cc-result .cc-score{font-size:2.4rem;font-weight:800;color:var(--navy);margin:.5rem 0;font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* Cert tab inside dashboard — improved progress display */
+.cc-tab-progress{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+.cc-tab-mod-row{display:flex;align-items:center;gap:.7rem;padding:.65rem .9rem;background:var(--white);border:1.5px solid var(--gray);border-radius:8px;font-size:.88rem;color:var(--text);}
+.cc-tab-mod-row .cc-tab-mod-num{width:24px;height:24px;border-radius:50%;background:var(--gray);color:#fff;font-weight:800;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cc-tab-mod-row.done{border-color:var(--green);}
+.cc-tab-mod-row.done .cc-tab-mod-num{background:var(--green);}
+.cc-tab-mod-row .cc-tab-mod-status{margin-left:auto;font-size:.78rem;font-weight:600;color:var(--gray-text);}
+.cc-tab-mod-row.done .cc-tab-mod-status{color:#15803d;font-weight:700;}
 .rp-search-bar{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
 .rp-search-bar .rp-input{flex:1;min-width:200px;}
 .rp-empty-state{text-align:center;padding:3rem 1rem;color:var(--gray-text);}
@@ -4059,22 +4156,20 @@ body.is-impersonating{padding-top:50px;}
           <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;">
             <span style="font-size:1.8rem;" id="rd-cert-icon">🎓</span>
             <div>
-              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.15rem;" id="rd-cert-title">Certification — Coming Soon</div>
-              <div style="font-size:.84rem;color:var(--text);margin-top:.15rem;" id="rd-cert-status-text">Estimated 30–45 minutes when launched. Designed by our broker team.</div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.15rem;" id="rd-cert-title">NEXUS Realtor Certification</div>
+              <div style="font-size:.84rem;color:var(--text);margin-top:.15rem;" id="rd-cert-status-text">5 modules · ~36 minutes total · 80% to pass</div>
             </div>
           </div>
           <p style="font-size:.92rem;line-height:1.55;color:var(--text);margin:.8rem 0;">
-            Every NEXUS realtor completes a brief certification course before going visible to users. It's free, designed to be quick, and ensures every realtor on the platform has been trained on co-ownership specifics, RESPA basics, and how to work effectively with NEXUS-matched buyers.
+            Every NEXUS realtor completes this certification before going visible to users. The course covers co-ownership fundamentals, working with NEXUS-matched buyers, the 6-document agreement framework, RESPA & compliance, and platform best practices.
           </p>
-          <div class="rp-cert-pill-list">
-            <span class="rp-cert-module">Module 1 · Co-Ownership Fundamentals</span>
-            <span class="rp-cert-module">Module 2 · Working with NEXUS Buyers</span>
-            <span class="rp-cert-module">Module 3 · RESPA &amp; Compliance for Realtors</span>
-            <span class="rp-cert-module">Module 4 · Platform Best Practices</span>
+          <div class="cc-tab-progress" id="rd-cert-modules-list">
+            <!-- Populated by JS -->
           </div>
-          <p style="font-size:.84rem;color:var(--gray-text);margin-top:.6rem;">
-            <strong>You'll be notified the moment it's available.</strong> No action needed until then.
-          </p>
+          <div id="rd-cert-cta-row" style="margin-top:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+            <button class="rp-btn" id="rd-cert-start-btn" onclick="startCertCourse()">Start certification →</button>
+            <span id="rd-cert-result-summary" style="font-size:.85rem;color:var(--gray-text);"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -4420,6 +4515,36 @@ body.is-impersonating{padding-top:50px;}
     <p style="font-size:.92rem;line-height:1.55;color:var(--text);">NEXUS is operated by Citizens Financial / Badges Broker (NMLS #2503947). The realtor-side commission structure is being reviewed by compliance counsel under RESPA Section 8 and California real estate referral law prior to launch. Final terms may be modified to align with regulatory requirements. The performance commission is structured to attach to realtor compensation, not to mortgage settlement services.</p>
 
     <p style="font-size:.85rem;color:var(--gray-text);margin-top:2rem;text-align:center;">Last updated: April 2026 · For internal review and partner discussions · Not yet final</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     NEXUS Realtor Certification Course
+     5 modules + final exam, 80% to pass
+     Schema: certification_records.progress (jsonb)
+     ════════════════════════════════════════════════════════════════════ -->
+<div id="view-cert-course" class="view">
+  <div class="cc-wrap">
+
+    <button class="cc-back" onclick="exitCertCourse()">← Back to dashboard</button>
+
+    <div class="cc-header">
+      <div>
+        <h1>NEXUS. Realtor Certification</h1>
+        <div class="cc-sub">5 modules · ~36 minutes total · 80% to pass · v1.0-2026-04-mock</div>
+      </div>
+      <div id="cc-overall-progress" style="font-size:.85rem;color:var(--gray-text);font-weight:600;text-align:right;">
+        <span id="cc-progress-count">0</span> of 5 modules complete
+      </div>
+    </div>
+
+    <!-- Progress pills (clickable when unlocked) -->
+    <div class="cc-progress" id="cc-progress-pills"></div>
+
+    <!-- Module body container (rendered by JS) -->
+    <div id="cc-module-container"></div>
+
   </div>
 </div>
 
@@ -7258,11 +7383,26 @@ function renderMockList() {
         </div>
         <div class="actions">
           <button class="impersonate-btn" onclick="impersonateMock('${escapeHtml(r.email)}','${escapeHtml(r.full_name)}','${escapeHtml(r.role)}','${escapeHtml(r.photo_url || '')}')">Impersonate →</button>
+          ${r.role === 'realtor' ? `<button class="copy-btn" onclick="resetRealtorCert('${r.id}','${escapeHtml(r.full_name)}')" title="Reset this realtor's certification so they can walk through the course as a fresh user">Reset cert</button>` : ''}
           <button class="copy-btn" onclick="copyEmail(this,'${escapeHtml(r.email)}')">Copy email</button>
         </div>
       </div>`;
   }).join('');
 }
+
+async function resetRealtorCert(realtorId, fullName) {
+  if (!confirm(`Reset ${fullName}'s certification?\n\nThis sets their cert_status back to 'pending', removes their certified flag, and lets you walk through the 5-module course as them.\n\nThe seed regenerate will restore them to certified.`)) return;
+  try {
+    const { error } = await sb.rpc('admin_reset_realtor_cert', { p_realtor_id: realtorId });
+    if (error) throw error;
+    showToast(`${fullName}'s cert reset. Impersonate them to start the course.`, 'success');
+    refreshMockData();
+  } catch (e) {
+    console.error('reset cert failed:', e);
+    showToast('Reset failed: ' + (e.message || e), 'error');
+  }
+}
+window.resetRealtorCert = resetRealtorCert;
 
 function copyEmail(btn, email) {
   navigator.clipboard.writeText(email).then(() => {
@@ -7382,8 +7522,1099 @@ function maybeShowImpersonationBanner() {
 }
 window.maybeShowImpersonationBanner = maybeShowImpersonationBanner;
 
+// ════════════════════════════════════════════════════════════════════
+// NEXUS REALTOR CERTIFICATION COURSE
+// 5 modules + final exam · 80% to pass · v1.0-2026-04-mock
+// ════════════════════════════════════════════════════════════════════
+
+const CERT_COURSE_VERSION = 'v1.0-2026-04-mock';
+const CERT_PASS_THRESHOLD = 80;
+
+// Course content — each module has lesson HTML + quiz items
+const CERT_MODULES = [
+  // ════════ MODULE 1 ════════
+  {
+    n: 1,
+    title: 'Co-Ownership Fundamentals',
+    duration: '~6 min',
+    body: `
+      <h3>Why co-ownership is having a moment in California</h3>
+      <p>The median single-family home in California sold for over $865K in 2024. For most working professionals, especially first-time buyers, the path to homeownership has narrowed to two options: wait years longer, or partner with someone else to make the math work.</p>
+      <p>NEXUS-matched co-ownership is structured ownership between two or more individuals — friends, partners, family, or matched co-buyers — sharing the equity, mortgage responsibility, and use of a single property. It's not a roommate arrangement; it's a legally formalized co-investment with built-in protections for every owner.</p>
+
+      <h3>The two ownership structures we use</h3>
+
+      <div class="cc-doc-card">
+        <div class="cc-doc-title">Tenants in Common (TIC)</div>
+        <div class="cc-doc-purpose">Default structure for most NEXUS co-buyers</div>
+        <div class="cc-doc-key-clauses">
+          Each co-owner holds a defined fractional interest (e.g., 50/50, 60/40, or split among three or more). On death, an owner's share passes to their estate per their will — not automatically to the other co-owners. Shares can differ from each owner's mortgage liability if the operating agreement defines it that way.
+        </div>
+      </div>
+
+      <div class="cc-doc-card green">
+        <div class="cc-doc-title">Revocable Living Trust (RLT)</div>
+        <div class="cc-doc-purpose">For specific estate-planning needs</div>
+        <div class="cc-doc-key-clauses">
+          Used when one or more co-owners need probate avoidance, has dependents requiring trust-based asset transfer, or has more complex estate considerations. Requires more setup but offers stronger inheritance flexibility.
+        </div>
+      </div>
+
+      <div class="cc-callout">
+        <strong>Realtor takeaway</strong>
+        For ~95% of NEXUS co-buyers, TIC is the right answer. RLT is the exception, not the norm. If a buyer asks about RLT, refer them to NEXUS counsel — don't recommend it on your own.
+      </div>
+
+      <h3>How equity shares work</h3>
+      <p>Equity shares are <strong>not automatically 50/50</strong>. They're defined by what each co-owner contributes and is responsible for going forward. A typical NEXUS co-buyer split looks like this:</p>
+      <ul>
+        <li><strong>Down payment contribution</strong> — if Buyer A puts in $80K and Buyer B puts in $40K on a $120K total down, that's a baseline 67/33 split before mortgage liability adjustments.</li>
+        <li><strong>Monthly mortgage liability</strong> — both names are on the loan. The operating agreement can specify a 50/50 monthly payment split even if equity is 67/33.</li>
+        <li><strong>Reserve fund contribution</strong> — typically equal monthly amounts regardless of equity ratio.</li>
+        <li><strong>Capital improvement credits</strong> — if one owner pays for a $20K renovation later, that increases their equity share per the agreement.</li>
+      </ul>
+
+      <h3>Voting authority</h3>
+      <p>Equity share doesn't always equal voting power on shared decisions. The operating agreement defines four voting tiers we'll cover in Module 3. For now, know that:</p>
+      <ul>
+        <li><strong>Routine decisions</strong> (e.g., paying utilities) can be made by any single co-owner.</li>
+        <li><strong>Standard decisions</strong> (e.g., a $500 repair) require simple majority.</li>
+        <li><strong>Major decisions</strong> (e.g., refinancing, selling) require supermajority — typically 75% or unanimous.</li>
+        <li><strong>Removal of a co-owner</strong> requires a separate process governed by the Exit & Acceleration agreement.</li>
+      </ul>
+
+      <h3>What you need to know as their realtor</h3>
+      <ul>
+        <li>You're advising buyers who are entering a multi-year financial partnership with someone else, often a stranger they've matched through NEXUS. Property choice affects them differently than a single buyer or married couple.</li>
+        <li>Privacy and personal-space layout matter more here. A 3BR/2BA with two equal primary suites is often a better fit than a 4BR with one master and three small bedrooms.</li>
+        <li>You don't draft or interpret the legal agreements. NEXUS counsel does that. Your role is to make sure your buyers understand the structure they're entering and that the property fits.</li>
+      </ul>
+    `,
+    quiz: [
+      {
+        q: 'Two friends are co-buying a $700K home with NEXUS. Friend A puts in $80K down payment; Friend B puts in $40K. Both will be on the mortgage with an equal 50/50 monthly payment split. What is most likely their TIC equity split at purchase?',
+        options: [
+          { t: '50/50, because they share the mortgage equally', correct: false, why: 'Mortgage liability and equity share are tracked separately in the operating agreement.' },
+          { t: '67/33, reflecting their down-payment contribution', correct: true, why: 'Initial equity is typically anchored to the cash contribution at closing. The agreement can specify any split, but 67/33 reflecting down-payment ratio is the typical baseline.' },
+          { t: '60/40, a default the system picks for two buyers', correct: false, why: 'There is no system default — equity share is explicitly set in the operating agreement.' },
+          { t: 'It depends on credit score, not contribution', correct: false, why: 'Credit score affects mortgage approval and rate, not equity share.' }
+        ]
+      },
+      {
+        q: 'A NEXUS-matched co-buyer asks if their two-person purchase should use a Revocable Living Trust (RLT) instead of Tenants in Common. The realtor\'s correct response is:',
+        options: [
+          { t: 'Yes, RLT is the better default — it\'s newer and more flexible', correct: false, why: 'Default structure for most NEXUS co-buyers is TIC. RLT is for specific estate-planning needs.' },
+          { t: 'TIC is the right structure for most NEXUS co-buyers; RLT is an exception. Refer the question to NEXUS counsel before recommending', correct: true, why: 'TIC is the default for ~95% of NEXUS purchases. RLT is for specific cases (probate avoidance, dependents, complex estate planning) and the question should go to NEXUS counsel.' },
+          { t: 'Neither — you should recommend Joint Tenancy with Right of Survivorship', correct: false, why: 'NEXUS does not use JTWROS by default because it eliminates owner control over inheritance and creates risks for unmarried co-buyers.' },
+          { t: 'It does not matter; the structure is just paperwork', correct: false, why: 'The structure has major estate, tax, and exit implications.' }
+        ]
+      }
+    ]
+  },
+
+  // ════════ MODULE 2 ════════
+  {
+    n: 2,
+    title: 'Working with NEXUS Buyers',
+    duration: '~6 min',
+    body: `
+      <h3>NEXUS buyers are different — here's how</h3>
+      <p>Most buyers come to a realtor knowing where they want to live and roughly what they can afford. NEXUS-matched buyers come to you having already done a different and harder thing: <strong>they've found someone else they're willing to commit to a multi-year, six-figure financial partnership with</strong>.</p>
+      <p>That changes what they need from you. They've solved the hardest emotional problem already (finding a compatible co-owner). What they need from you is execution: property fit, market knowledge, and a steady hand through a transaction with two or more people in the loop.</p>
+
+      <h3>The NexusLock badge</h3>
+      <p>When you see a <strong>NexusLock 🔒</strong> badge on a buyer match, it means the two co-buyers achieved 88%+ compatibility across all five matching dimensions: financial alignment, lifestyle, household setup, communication style, and co-ownership goals. NexusLock buyers are pre-screened more rigorously and have explicitly committed to formalizing co-ownership through NEXUS's document framework.</p>
+
+      <div class="cc-callout">
+        <strong>What this means for you</strong>
+        Treat NexusLock matches like a single buying entity. If one co-buyer wants to see a property and the other can't make it, schedule a second showing. Don't push for one to make decisions on behalf of both. The relationship breaks easily here.
+      </div>
+
+      <h3>The five dimensions you should understand</h3>
+      <p>You don't need to memorize the algorithm — but knowing what your buyers were matched on helps you anticipate friction during property selection:</p>
+      <ol>
+        <li><strong>Financial alignment</strong> — similar credit ranges, income levels, and debt-to-income ratios. They likely have similar tolerances for "stretch" pricing.</li>
+        <li><strong>Lifestyle</strong> — daily routines, cleanliness preferences, guest tolerance, work-from-home patterns. Affects which property layouts work for them.</li>
+        <li><strong>Household setup</strong> — singles, couples, families with kids, multi-gen, friend groups. Each combination needs different bedroom counts, common areas, and privacy zones.</li>
+        <li><strong>Communication & decision style</strong> — how fast they decide, how directly they communicate, how they handle disagreement. You'll see this most when offers need to be made under deadline.</li>
+        <li><strong>Co-ownership goals</strong> — how long they expect to stay (3 years vs 10 vs forever), what their exit looks like, whether they want to build equity for an upgrade or stay long-term.</li>
+      </ol>
+
+      <h3>Common situations and how to handle them</h3>
+
+      <h4>One co-buyer falls in love with a property; the other is lukewarm</h4>
+      <p>This is the most common friction point. Your instinct will be to push the lukewarm buyer to "see what their partner sees." Don't. The operating agreement requires both to commit, and a reluctant co-owner today is a deadlock risk in two years. Surface the hesitation, listen to the specific concern, and either address it or move on.</p>
+
+      <h4>One buyer wants to stretch the budget; the other wants to stay conservative</h4>
+      <p>Look at the financial alignment score in the match. If they were matched 92% on this dimension, the disagreement is about something specific (e.g., a particular property's appraisal risk), not their overall risk tolerance. Treat it as a property-specific question, not a fundamental mismatch.</p>
+
+      <h4>The buyers want to skip the co-ownership documents to "speed things up"</h4>
+      <p>This is a hard <strong>no</strong>. The documents are not optional. NEXUS as a platform requires them, and skipping them voids the protections that justify the co-ownership structure in the first place. Refer them to NEXUS Module 3 (the agreement framework) and tell them you can't proceed to offer without the framework in place.</p>
+
+      <h4>One co-buyer wants to bring in a third partner mid-process</h4>
+      <p>Refer to NEXUS counsel. Adding a third party requires re-running the matching algorithm and re-executing the operating agreement. It's not impossible, but it's not a same-day decision.</p>
+
+      <h3>Your selection acceptance window</h3>
+      <p>When a NEXUS user selects you as their realtor, you have <strong>72 hours to accept or decline</strong>. After that, the selection auto-expires and they can pick someone else. If you accept, the 24-month commission obligation window starts immediately. We'll cover that in Module 4.</p>
+
+      <div class="cc-callout warning">
+        <strong>Important</strong>
+        Accepting a selection is a commitment. NEXUS tracks acceptance rate and time-to-first-contact as visible metrics on your profile. Realtors who repeatedly accept and then go silent get flagged and risk certification revocation.
+      </div>
+    `,
+    quiz: [
+      {
+        q: 'A NexusLock-matched couple is touring a 4BR/2BA. Co-buyer A loves it; co-buyer B is hesitant about the small second bedroom. The realtor should:',
+        options: [
+          { t: 'Encourage co-buyer B to "see what A sees" since A is more decisive', correct: false, why: 'Pressuring a hesitant co-owner creates deadlock risk in 2-3 years. NEXUS co-ownership requires both to commit.' },
+          { t: 'Surface the specific concern, address it if possible, and otherwise move on to the next property', correct: true, why: 'A reluctant co-owner today is a deadlock risk in two years. Either address the specific concern or move on.' },
+          { t: 'Submit an offer immediately while A is enthusiastic', correct: false, why: 'Offers require both co-buyers to commit. Submitting based on one buyer\'s enthusiasm violates the structure.' },
+          { t: 'Tell co-buyer B to defer to A on this one and they can choose the next one', correct: false, why: 'Equity is permanent; "letting one win" creates resentment that surfaces in major decisions later.' }
+        ]
+      },
+      {
+        q: 'A NEXUS user selects you as their realtor on Tuesday. By Friday afternoon you have not responded. What happens?',
+        options: [
+          { t: 'Nothing — the selection stays open until you act', correct: false, why: 'Selections auto-expire after 72 hours of no response.' },
+          { t: 'The selection auto-expires and the user can pick another realtor', correct: true, why: 'NEXUS gives realtors 72 hours to accept or decline. After that, the user can re-select.' },
+          { t: 'You\'re automatically marked as having accepted', correct: false, why: 'Acceptance is explicit, not implicit.' },
+          { t: 'NEXUS escalates it to your broker', correct: false, why: 'Broker escalation is reserved for compliance or behavior issues, not response timing.' }
+        ]
+      }
+    ]
+  },
+
+  // ════════ MODULE 3 — NEW ════════
+  {
+    n: 3,
+    title: 'NEXUS Co-Ownership Agreement Mastery',
+    duration: '~12 min',
+    body: `
+      <h3>The 6 documents and why they exist together</h3>
+      <p>NEXUS co-ownership is governed by a framework of <strong>six interconnected agreements</strong>. Each one solves a specific problem that has historically caused co-ownership arrangements to fall apart. Together, they create a structure that protects every owner equally and provides a clear path forward when something goes wrong.</p>
+      <p>Your role as the realtor is <strong>not</strong> to draft, modify, or interpret these documents. NEXUS counsel does that. Your role is to understand them well enough to:</p>
+      <ul>
+        <li>Tell your buyers what each document covers and when it kicks in.</li>
+        <li>Recognize when a property choice or buyer request triggers a clause that needs counsel input.</li>
+        <li>Set realistic expectations during the transaction so nothing comes as a surprise post-close.</li>
+      </ul>
+
+      <div class="cc-callout warning">
+        <strong>Critical scope reminder</strong>
+        You are a real estate agent, not the buyers' attorney. If a buyer asks "what does this clause mean for my situation?" the answer is always: "Let's get NEXUS counsel on the line." Even casual interpretation of these clauses can create liability for you and your broker.
+      </div>
+
+      <h3>1. The Operating Agreement</h3>
+      <div class="cc-doc-card">
+        <div class="cc-doc-title">Operating Agreement</div>
+        <div class="cc-doc-purpose">The foundation. Defines who owns what and how decisions get made.</div>
+        <div class="cc-doc-key-clauses">
+          <strong>Defines:</strong> ownership structure (TIC vs RLT), exact equity shares per owner, mortgage liability splits, voting authority for each decision tier, dispute resolution mechanics, and the trigger conditions for the other five agreements.<br><br>
+          <strong>Triggers when:</strong> the property is purchased. Signed at or before close.
+        </div>
+      </div>
+      <p><strong>Your role during property selection:</strong> Help buyers understand that the property they choose affects equity-share negotiations. A property that requires a larger down payment from one buyer creates a more uneven equity split. A property requiring extensive renovation gets handled by Section 4 of the operating agreement (capital improvements).</p>
+      <p><strong>Watch for:</strong> Buyers wanting to "split everything equally" without thinking through what their actual contributions look like. The operating agreement memorializes contributions; if it's wrong on day one, fixing it later requires unanimous consent and an amendment process.</p>
+
+      <h3>2. The Shared Reserve Account</h3>
+      <div class="cc-doc-card green">
+        <div class="cc-doc-title">Shared Reserve Account Agreement</div>
+        <div class="cc-doc-purpose">A joint property savings account governed by multi-signer rules. Funds maintenance, repairs, and emergency cash needs.</div>
+        <div class="cc-doc-key-clauses">
+          <strong>Defines:</strong> required initial deposit (typically 1-2% of purchase price), monthly contributions per owner (usually equal), withdrawal thresholds (under $500 = single signer, $500-$5,000 = two signers, over $5,000 = all signers + 48-hour notice), and what the funds can be used for.<br><br>
+          <strong>Triggers when:</strong> the offer is accepted. Account must be opened and funded before closing day.
+        </div>
+      </div>
+      <p><strong>Your role during the transaction:</strong> Connect buyers with NEXUS's banking partners to open the reserve account. The account has to exist and be funded before COE — it's a closing condition. Don't let it become a Friday-of-close fire drill.</p>
+      <p><strong>Watch for:</strong> A buyer who says "we'll figure that out later." Later means after closing, which is too late. The reserve account is one of the few hard prerequisites NEXUS enforces on the buyer side.</p>
+
+      <h3>3. The Advisory Board Charter</h3>
+      <div class="cc-doc-card purple">
+        <div class="cc-doc-title">Advisory Board Charter</div>
+        <div class="cc-doc-purpose">An independent panel of trusted advisors who mediate disputes between co-owners and prevent equity deadlock.</div>
+        <div class="cc-doc-key-clauses">
+          <strong>Defines:</strong> 3-5 members chosen jointly by all co-owners, qualifications (no financial stake in the property; no first-degree family relationship to any co-owner), terms of service (typically 2 years renewable), what disputes get escalated to them, and how they vote.<br><br>
+          <strong>Triggers when:</strong> co-owners cannot reach agreement on a Standard or Major decision after a defined good-faith effort. Board recommendation is binding for Standard decisions; advisory only for Major decisions.
+        </div>
+      </div>
+      <p><strong>Your role:</strong> Discuss board member selection during the contract phase, before closing. Buyers often want to nominate close friends or relatives — explain the conflict-of-interest exclusions. Most importantly, <strong>do not accept appointment to your buyers' advisory board</strong>. You're already conflicted as the transactional realtor.</p>
+      <p><strong>Watch for:</strong> Buyers wanting to skip board formation "until something goes wrong." This is wrong. The board takes time to assemble — usually 60-90 days post-close — and you can't form it under stress. The charter requires it within 120 days of close.</p>
+
+      <h3>4. Democratic Decision-Making</h3>
+      <div class="cc-doc-card amber">
+        <div class="cc-doc-title">Democratic Decision-Making Protocol</div>
+        <div class="cc-doc-purpose">Defines voting categories and the threshold required to pass each.</div>
+        <div class="cc-doc-key-clauses">
+          <strong>Four decision tiers:</strong><br>
+          • <strong>Routine</strong> (under $100, no structural impact) — any single owner.<br>
+          • <strong>Standard</strong> ($100-$5,000, or any cosmetic change) — simple majority of owners or 51%+ of equity, whichever is stricter.<br>
+          • <strong>Major</strong> (over $5,000, refinance, lease, structural change, sale) — 75% supermajority of equity OR unanimous if only two owners.<br>
+          • <strong>Removal</strong> (forcing a co-owner out, see Document 6) — separate process under Exit & Acceleration.<br><br>
+          <strong>Triggers:</strong> any time a co-owner proposes a decision that exceeds the previous tier's threshold.
+        </div>
+      </div>
+      <p><strong>Your role during property selection:</strong> Help buyers think through how the decision tiers will play out in practice for their specific property. A fixer-upper triggers more Major decisions in the first two years (because every renovation is structural). A turnkey property triggers fewer.</p>
+      <p><strong>Watch for:</strong> Two-buyer deals where buyers don't realize Major decisions require unanimous agreement. If they're already showing communication friction during showings, this becomes a real risk post-close.</p>
+
+      <h3>5. Co-Living Standards</h3>
+      <div class="cc-doc-card pink">
+        <div class="cc-doc-title">Co-Living Standards</div>
+        <div class="cc-doc-purpose">Personal space rights, shared space rules, privacy and communication protections.</div>
+        <div class="cc-doc-key-clauses">
+          <strong>Defines:</strong> bedroom and bathroom assignments, kitchen/living room shared protocols, guest policies (overnight, long-term), pet ownership rules, work-from-home protocols, noise hours, and a process for addressing standards violations.<br><br>
+          <strong>Triggers when:</strong> co-owners are physically sharing the property (vs co-owning as investment with separate residences).
+        </div>
+      </div>
+      <p><strong>Your role during property selection:</strong> This is where you actively shape outcomes. Property layout drives everything in this document.</p>
+      <ul>
+        <li>For NexusLock matches with two unrelated singles: prioritize properties with two equal-sized primary suites and separated common areas. Avoid layouts with one master + one tiny secondary bedroom.</li>
+        <li>For matched friend groups (3+ co-buyers): bedroom count matters more than square footage. A 1,800sf 4BR usually beats a 2,200sf 3BR even though the math says otherwise.</li>
+        <li>For couples co-buying with another couple or family: privacy zones (separate floors, opposite ends of the property) matter more than total space.</li>
+      </ul>
+
+      <h3>6. Exit & Acceleration</h3>
+      <div class="cc-doc-card red">
+        <div class="cc-doc-title">Exit & Acceleration Agreement</div>
+        <div class="cc-doc-purpose">Equity protection, removal process, and forced refinance/sale to prevent deadlock or breach.</div>
+        <div class="cc-doc-key-clauses">
+          <strong>Defines:</strong> voluntary exit process (giving notice, equity buyout calculation, replacement-buyer search window), involuntary removal triggers (non-payment, material breach of co-living standards, criminal conduct, mental incapacity), forced sale conditions if the property cannot be refinanced to remove a departing owner, and the order of operations for protecting remaining owners' equity.<br><br>
+          <strong>Triggers when:</strong> any co-owner gives notice of intent to exit OR a removal-trigger event occurs OR the advisory board determines deadlock has been reached.
+        </div>
+      </div>
+      <p><strong>Your role during property selection:</strong> Make sure your buyers understand this exists <strong>before</strong> they make an offer, not when they're trying to leave. The most important question to ask: "How long do you each plan to stay?" If the answers are wildly different (one says "3 years," one says "forever"), the property choice should account for likely refinance scenarios.</p>
+      <p><strong>Watch for:</strong> Buyers who haven't talked through what happens if one of them gets a job offer in another state. This is the #1 reason co-ownership arrangements unwind. Surface it during showings, not at the closing table.</p>
+
+      <div class="cc-callout">
+        <strong>Tying it together</strong>
+        These six documents work as a system. The Operating Agreement defines ownership; the Reserve Account funds operations; the Advisory Board mediates conflict; the Decision-Making Protocol governs day-to-day choices; the Co-Living Standards govern shared occupancy; and Exit & Acceleration protects equity when arrangements end. Skip any one and the system breaks.
+      </div>
+
+      <h3>The compliance disclosure you must give every NEXUS buyer</h3>
+      <p>At the listing agreement / buyer-rep agreement signing stage, you are required to give every NEXUS-introduced buyer this disclosure verbatim:</p>
+      <div class="cc-callout warning">
+        <strong>Disclosure language</strong>
+        "I am a NEXUS-certified realtor introduced to you through the NEXUS Match platform. NEXUS-introduced buyers are subject to a 24-month performance commission obligation that travels with the relationship; details are described in your platform terms. I am not your attorney and cannot interpret co-ownership documents on your behalf. NEXUS counsel handles document drafting; my role is real estate transactional representation."
+      </div>
+      <p>Failure to provide this disclosure is a certification-revocable offense. We track delivery via your buyer-rep agreement template.</p>
+    `,
+    quiz: [
+      {
+        q: 'A NEXUS-matched co-buyer pair asks you to "skip the Shared Reserve Account agreement to speed things up." The correct response is:',
+        options: [
+          { t: 'Sure, you can fund a reserve later if it becomes necessary', correct: false, why: 'The Shared Reserve Account must be opened and funded before COE — it\'s a closing prerequisite, not a post-close item.' },
+          { t: 'It\'s not optional. Connect them with NEXUS\'s banking partners now to open the account before COE', correct: true, why: 'Opening and funding the account before close is one of the few hard prerequisites NEXUS enforces on the buyer side. Skipping it blocks closing.' },
+          { t: 'Skip it for now, and you\'ll handle the funding from your commission at close', correct: false, why: 'A realtor funding a buyer-side closing condition is a serious RESPA violation and possible kickback issue.' },
+          { t: 'Replace it with an LLC bank account they open separately', correct: false, why: 'The Shared Reserve Account agreement requires specific multi-signer rules that a generic LLC account doesn\'t enforce.' }
+        ]
+      },
+      {
+        q: 'During an offer negotiation, one of two NEXUS-matched co-buyers asks you to interpret what the Exit & Acceleration agreement means for their specific situation. You should:',
+        options: [
+          { t: 'Read the relevant clause aloud and explain it in plain English', correct: false, why: 'Interpreting these clauses, even informally, creates liability for you and your broker. The disclosure you signed says explicitly that NEXUS counsel handles document interpretation.' },
+          { t: 'Refer them to NEXUS counsel — interpreting the agreements creates legal liability for you', correct: true, why: 'You are a real estate agent, not their attorney. Even casual interpretation can create liability. Refer to counsel every time.' },
+          { t: 'Tell them not to worry about it because it rarely matters', correct: false, why: 'Exit clauses are the #1 cause of co-ownership disputes. Dismissing the question is misleading.' },
+          { t: 'Walk away from the deal — they should not be NEXUS clients if they have to ask', correct: false, why: 'Buyers asking questions is normal and expected. Refer to counsel; don\'t abandon them.' }
+        ]
+      },
+      {
+        q: 'A NexusLock-matched pair (two unrelated singles) is choosing between two homes for similar prices: a 2,200sf 3BR with one large master + two small bedrooms, or a 1,800sf 3BR with two equal-sized primary suites. Based on the Co-Living Standards framework, which property is the better fit?',
+        options: [
+          { t: 'The 2,200sf — more square footage means more shared space', correct: false, why: 'Total square footage is less important than balanced primary suites for two unrelated singles co-buying.' },
+          { t: 'The 1,800sf — two equal primary suites support balanced personal space rights, which is what the Co-Living Standards framework emphasizes for unrelated co-owners', correct: true, why: 'Balanced primary suites avoid the "who gets the master" friction that creates Co-Living Standards disputes. Equal-sized private space is the priority for unrelated NexusLock matches.' },
+          { t: 'The choice does not matter; the agreements treat all properties the same', correct: false, why: 'Property layout directly drives Co-Living Standards outcomes. The realtor\'s job is to actively shape this.' },
+          { t: 'They should buy the larger home and one buyer takes the master with reduced equity share', correct: false, why: 'Trading layout asymmetry for equity asymmetry creates resentment in the long term — exactly what NEXUS Co-Living Standards aims to prevent.' }
+        ]
+      }
+    ]
+  },
+
+  // ════════ MODULE 4 ════════
+  {
+    n: 4,
+    title: 'RESPA & Compliance for Realtors',
+    duration: '~7 min',
+    body: `
+      <h3>Why this module exists</h3>
+      <p>NEXUS is operated under Citizens Financial / Badges Broker (NMLS #2503947). That means NEXUS interacts with real estate, mortgage, and lending services <strong>under one corporate umbrella</strong>. Federal law (specifically RESPA Section 8) and California real estate law place specific limits on how realtors and lenders can refer business to each other and how they can be compensated. This module covers what you can and cannot do.</p>
+
+      <div class="cc-callout danger">
+        <strong>Read this carefully</strong>
+        RESPA violations carry criminal penalties — up to $10,000 per violation and a year in prison per violation, plus civil treble damages. The most common violation is realtors and lenders exchanging things of value (kickbacks, referral fees, inflated services) in exchange for business. NEXUS's commission structure has been designed specifically to avoid this risk, but only if you follow the rules.
+      </div>
+
+      <h3>The 24-month performance commission obligation</h3>
+      <p>When a NEXUS user selects you as their realtor and you accept the selection, a <strong>24-month commission obligation</strong> begins. Specifically:</p>
+      <ul>
+        <li>If the buyer closes a home purchase within 24 months of your first contact, NEXUS receives a <strong>flat 25% performance commission</strong> on whatever buyer-side commission you earn.</li>
+        <li>This applies regardless of whether the close is on a property NEXUS introduced you to. If you took the selection, the obligation travels with the relationship.</li>
+        <li>The obligation also applies if the buyer closes with a different agent at your brokerage during the 24-month window. Your broker is responsible for compliance.</li>
+        <li>The obligation does <strong>not</strong> apply to deals you sourced independently from non-NEXUS buyers, even if those deals close in the same window.</li>
+      </ul>
+
+      <h3>Anti-circumvention</h3>
+      <p>Some realtors will try to "wait out" the obligation by pausing contact with a NEXUS buyer until the 24 months expire. NEXUS treats this as fraud and enforces against it through:</p>
+      <ul>
+        <li><strong>Deal verification</strong> — when a NEXUS buyer closes any deal, the buyer is asked to confirm whether the realtor was their NEXUS-introduced realtor at any point.</li>
+        <li><strong>Buyer self-reporting</strong> — buyers receive an anonymous reporting tool through their dashboard if they suspect circumvention.</li>
+        <li><strong>Audit cross-references</strong> — closed-deal data through Citizens Financial mortgage applications cross-references against NEXUS selections.</li>
+      </ul>
+      <p>Violations result in immediate certification revocation, broker notification, and potential breach of contract claims under your NEXUS realtor terms.</p>
+
+      <h3>The Marketing Services Agreement (MSA) framework</h3>
+      <p>NEXUS subscriptions ($49.99/mo base + $29.99/mo per ZIP add-on pack) are paid by you to NEXUS. Under RESPA Section 8(c)(2), these payments are permitted as long as they are <strong>compensation for actual services rendered at fair market value</strong>. Specifically, NEXUS provides:</p>
+      <ul>
+        <li>Profile placement and visibility within your selected ZIP coverage areas.</li>
+        <li>Match introductions based on buyer working-style and specialty alignment.</li>
+        <li>Buyer review aggregation and reputation management tools.</li>
+        <li>Co-ownership document framework and counsel coordination.</li>
+        <li>NEXUS-branded marketing materials.</li>
+      </ul>
+      <p>The fees are <strong>not</strong> tied to whether deals close. They are flat and recur regardless of outcomes. This is the legal distinction that separates them from a referral fee.</p>
+
+      <div class="cc-callout warning">
+        <strong>What you cannot do</strong>
+        You cannot reduce, waive, or modify your NEXUS subscription fees in exchange for sending business to Citizens Financial mortgage. You cannot accept any side payment from Citizens Financial mortgage in exchange for sending NEXUS-introduced buyers their way. The performance commission you pay NEXUS is separate from any mortgage referral activity.
+      </div>
+
+      <h3>Buyer's right to choose their lender</h3>
+      <p>Every NEXUS buyer has the right to choose any lender, not just Citizens Financial. As their realtor, you must:</p>
+      <ul>
+        <li><strong>Disclose the affiliation:</strong> "NEXUS is operated by Citizens Financial / Badges Broker. You're free to choose any lender, including Citizens Financial or any other you prefer."</li>
+        <li><strong>Not steer:</strong> You cannot recommend or push Citizens Financial as preferred over other lenders, even if you believe Citizens offers a better rate. The buyer makes the lender choice.</li>
+        <li><strong>Not condition</strong> any service on the buyer using Citizens Financial.</li>
+      </ul>
+
+      <h3>The disclosure trail you maintain</h3>
+      <p>For every NEXUS-introduced buyer, you must maintain a record of:</p>
+      <ol>
+        <li>The compliance disclosure language (Module 3) signed by the buyer at buyer-rep agreement signing.</li>
+        <li>The lender-choice disclosure given verbally at first substantive contact.</li>
+        <li>Any communication discussing NEXUS commission structure or co-ownership documents — keep these in writing in your CRM, not just verbal.</li>
+      </ol>
+      <p>NEXUS audits a random sample of these records quarterly. Realtors with incomplete disclosure trails face certification review and possible revocation.</p>
+
+      <h3>What happens if you suspect a violation by another realtor</h3>
+      <p>If you become aware of a NEXUS realtor or your own broker engaging in what you believe is RESPA-noncompliant behavior — kickbacks, lender steering, fee waivers in exchange for business — you have two options:</p>
+      <ul>
+        <li>Report to NEXUS through the certified-realtor reporting tool (anonymous available).</li>
+        <li>If you believe federal violations are occurring, you may report to HUD's Office of RESPA. You are not required to consult NEXUS first.</li>
+      </ul>
+      <p>NEXUS does not retaliate against realtors who report compliance concerns in good faith.</p>
+    `,
+    quiz: [
+      {
+        q: 'A NEXUS-introduced buyer closes a home purchase 14 months after your first contact, but on a property they found through Zillow without your involvement. They use a different realtor at the same brokerage. Does NEXUS\'s 25% performance commission apply?',
+        options: [
+          { t: 'No, because the property was not NEXUS-introduced', correct: false, why: 'The obligation tracks the buyer-realtor relationship, not the specific property. The buyer was your NEXUS-introduced selection.' },
+          { t: 'No, because a different realtor closed the deal', correct: false, why: 'The obligation extends to other agents at your brokerage during the 24-month window. Your broker is responsible for compliance.' },
+          { t: 'Yes, because it\'s within the 24-month window and the buyer was your NEXUS selection — and your broker is responsible for compliance', correct: true, why: 'The 24-month obligation travels with the relationship, applies regardless of property source, and extends to other agents at your brokerage.' },
+          { t: 'Only if the buyer used Citizens Financial as the lender', correct: false, why: 'The performance commission is independent of lender choice. Lender steering is itself a compliance violation.' }
+        ]
+      },
+      {
+        q: 'A NEXUS buyer asks if they\'re required to use Citizens Financial for their mortgage. The compliant response is:',
+        options: [
+          { t: 'Yes, since NEXUS and Citizens are affiliated, you\'ll need to use them', correct: false, why: 'This is a RESPA violation. Buyers always have the right to choose their lender.' },
+          { t: 'No, you have the right to choose any lender. Citizens is one option, but you\'re free to compare and pick whichever works for you', correct: true, why: 'This is the compliant disclosure — affirming buyer choice and not steering. NEXUS-affiliated lenders cannot be required.' },
+          { t: 'Use Citizens — they have the best rates for NEXUS buyers', correct: false, why: 'This is steering, which is prohibited even when the realtor genuinely believes the rate is better.' },
+          { t: 'Use whoever you want, but Citizens will give you a discount through me', correct: false, why: 'A discount obtained through the realtor is exactly the kind of kickback RESPA Section 8 prohibits.' }
+        ]
+      }
+    ]
+  },
+
+  // ════════ MODULE 5 ════════
+  {
+    n: 5,
+    title: 'Platform Best Practices',
+    duration: '~5 min',
+    body: `
+      <h3>Staying on-platform</h3>
+      <p>NEXUS is built on the assumption that buyers and realtors interact <strong>through the platform</strong>, not around it. Specifically:</p>
+      <ul>
+        <li>Initial communication should happen through NEXUS messaging until the selection is accepted.</li>
+        <li>Once accepted, you can move to phone, email, or text — but document key interactions through your CRM.</li>
+        <li>Property tours, offers, and closings happen offline as normal.</li>
+        <li>Reviews are submitted through NEXUS only; do not solicit reviews on Google or Yelp from NEXUS-introduced buyers.</li>
+      </ul>
+
+      <h3>Profile completeness</h3>
+      <p>Realtors with complete profiles get matched at materially higher rates. The signals that matter most:</p>
+      <ul>
+        <li><strong>Specialties</strong> — pick 4-6 you genuinely work in. Buyers filter on specialty match. Generic profiles get ignored.</li>
+        <li><strong>Working-style scores</strong> — these drive 35% of the match algorithm. Be honest. A buyer matched to a "patient educator" expecting an "aggressive negotiator" creates friction immediately.</li>
+        <li><strong>Bio</strong> — write it like you'd write to a single specific buyer, not a generic audience. The first sentence should answer "who do you work best with?"</li>
+        <li><strong>Headshot</strong> — recent, professional, not a logo. Buyers report photo absence as a top reason for skipping a profile.</li>
+      </ul>
+
+      <h3>Selection acceptance discipline</h3>
+      <p>Three habits that distinguish high-performing NEXUS realtors:</p>
+      <ol>
+        <li><strong>Respond within 24 hours</strong>, even if just to acknowledge. The 72-hour expiration is a maximum, not a target.</li>
+        <li><strong>Decline thoughtfully when you should.</strong> If a buyer's price range or geography is outside your fit, decline with a brief reason. NEXUS surfaces this to the buyer and they can re-select. A decline is better than a silent acceptance.</li>
+        <li><strong>Accept only what you can serve.</strong> Acceptance creates the 24-month obligation and a public service expectation. If you have 10 active NEXUS buyers, take a beat before accepting an 11th.</li>
+      </ol>
+
+      <h3>Working with the Citizens Financial loan officer</h3>
+      <p>If a NEXUS buyer chooses Citizens Financial as their lender, you'll be working with a Citizens loan officer. Some practical notes:</p>
+      <ul>
+        <li>Loan officers don't see your NEXUS profile or commission obligation. Your relationship with them is purely transactional.</li>
+        <li>They have access to the joint application from both co-buyers via the matched-buyer infrastructure.</li>
+        <li>Pre-qualification is generated automatically within 60 seconds of match confirmation. Final pre-approval still requires their underwriting review.</li>
+        <li>If the buyer chooses a different lender, you'll work with that lender as you would with any non-NEXUS deal. Citizens has no role.</li>
+      </ul>
+
+      <h3>Reviews and reputation</h3>
+      <p>NEXUS displays buyer reviews on your profile. Two important rules:</p>
+      <ul>
+        <li><strong>Verified reviews</strong> (linked to closed deals) carry a green checkmark and are weighted higher in browse rankings.</li>
+        <li><strong>Unverified reviews</strong> are still shown, but flagged accordingly.</li>
+      </ul>
+      <p>If you receive a review you believe is inaccurate or violates NEXUS's review guidelines, you can flag it for review through your dashboard. NEXUS investigates within 7 business days. You cannot remove reviews; you can respond publicly to them.</p>
+
+      <div class="cc-callout">
+        <strong>The bottom line</strong>
+        NEXUS works best for realtors who lean into the structure: complete profile, fast selection response, transparent disclosures, and on-platform engagement. Realtors who try to optimize around the rules tend to lose certification within 12 months.
+      </div>
+    `,
+    quiz: [
+      {
+        q: 'You receive a NEXUS selection but the buyer\'s price range and target city are outside what you typically work. The best practice is:',
+        options: [
+          { t: 'Accept the selection and refer them out — you can hand them to another agent at your brokerage', correct: false, why: 'This handoff still creates the 24-month obligation in your name and dilutes service quality.' },
+          { t: 'Decline thoughtfully with a brief reason so the buyer can re-select', correct: true, why: 'Declining when there\'s a poor fit is a feature, not a failure. The buyer gets routed to a better-fit realtor faster.' },
+          { t: 'Let the 72-hour window expire — silent decline is fine', correct: false, why: 'Silent decline hurts buyer experience and gets tracked against your acceptance metrics.' },
+          { t: 'Accept and just put in low effort — it\'s not your ideal client', correct: false, why: 'Acceptance creates a public service expectation. Low-effort service generates negative reviews and certification review.' }
+        ]
+      },
+      {
+        q: 'A NEXUS-introduced buyer closes a home purchase with you and gives you a glowing 5-star review on the NEXUS platform. They ask if they should also leave you a review on Google. How do you respond?',
+        options: [
+          { t: '"Yes, that would be great — I really appreciate it"', correct: false, why: 'Soliciting Google reviews from NEXUS-introduced buyers is against platform best practices. Reviews submitted on NEXUS only.' },
+          { t: '"Thank you for the NEXUS review. Reviews on NEXUS only — but please share NEXUS with friends if you found it useful"', correct: true, why: 'You can thank them and redirect organically. NEXUS-introduced reviews stay on NEXUS; that\'s the platform rule.' },
+          { t: '"Yes, but please don\'t mention NEXUS in the Google review"', correct: false, why: 'Selectively excluding NEXUS from external reviews is intentional misrepresentation.' },
+          { t: 'Don\'t respond — let them figure it out', correct: false, why: 'Ignoring the question leaves the buyer guessing. Direct, friendly clarification is the right move.' }
+        ]
+      }
+    ]
+  }
+];
+
+// Final exam: 10 questions drawn across all modules
+const CERT_FINAL_EXAM = [
+  {
+    q: 'NEXUS uses two ownership structures. Which is the default for most co-buyers?',
+    options: [
+      { t: 'Joint Tenancy with Right of Survivorship (JTWROS)', correct: false },
+      { t: 'Tenants in Common (TIC)', correct: true },
+      { t: 'Revocable Living Trust (RLT)', correct: false },
+      { t: 'LLC ownership', correct: false }
+    ]
+  },
+  {
+    q: 'How many co-ownership documents make up the NEXUS framework?',
+    options: [
+      { t: '4', correct: false },
+      { t: '5', correct: false },
+      { t: '6', correct: true },
+      { t: '8', correct: false }
+    ]
+  },
+  {
+    q: 'A buyer asks you to interpret a clause in the Exit & Acceleration agreement for their specific situation. The correct response is:',
+    options: [
+      { t: 'Read the clause aloud and translate it into plain English', correct: false },
+      { t: 'Refer them to NEXUS counsel — interpreting agreements creates liability for you', correct: true },
+      { t: 'Tell them not to worry; it rarely matters', correct: false },
+      { t: 'Walk away from the deal', correct: false }
+    ]
+  },
+  {
+    q: 'How long after the first contact does the NEXUS performance commission obligation last?',
+    options: [
+      { t: '6 months', correct: false },
+      { t: '12 months', correct: false },
+      { t: '24 months', correct: true },
+      { t: '36 months', correct: false }
+    ]
+  },
+  {
+    q: 'A NEXUS buyer asks whether they have to use Citizens Financial for their mortgage. The compliant answer is:',
+    options: [
+      { t: 'Yes, since NEXUS and Citizens are affiliated', correct: false },
+      { t: 'You have the right to choose any lender. Citizens is one option, not a requirement', correct: true },
+      { t: 'Use Citizens — they have the best rates', correct: false },
+      { t: 'It depends on the size of your down payment', correct: false }
+    ]
+  },
+  {
+    q: 'When does the Shared Reserve Account need to be opened and funded?',
+    options: [
+      { t: '6 months after closing', correct: false },
+      { t: 'Within 30 days of close', correct: false },
+      { t: 'Before closing — it is a closing prerequisite', correct: true },
+      { t: 'Whenever the co-owners feel ready', correct: false }
+    ]
+  },
+  {
+    q: 'NexusLock-matched co-buyers achieved what level of compatibility?',
+    options: [
+      { t: '70% or higher', correct: false },
+      { t: '75% or higher', correct: false },
+      { t: '88% or higher', correct: true },
+      { t: '95% or higher', correct: false }
+    ]
+  },
+  {
+    q: 'You receive a NEXUS selection on Tuesday. By the following Friday afternoon you have not responded. What happens?',
+    options: [
+      { t: 'Selection auto-accepts', correct: false },
+      { t: 'Selection auto-expires; the user can re-select', correct: true },
+      { t: 'Nothing changes', correct: false },
+      { t: 'NEXUS escalates to your broker', correct: false }
+    ]
+  },
+  {
+    q: 'A NEXUS-introduced buyer leaves you a 5-star review on the NEXUS platform and asks whether they should also leave one on Google. The right response is:',
+    options: [
+      { t: 'Yes — the more reviews the better', correct: false },
+      { t: 'Thank them and explain reviews stay on NEXUS only', correct: true },
+      { t: 'Yes, but ask them not to mention NEXUS', correct: false },
+      { t: 'No response — they can figure it out', correct: false }
+    ]
+  },
+  {
+    q: 'Two unrelated NexusLock-matched singles are choosing between two homes. Based on the Co-Living Standards framework, which layout is the better fit?',
+    options: [
+      { t: 'A 4BR with one master + three small bedrooms', correct: false },
+      { t: 'A 3BR with two equal-sized primary suites and separated common areas', correct: true },
+      { t: 'A studio loft with no bedroom walls', correct: false },
+      { t: 'A 5BR with one giant master and four small bedrooms', correct: false }
+    ]
+  }
+];
+
+// ─── State ───
+let _certRecord = null;       // certification_records row
+let _certCurrentModule = 1;   // 1-6 (6 = final exam)
+let _certQuizState = {};      // { qIndex: selectedOptionIndex }
+
+// ─── Entry ───
+async function startCertCourse() {
+  if (!currentUser || currentAccount?.role !== 'realtor') {
+    showToast('Realtor account required', 'error');
+    return;
+  }
+  showSpinner();
+  try {
+    const { data, error } = await sb.rpc('cert_get_or_create_active', { p_course_version: CERT_COURSE_VERSION });
+    if (error) throw error;
+    _certRecord = data;
+
+    // If already passed, show certified state
+    if (_certRecord.passed === true) {
+      showView('cert-course');
+      renderCertCertified();
+      return;
+    }
+
+    // Resume at the first incomplete module
+    const completed = Object.keys((_certRecord.progress?.modules) || {}).map(Number);
+    const allComplete = completed.length === 5;
+    _certCurrentModule = allComplete ? 6 : (Math.min(...[1,2,3,4,5].filter(n => !completed.includes(n))) || 1);
+
+    showView('cert-course');
+    renderCert();
+  } catch (e) {
+    console.error('startCertCourse failed:', e);
+    showToast('Could not start certification: ' + (e.message || e), 'error');
+  } finally {
+    hideSpinner();
+  }
+}
+window.startCertCourse = startCertCourse;
+
+// Render the cert tab inside the realtor dashboard with progress + module list
+async function renderCertTabPanel(profile) {
+  const card = document.getElementById('rd-cert-status-card-inner');
+  const listEl = document.getElementById('rd-cert-modules-list');
+  const titleEl = document.getElementById('rd-cert-title');
+  const statusEl = document.getElementById('rd-cert-status-text');
+  const iconEl = document.getElementById('rd-cert-icon');
+  const startBtn = document.getElementById('rd-cert-start-btn');
+  const summaryEl = document.getElementById('rd-cert-result-summary');
+  if (!listEl || !card) return;
+
+  const isCertified = profile.cert_status === 'certified';
+
+  // For certified realtors, show a clean "completed" state
+  if (isCertified) {
+    card.classList.add('certified');
+    if (iconEl) iconEl.textContent = '✓';
+    if (titleEl) titleEl.textContent = 'NEXUS Realtor Certification — Complete';
+    const completedAt = profile.cert_completed_at ? new Date(profile.cert_completed_at).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) : '—';
+    if (statusEl) statusEl.textContent = `Certified ${completedAt} · Course version ${profile.cert_version || 'v1.0-2026-04-mock'}`;
+    if (startBtn) startBtn.textContent = 'Review course materials';
+    listEl.innerHTML = [1,2,3,4,5].map(n => {
+      const m = CERT_MODULES[n-1];
+      return `
+        <div class="cc-tab-mod-row done">
+          <div class="cc-tab-mod-num">✓</div>
+          <div>Module ${n} · ${escapeHtml(m.title)}</div>
+          <span class="cc-tab-mod-status">Complete</span>
+        </div>
+      `;
+    }).join('');
+    if (summaryEl) summaryEl.textContent = '';
+    return;
+  }
+
+  // Otherwise, fetch the active record (if any) and show progress
+  card.classList.remove('certified');
+  if (iconEl) iconEl.textContent = '🎓';
+  if (titleEl) titleEl.textContent = 'NEXUS Realtor Certification';
+  if (statusEl) statusEl.textContent = '5 modules · ~36 minutes total · 80% to pass';
+
+  let progress = null;
+  try {
+    const { data: records } = await sb
+      .from('certification_records')
+      .select('id, progress, started_at')
+      .eq('realtor_id', currentUser.id)
+      .is('completed_at', null)
+      .order('started_at', { ascending: false })
+      .limit(1);
+    if (records && records.length > 0) progress = records[0].progress;
+  } catch (e) {
+    console.warn('Could not load cert progress:', e);
+  }
+
+  const completedModules = Object.keys((progress?.modules) || {}).map(Number);
+  const inProgress = completedModules.length > 0;
+  if (startBtn) startBtn.textContent = inProgress
+    ? `Resume — ${completedModules.length} of 5 complete →`
+    : 'Start certification →';
+
+  listEl.innerHTML = [1,2,3,4,5].map(n => {
+    const m = CERT_MODULES[n-1];
+    const isDone = completedModules.includes(n);
+    const score = progress?.modules?.[n]?.quiz_score;
+    return `
+      <div class="cc-tab-mod-row ${isDone ? 'done' : ''}">
+        <div class="cc-tab-mod-num">${isDone ? '' : n}</div>
+        <div><strong style="color:var(--navy);">Module ${n}</strong> · ${escapeHtml(m.title)} <span style="color:var(--gray-text);">· ${escapeHtml(m.duration)}</span></div>
+        <span class="cc-tab-mod-status">${isDone ? `Complete (${score}%)` : 'Not started'}</span>
+      </div>
+    `;
+  }).join('');
+
+  // Final exam attempts summary (if any)
+  const attempts = (progress?.final_quiz?.attempts) || [];
+  if (summaryEl) {
+    if (attempts.length > 0) {
+      const last = attempts[attempts.length - 1];
+      summaryEl.innerHTML = `Last final exam attempt: <strong>${last.score}%</strong> · ${attempts.length} ${attempts.length === 1 ? 'attempt' : 'attempts'}`;
+    } else {
+      summaryEl.textContent = '';
+    }
+  }
+}
+window.renderCertTabPanel = renderCertTabPanel;
+
+function exitCertCourse() {
+  if (currentAccount?.role === 'realtor') {
+    showView('realtor-dashboard');
+    setTimeout(() => loadRealtorDashboard(), 50);
+  } else {
+    showView('home');
+  }
+}
+window.exitCertCourse = exitCertCourse;
+
+// ─── Render ───
+function renderCert() {
+  renderCertProgressPills();
+  const container = document.getElementById('cc-module-container');
+  if (!container) return;
+  if (_certCurrentModule >= 1 && _certCurrentModule <= 5) {
+    renderCertModule(_certCurrentModule);
+  } else if (_certCurrentModule === 6) {
+    renderCertFinalExam();
+  }
+}
+
+function renderCertProgressPills() {
+  const completed = Object.keys((_certRecord?.progress?.modules) || {}).map(Number);
+  const cont = document.getElementById('cc-progress-pills');
+  if (!cont) return;
+  const pills = [1,2,3,4,5].map(n => {
+    const isDone = completed.includes(n);
+    const isActive = (_certCurrentModule === n);
+    const isUnlocked = isDone || n === 1 || completed.includes(n - 1);
+    let cls = 'cc-progress-pill';
+    if (isDone) cls += ' done';
+    else if (isActive) cls += ' active';
+    if (!isUnlocked) cls += ' locked';
+    const onclick = isUnlocked ? `onclick="jumpToModule(${n})"` : '';
+    return `
+      <div class="${cls}" ${onclick} ${!isUnlocked ? 'style="opacity:.5;cursor:not-allowed;"' : ''}>
+        <div class="pill-num"><span>${n}</span></div>
+        <div>Module ${n}<br><span style="font-weight:500;font-size:.72rem;opacity:.85;">${escapeHtml(CERT_MODULES[n-1].title)}</span></div>
+      </div>
+    `;
+  }).join('');
+  // Final exam pill
+  const allDone = completed.length === 5;
+  const finalActive = _certCurrentModule === 6;
+  const finalCls = 'cc-progress-pill' + (finalActive ? ' active' : '') + (_certRecord?.passed ? ' done' : '');
+  const finalOnclick = (allDone || _certRecord?.passed) ? `onclick="jumpToModule(6)"` : '';
+  const finalLocked = !(allDone || _certRecord?.passed);
+  cont.innerHTML = pills + `
+    <div class="${finalCls}" ${finalOnclick} ${finalLocked ? 'style="opacity:.5;cursor:not-allowed;"' : ''}>
+      <div class="pill-num"><span>★</span></div>
+      <div>Final Exam<br><span style="font-weight:500;font-size:.72rem;opacity:.85;">10 questions · 80% to pass</span></div>
+    </div>
+  `;
+  document.getElementById('cc-progress-count').textContent = completed.length;
+}
+
+function jumpToModule(n) {
+  _certCurrentModule = n;
+  _certQuizState = {};
+  renderCert();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.jumpToModule = jumpToModule;
+
+function renderCertModule(n) {
+  const m = CERT_MODULES[n-1];
+  const completed = Object.keys((_certRecord?.progress?.modules) || {}).map(Number);
+  const isDone = completed.includes(n);
+  const container = document.getElementById('cc-module-container');
+  if (!m || !container) return;
+  _certQuizState = {};
+
+  const quizHtml = m.quiz.map((q, qi) => `
+    <div class="cc-question" data-q="${qi}">
+      <div class="qnum">Question ${qi + 1} of ${m.quiz.length}</div>
+      <div class="qtext">${escapeHtml(q.q)}</div>
+      <div class="cc-options">
+        ${q.options.map((opt, oi) => `
+          <label class="cc-option" data-q="${qi}" data-o="${oi}" onclick="selectQuizOption(${qi},${oi})">
+            <input type="radio" name="cq-${qi}" value="${oi}">
+            <span>${escapeHtml(opt.t)}<span class="opt-feedback"></span></span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="cc-module">
+      <div class="cc-module-meta">
+        <span>Module ${n} of 5</span>
+        <span class="cc-time-badge">${escapeHtml(m.duration)}</span>
+      </div>
+      <h2>${escapeHtml(m.title)}</h2>
+      <div class="cc-module-body">${m.body}</div>
+
+      <div class="cc-quiz">
+        <div class="cc-quiz-title">Module ${n} check</div>
+        <div class="cc-quiz-sub">Answer all questions correctly to advance. You can change answers before submitting.</div>
+        ${quizHtml}
+        <div class="cc-attest">
+          <input type="checkbox" id="cc-attest-${n}" ${isDone ? 'checked disabled' : ''}>
+          <label for="cc-attest-${n}">I attest that I have read all material in this module and understand my responsibilities as outlined.</label>
+        </div>
+        <div id="cc-quiz-feedback-${n}" style="margin-bottom:.8rem;"></div>
+        <button class="cc-btn primary" id="cc-submit-${n}" onclick="submitModuleQuiz(${n})" ${isDone ? 'disabled' : ''}>
+          ${isDone ? '✓ Module complete' : 'Submit answers & continue'}
+        </button>
+      </div>
+    </div>
+
+    <div class="cc-footer">
+      <button class="cc-btn" onclick="prevModule()" ${n === 1 ? 'disabled' : ''}>← Previous module</button>
+      <span class="cc-footer-info">Estimated time remaining: ${5 - completed.length} of 5 modules</span>
+      <button class="cc-btn" onclick="nextModule()" ${!isDone ? 'disabled' : ''}>Next module →</button>
+    </div>
+  `;
+}
+
+function selectQuizOption(qi, oi) {
+  _certQuizState[qi] = oi;
+  // Visually mark selected
+  document.querySelectorAll(`.cc-option[data-q="${qi}"]`).forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.cc-option[data-q="${qi}"][data-o="${oi}"]`)?.classList.add('selected');
+  // Make radio reflect
+  const radio = document.querySelector(`input[name="cq-${qi}"][value="${oi}"]`);
+  if (radio) radio.checked = true;
+}
+window.selectQuizOption = selectQuizOption;
+
+async function submitModuleQuiz(n) {
+  const m = CERT_MODULES[n-1];
+  const attest = document.getElementById(`cc-attest-${n}`);
+  const fb = document.getElementById(`cc-quiz-feedback-${n}`);
+
+  // Validate all questions answered
+  const unanswered = m.quiz.findIndex((_, i) => _certQuizState[i] === undefined);
+  if (unanswered !== -1) {
+    fb.innerHTML = `<div style="color:#b91c1c;font-size:.88rem;font-weight:600;">Please answer all ${m.quiz.length} questions before submitting.</div>`;
+    return;
+  }
+  if (!attest || !attest.checked) {
+    fb.innerHTML = `<div style="color:#b91c1c;font-size:.88rem;font-weight:600;">Please check the attestation box to confirm you've read the material.</div>`;
+    return;
+  }
+
+  // Score
+  let correct = 0;
+  m.quiz.forEach((q, qi) => {
+    const selected = _certQuizState[qi];
+    const isCorrect = q.options[selected].correct;
+    if (isCorrect) correct++;
+    // Mark visually
+    const el = document.querySelector(`.cc-option[data-q="${qi}"][data-o="${selected}"]`);
+    if (el) {
+      el.classList.add(isCorrect ? 'correct' : 'wrong');
+      const fbSpan = el.querySelector('.opt-feedback');
+      if (fbSpan && q.options[selected].why) fbSpan.textContent = (isCorrect ? '✓ ' : '✗ ') + q.options[selected].why;
+    }
+    // Also reveal correct answer if user got it wrong
+    if (!isCorrect) {
+      const correctIdx = q.options.findIndex(o => o.correct);
+      const correctEl = document.querySelector(`.cc-option[data-q="${qi}"][data-o="${correctIdx}"]`);
+      if (correctEl) {
+        correctEl.classList.add('correct');
+        const fbSpan = correctEl.querySelector('.opt-feedback');
+        if (fbSpan) fbSpan.textContent = '✓ Correct answer · ' + (q.options[correctIdx].why || '');
+      }
+    }
+  });
+
+  const score = Math.round((correct / m.quiz.length) * 100);
+
+  if (correct < m.quiz.length) {
+    fb.innerHTML = `<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:.85rem 1rem;font-size:.88rem;color:#92400e;font-weight:600;">You got ${correct} of ${m.quiz.length} correct (${score}%). Review the material and try again — you need 100% to advance to the next module.</div>`;
+    document.getElementById(`cc-submit-${n}`).textContent = 'Try again';
+    // Clear visual marks after a moment so user can retry cleanly
+    setTimeout(() => {
+      document.querySelectorAll(`.cc-option`).forEach(el => {
+        el.classList.remove('correct','wrong','selected');
+        const fbSpan = el.querySelector('.opt-feedback');
+        if (fbSpan) fbSpan.textContent = '';
+      });
+      document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+      _certQuizState = {};
+      fb.innerHTML = '';
+      document.getElementById(`cc-submit-${n}`).textContent = 'Submit answers & continue';
+    }, 8000);
+    return;
+  }
+
+  // Pass: persist and advance
+  showSpinner();
+  try {
+    const { error } = await sb.rpc('cert_complete_module', {
+      p_record_id: _certRecord.id,
+      p_module_number: n,
+      p_quiz_score: score
+    });
+    if (error) throw error;
+
+    // Refresh record
+    const { data: updated } = await sb.from('certification_records').select('*').eq('id', _certRecord.id).single();
+    if (updated) _certRecord = updated;
+
+    fb.innerHTML = `<div style="background:#d1fae5;border:1.5px solid #10b981;border-radius:8px;padding:.85rem 1rem;font-size:.88rem;color:#065f46;font-weight:700;">✓ Module ${n} complete (${score}%). Advancing…</div>`;
+    document.getElementById(`cc-submit-${n}`).disabled = true;
+
+    setTimeout(() => {
+      const completed = Object.keys((_certRecord?.progress?.modules) || {}).map(Number);
+      if (completed.length >= 5) {
+        _certCurrentModule = 6;
+      } else {
+        _certCurrentModule = Math.min(n + 1, 5);
+      }
+      _certQuizState = {};
+      renderCert();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 1400);
+  } catch (e) {
+    console.error('cert_complete_module failed:', e);
+    fb.innerHTML = `<div style="color:#b91c1c;font-size:.88rem;font-weight:600;">Could not save progress: ${escapeHtml(e.message || String(e))}</div>`;
+  } finally {
+    hideSpinner();
+  }
+}
+window.submitModuleQuiz = submitModuleQuiz;
+
+function prevModule() {
+  if (_certCurrentModule > 1) {
+    _certCurrentModule--;
+    _certQuizState = {};
+    renderCert();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+window.prevModule = prevModule;
+
+function nextModule() {
+  const completed = Object.keys((_certRecord?.progress?.modules) || {}).map(Number);
+  if (_certCurrentModule < 5) {
+    _certCurrentModule++;
+  } else if (_certCurrentModule === 5 && completed.length === 5) {
+    _certCurrentModule = 6;
+  }
+  _certQuizState = {};
+  renderCert();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.nextModule = nextModule;
+
+// ─── Final Exam ───
+function renderCertFinalExam() {
+  const container = document.getElementById('cc-module-container');
+  if (!container) return;
+  _certQuizState = {};
+
+  const attempts = (_certRecord?.progress?.final_quiz?.attempts) || [];
+  const lastAttempt = attempts[attempts.length - 1];
+
+  const questionsHtml = CERT_FINAL_EXAM.map((q, qi) => `
+    <div class="cc-question" data-q="${qi}">
+      <div class="qnum">Question ${qi + 1} of ${CERT_FINAL_EXAM.length}</div>
+      <div class="qtext">${escapeHtml(q.q)}</div>
+      <div class="cc-options">
+        ${q.options.map((opt, oi) => `
+          <label class="cc-option" data-q="${qi}" data-o="${oi}" onclick="selectQuizOption(${qi},${oi})">
+            <input type="radio" name="cq-${qi}" value="${oi}">
+            <span>${escapeHtml(opt.t)}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  let priorAttemptHtml = '';
+  if (attempts.length > 0) {
+    priorAttemptHtml = `
+      <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.88rem;">
+        <strong style="color:#92400e;">Previous attempt:</strong> ${lastAttempt.score}% — ${lastAttempt.passed ? 'passed' : 'did not pass (need 80%)'}.
+        ${attempts.length} ${attempts.length === 1 ? 'attempt' : 'attempts'} so far.
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="cc-module">
+      <div class="cc-module-meta">
+        <span>Final Exam</span>
+        <span class="cc-time-badge">10 questions · 80% to pass</span>
+      </div>
+      <h2>Certification Final Exam</h2>
+      <p>This exam covers material from all 5 modules. You need <strong>80% (8 of 10 correct)</strong> to earn certification. There's no time limit. You can retake if needed — but read every question carefully the first time.</p>
+      ${priorAttemptHtml}
+      <div class="cc-quiz" style="background:#fff;">
+        ${questionsHtml}
+        <div id="cc-final-feedback" style="margin-bottom:.8rem;"></div>
+        <button class="cc-btn primary" id="cc-final-submit" onclick="submitFinalExam()">Submit final exam</button>
+      </div>
+    </div>
+
+    <div class="cc-footer">
+      <button class="cc-btn" onclick="jumpToModule(5)">← Back to Module 5</button>
+      <span class="cc-footer-info">Pass threshold: 80%</span>
+      <span></span>
+    </div>
+  `;
+}
+
+async function submitFinalExam() {
+  const fb = document.getElementById('cc-final-feedback');
+  const unanswered = CERT_FINAL_EXAM.findIndex((_, i) => _certQuizState[i] === undefined);
+  if (unanswered !== -1) {
+    fb.innerHTML = `<div style="color:#b91c1c;font-size:.88rem;font-weight:600;">Please answer all ${CERT_FINAL_EXAM.length} questions (question ${unanswered + 1} unanswered).</div>`;
+    return;
+  }
+
+  let correct = 0;
+  CERT_FINAL_EXAM.forEach((q, qi) => {
+    if (q.options[_certQuizState[qi]].correct) correct++;
+  });
+  const score = Math.round((correct / CERT_FINAL_EXAM.length) * 100);
+
+  showSpinner();
+  try {
+    const { data, error } = await sb.rpc('cert_submit_final_exam', {
+      p_record_id: _certRecord.id,
+      p_score: score
+    });
+    if (error) throw error;
+    const result = data;
+
+    // Refresh record
+    const { data: updated } = await sb.from('certification_records').select('*').eq('id', _certRecord.id).single();
+    if (updated) _certRecord = updated;
+
+    if (result.passed) {
+      renderCertCertified(result);
+    } else {
+      const container = document.getElementById('cc-module-container');
+      container.innerHTML = `
+        <div class="cc-module">
+          <div class="cc-result fail">
+            <div class="cc-result-icon">📋</div>
+            <h2 style="color:#92400e;">Not quite there yet</h2>
+            <div class="cc-score">${score}%</div>
+            <p style="font-size:.95rem;color:#92400e;">You need <strong>80%</strong> to pass. You got <strong>${correct} of ${CERT_FINAL_EXAM.length}</strong> correct.</p>
+            <p style="font-size:.88rem;color:#92400e;">Review the modules and try again. There's no limit on attempts.</p>
+            <div style="margin-top:1.25rem;display:flex;gap:.5rem;justify-content:center;">
+              <button class="cc-btn" onclick="jumpToModule(1)">← Review Module 1</button>
+              <button class="cc-btn primary" onclick="jumpToModule(6)">Retake exam</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } catch (e) {
+    console.error('cert_submit_final_exam failed:', e);
+    fb.innerHTML = `<div style="color:#b91c1c;font-size:.88rem;font-weight:600;">Could not submit: ${escapeHtml(e.message || String(e))}</div>`;
+  } finally {
+    hideSpinner();
+  }
+}
+window.submitFinalExam = submitFinalExam;
+
+function renderCertCertified(result) {
+  const container = document.getElementById('cc-module-container');
+  if (!container) return;
+  const score = result?.score || _certRecord?.score || '—';
+  const completedAt = _certRecord?.completed_at ? new Date(_certRecord.completed_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+  container.innerHTML = `
+    <div class="cc-module">
+      <div class="cc-result pass">
+        <div class="cc-result-icon">🎓</div>
+        <h2 style="color:#065f46;">Certified!</h2>
+        <div class="cc-score">${score}%</div>
+        <p style="font-size:1.05rem;color:#065f46;font-weight:600;">Congratulations, ${escapeHtml((currentAccount?.full_name || '').split(' ')[0] || 'Realtor')}.</p>
+        <p style="font-size:.95rem;color:#065f46;">You've completed the NEXUS Realtor Certification course (${CERT_COURSE_VERSION}). You'll now appear in user searches once your subscription is active and your profile is complete.</p>
+        <p style="font-size:.85rem;color:#065f46;margin-top:.75rem;">Completed: ${completedAt}</p>
+        <div style="margin-top:1.5rem;">
+          <button class="cc-btn success" onclick="exitCertCourse()">Return to dashboard →</button>
+        </div>
+      </div>
+    </div>
+  `;
+  // Refresh progress pills to show the gold star
+  renderCertProgressPills();
+}
+
+window.maybeShowImpersonationBanner = maybeShowImpersonationBanner;
+
 // ═══ Boot ═══
-console.log('%c🏠 NEXUS Match — build 2026-04-30-phase0 (mock data + admin + impersonation)', 'color:#2FD791;font-weight:bold;font-size:14px;');
+console.log('%c🏠 NEXUS Match — build 2026-04-30-cert-mock (5-module mock cert course)', 'color:#2FD791;font-weight:bold;font-size:14px;');
 document.addEventListener('DOMContentLoaded', initAuth);
 // In case DOM is already loaded:
 if (document.readyState !== 'loading') initAuth();
@@ -7825,10 +9056,13 @@ async function loadRealtorDashboard() {
   }
   document.getElementById('rd-visibility').innerHTML = visibilityHtml;
 
-  let certHtml = '<span class="rp-badge rp-badge-pending">Pending</span> Coming soon';
+  let certHtml = '<span class="rp-badge rp-badge-pending">Pending</span> Not started';
   if (profile.cert_status === 'certified') certHtml = '<span class="rp-badge rp-badge-cert">Certified</span>';
   else if (profile.cert_status === 'in_progress') certHtml = '<span class="rp-badge rp-badge-pending">In progress</span>';
   document.getElementById('rd-cert-summary').innerHTML = certHtml;
+
+  // Render the cert tab content (status card + module list)
+  await renderCertTabPanel(profile);
 
   document.getElementById('rd-payment-summary').innerHTML = paymentModelLabel(realtorState.paymentModel);
 
@@ -8547,6 +9781,17 @@ showView = function(viewName) {
         phoneField.value = currentAccount.phone;
       }
     }, 50);
+  }
+
+  if (viewName === 'cert-course') {
+    if (!currentUser) { openLoginModal(); return; }
+    if (currentAccount?.role !== 'realtor') {
+      showToast('Realtor account required', 'error');
+      return;
+    }
+    // startCertCourse() handles state setup and rendering; calling showView('cert-course')
+    // directly without it just leaves the container empty, so kick off the load.
+    setTimeout(() => { if (!_certRecord) startCertCourse(); }, 50);
   }
 };
 
