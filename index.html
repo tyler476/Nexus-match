@@ -434,6 +434,73 @@ td.name-cell{font-weight:600;color:var(--navy);}
 .admin-gate input{width:100%;padding:.8rem 1rem;border:2px solid var(--gray);border-radius:8px;font-size:1rem;text-align:center;letter-spacing:3px;outline:none;margin-bottom:1rem;}
 .admin-gate input:focus{border-color:var(--blue);}
 
+/* ── Admin v2: Tabbed Dashboard ── */
+.admin-tabs{display:flex;gap:.25rem;border-bottom:2px solid var(--gray);margin-bottom:2rem;flex-wrap:wrap;}
+.admin-tab{background:none;border:none;padding:.85rem 1.25rem;font-size:.9rem;font-weight:600;color:var(--gray-text);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;}
+.admin-tab:hover:not(:disabled){color:var(--navy);}
+.admin-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.admin-tab:disabled{opacity:.5;cursor:not-allowed;}
+.admin-tab-pane{display:none;}
+.admin-tab-pane.active{display:block;animation:fadeInTab .25s ease;}
+@keyframes fadeInTab{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* Mock-Data stats grid */
+.mock-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem;}
+.mock-stat{background:var(--white);border:1.5px solid var(--gray);border-radius:10px;padding:1.1rem 1.2rem;text-align:left;}
+.mock-stat .num{font-size:1.75rem;font-weight:800;color:var(--navy);line-height:1;margin-bottom:.3rem;}
+.mock-stat .label{font-size:.78rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;}
+.mock-stat.users .num{color:var(--blue);}
+.mock-stat.realtors .num{color:var(--green);}
+.mock-stat.danger .num{color:var(--danger);}
+
+/* Mock-Data action bar */
+.mock-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.25rem;align-items:center;}
+.mock-actions .pwd-hint{margin-left:auto;font-size:.78rem;color:var(--gray-text);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#F5F7FA;padding:.4rem .7rem;border-radius:6px;}
+.btn-mock{padding:.55rem 1.05rem;font-size:.85rem;font-weight:600;border-radius:7px;border:1.5px solid var(--gray);background:var(--white);color:var(--navy);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:.4rem;}
+.btn-mock:hover:not(:disabled){border-color:var(--blue);color:var(--blue);}
+.btn-mock:disabled{opacity:.5;cursor:not-allowed;}
+.btn-mock.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+.btn-mock.primary:hover:not(:disabled){background:#0f5b8a;border-color:#0f5b8a;color:#fff;}
+.btn-mock.danger{color:var(--danger);border-color:#FAD0CE;}
+.btn-mock.danger:hover:not(:disabled){background:#FFF4F3;color:var(--danger);border-color:var(--danger);}
+
+/* Mock-Data filter pills */
+.mock-filter{display:flex;gap:.4rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+.mock-filter button{padding:.4rem .9rem;font-size:.82rem;font-weight:600;border-radius:20px;background:var(--white);border:1.5px solid var(--gray);color:var(--gray-text);cursor:pointer;transition:all .15s;}
+.mock-filter button:hover{border-color:var(--blue);color:var(--blue);}
+.mock-filter button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* Account-card list */
+.mock-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:.85rem;}
+.mock-card{background:var(--white);border:1.5px solid var(--gray);border-radius:11px;padding:1rem;display:flex;gap:.85rem;align-items:flex-start;transition:border-color .15s,box-shadow .15s;}
+.mock-card:hover{border-color:var(--blue);box-shadow:0 2px 12px rgba(29,111,164,.07);}
+.mock-card .avatar{width:54px;height:54px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--gray);flex-shrink:0;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--gray);}
+.mock-card .body{flex:1;min-width:0;}
+.mock-card .name{font-weight:700;color:var(--navy);font-size:.95rem;margin:0 0 .15rem 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mock-card .role-pill{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:.15rem .55rem;border-radius:10px;margin-right:.4rem;}
+.mock-card .role-pill.user{background:#E8F0FA;color:var(--blue);}
+.mock-card .role-pill.realtor{background:#E8F8EE;color:var(--green);}
+.mock-card .meta{font-size:.78rem;color:var(--gray-text);margin-top:.4rem;line-height:1.45;word-break:break-word;}
+.mock-card .meta strong{color:var(--navy);font-weight:600;}
+.mock-card .actions{display:flex;flex-direction:column;gap:.3rem;align-items:flex-end;flex-shrink:0;}
+.mock-card .impersonate-btn{padding:.4rem .75rem;font-size:.74rem;font-weight:600;border-radius:6px;background:var(--navy);color:#fff;border:none;cursor:pointer;white-space:nowrap;}
+.mock-card .impersonate-btn:hover{background:var(--blue);}
+.mock-card .copy-btn{padding:.3rem .6rem;font-size:.7rem;font-weight:500;border-radius:6px;background:none;color:var(--gray-text);border:1px solid var(--gray);cursor:pointer;white-space:nowrap;}
+.mock-card .copy-btn:hover{color:var(--navy);border-color:var(--navy);}
+
+.mock-empty{padding:3rem 1rem;text-align:center;color:var(--gray-text);font-size:.9rem;background:var(--white);border:1.5px dashed var(--gray);border-radius:11px;}
+
+/* ── Impersonation banner ── */
+.imp-banner{position:fixed;top:0;left:0;right:0;z-index:5000;background:linear-gradient(90deg,#FF8A00,#FF5722);color:#fff;padding:.65rem 1rem;display:flex;align-items:center;justify-content:center;gap:1rem;font-size:.85rem;font-weight:600;box-shadow:0 2px 12px rgba(0,0,0,.15);}
+.imp-banner .imp-info{display:flex;align-items:center;gap:.6rem;}
+.imp-banner .imp-info img{width:28px;height:28px;border-radius:50%;border:2px solid #fff;}
+.imp-banner button{background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);padding:.4rem .9rem;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer;transition:background .15s;}
+.imp-banner button:hover{background:rgba(255,255,255,.3);}
+body.is-impersonating{padding-top:50px;}
+@media (max-width:600px){
+  .imp-banner{font-size:.75rem;padding:.5rem .75rem;flex-wrap:wrap;}
+}
+
 /* Toast */
 .toast{position:fixed;bottom:2rem;right:1.5rem;padding:.85rem 1.5rem;border-radius:8px;font-weight:600;font-size:.9rem;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:3000;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
@@ -755,6 +822,16 @@ td.name-cell{font-weight:600;color:var(--navy);}
 </style>
 </head>
 <body>
+
+<!-- ═══ Impersonation banner (admin tool — visible only when impersonating a mock user) ═══ -->
+<div id="impersonation-banner" class="imp-banner" style="display:none;">
+  <span style="font-size:1.05rem;">🎭</span>
+  <span class="imp-info">
+    <img id="imp-photo" src="" alt="" />
+    <span>Impersonating <strong id="imp-name">—</strong> · <span id="imp-role" style="opacity:.85;">user</span></span>
+  </span>
+  <button onclick="exitImpersonation()">Exit & Sign Out</button>
+</div>
 
 <!-- ══════════════════════ NAV ══════════════════════ -->
 <nav id="main-nav">
@@ -2712,83 +2789,74 @@ td.name-cell{font-weight:600;color:var(--navy);}
     <div class="admin-wrap">
       <div class="admin-header">
         <div>
-          <h2>NEXUS. Admin Dashboard</h2>
-          <div style="font-size:.85rem;color:var(--gray-text);">Citizens Financial · NMLS 2503947 · Last updated: April 18, 2026</div>
+          <h2>NEXUS. Admin</h2>
+          <div style="font-size:.85rem;color:var(--gray-text);">Citizens Financial · NMLS 2503947 · Internal tools</div>
         </div>
         <div style="display:flex;gap:.75rem;align-items:center;">
           <span class="admin-badge">Internal Only</span>
-          <button class="btn-sm btn-secondary" onclick="exportAll()">Export All → SalesForge</button>
+          <span id="admin-current-user" style="font-size:.82rem;color:var(--gray-text);"></span>
         </div>
       </div>
 
-      <!-- Admin Stats -->
-      <div class="admin-stats">
-        <div class="a-stat"><div class="a-stat-num" id="as-total">0</div><div class="a-stat-label">Total Profiles</div></div>
-        <div class="a-stat"><div class="a-stat-num" id="as-matched">0</div><div class="a-stat-label">Matched</div></div>
-        <div class="a-stat"><div class="a-stat-num" id="as-intros">0</div><div class="a-stat-label">LO Intros Made</div></div>
-        <div class="a-stat"><div class="a-stat-num" id="as-prequal">0</div><div class="a-stat-label">Pre-Qual Calls</div></div>
-      </div>
+      <!-- Tabs -->
+      <nav class="admin-tabs" role="tablist">
+        <button class="admin-tab active" data-admin-tab="mock-data" onclick="switchAdminTab('mock-data')">🎭 Mock Data</button>
+        <button class="admin-tab" disabled title="Coming soon">📊 Overview</button>
+        <button class="admin-tab" disabled title="Coming soon">👥 Realtor Verification</button>
+        <button class="admin-tab" disabled title="Coming soon">📋 Audit Log</button>
+      </nav>
 
-      <!-- Filter Bar -->
-      <div class="filter-bar">
-        <div class="filter-field">
-          <label>County</label>
-          <select id="filter-county" onchange="onCountyFilterChange()">
-            <option value="">All Counties</option>
-          </select>
-        </div>
-        <div class="filter-field">
-          <label>City / Community</label>
-          <select id="filter-city" onchange="applyFilters()">
-            <option value="">All Cities</option>
-          </select>
-        </div>
-        <div class="filter-field">
-          <label>Credit Range</label>
-          <select id="filter-credit" onchange="applyFilters()">
-            <option value="">All Ranges</option>
-            <option>Below 580</option><option>580–619</option><option>620–659</option>
-            <option>660–699</option><option>700–739</option><option>740+</option>
-          </select>
-        </div>
-        <div class="filter-field">
-          <label>Timeline</label>
-          <select id="filter-timeline" onchange="applyFilters()">
-            <option value="">All Timelines</option>
-            <option>0–6 months</option><option>6–12 months</option><option>12–24 months</option>
-          </select>
-        </div>
-        <div class="filter-field">
-          <label>Status</label>
-          <select id="filter-status" onchange="applyFilters()">
-            <option value="">All Statuses</option>
-            <option>Queued</option><option>Matched</option><option>Introduced</option><option>Pre-Qual</option>
-          </select>
-        </div>
-        <div class="filter-btns">
-          <button class="btn-sm btn-outline" onclick="resetFilters()">Reset</button>
-        </div>
-      </div>
+      <!-- ─── TAB: Mock Data ─── -->
+      <section id="admin-tab-mock-data" class="admin-tab-pane active">
 
-      <!-- Profiles Table -->
-      <div class="table-wrap">
-        <div class="table-top">
-          <h3>Candidate Profiles (<span id="profile-count">0</span>)</h3>
-          <div style="display:flex;gap:.5rem;">
-            <input type="text" placeholder="Search name or city…" id="search-input" style="padding:.45rem .9rem;border:2px solid var(--gray);border-radius:6px;font-size:.85rem;outline:none;" oninput="applyFilters()">
+        <!-- Stats -->
+        <div class="mock-stats">
+          <div class="mock-stat users">
+            <div class="num" id="ms-users">—</div>
+            <div class="label">Mock Users</div>
+          </div>
+          <div class="mock-stat realtors">
+            <div class="num" id="ms-realtors">—</div>
+            <div class="label">Mock Realtors</div>
+          </div>
+          <div class="mock-stat">
+            <div class="num" id="ms-visible">—</div>
+            <div class="label">Visible in Browse</div>
+          </div>
+          <div class="mock-stat">
+            <div class="num" id="ms-completed">—</div>
+            <div class="label">Profiles Complete</div>
+          </div>
+          <div class="mock-stat">
+            <div class="num" id="ms-selections">—</div>
+            <div class="label">Selections</div>
+          </div>
+          <div class="mock-stat">
+            <div class="num" id="ms-reviews">—</div>
+            <div class="label">Reviews</div>
           </div>
         </div>
-        <div style="overflow-x:auto;">
-          <table class="profiles-table">
-            <thead>
-              <tr>
-                <th>Name</th><th>City</th><th>Income</th><th>Credit</th><th>Timeline</th><th>Price Target</th><th>Status</th><th>LO</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="profiles-tbody"></tbody>
-          </table>
+
+        <!-- Action bar -->
+        <div class="mock-actions">
+          <button class="btn-mock primary" id="btn-regen" onclick="runRegenerate()">↻ Regenerate Seed</button>
+          <button class="btn-mock danger" id="btn-wipe" onclick="runWipe()">🗑 Wipe Mock Data</button>
+          <button class="btn-mock" onclick="refreshMockData()">↻ Refresh</button>
+          <span class="pwd-hint">Password for all mock accounts: <strong>NexusTest2026!</strong></span>
         </div>
-      </div>
+
+        <!-- Filter -->
+        <div class="mock-filter">
+          <button class="active" data-mock-filter="all" onclick="filterMockList('all')">All</button>
+          <button data-mock-filter="user" onclick="filterMockList('user')">Users</button>
+          <button data-mock-filter="realtor" onclick="filterMockList('realtor')">Realtors</button>
+        </div>
+
+        <!-- Account list -->
+        <div id="mock-accounts-list" class="mock-list">
+          <div class="mock-empty">Loading mock accounts…</div>
+        </div>
+      </section>
 
     </div>
   </div>
@@ -6664,11 +6732,14 @@ async function loadAccount() {
     // but if there's a delay, fall back gracefully
     console.warn('Could not load account row:', error.message);
     currentAccount = { id: currentUser.id, email: currentUser.email, role: 'user', tier: 'free' };
+    try { if (typeof maybeShowImpersonationBanner === 'function') maybeShowImpersonationBanner(); } catch (_) {}
     return;
   }
   currentAccount = data;
   // Update last_login_at (fire-and-forget)
   sb.from('accounts').update({ last_login_at: new Date().toISOString() }).eq('id', currentUser.id).then(() => {});
+  // Refresh impersonation banner if applicable
+  try { if (typeof maybeShowImpersonationBanner === 'function') maybeShowImpersonationBanner(); } catch (_) {}
 }
 
 // ═══ Nav UI updates ═══
@@ -7045,68 +7116,256 @@ showView = function(viewName) {
   }
 };
 
-// ═══ Override admin dashboard init to load real Supabase data ═══
-const _originalInitAdminDashboard = (typeof initAdminDashboard === 'function') ? initAdminDashboard : null;
+// ═══ ADMIN DASHBOARD v2 — Mock Data tab + Impersonation ═══
+// Phase 0: build deliverable for the Nexus Match portal demo
+// Mock account password (all seed accounts share this — see seed_create_mock_user)
+const MOCK_PASSWORD = 'NexusTest2026!';
+const IMP_LSKEY = 'nexus_impersonating_from'; // localStorage key holding admin's email when impersonating
+
+// Cached account list for filter switching (in-memory, refreshed via refreshMockData)
+let _mockAccountsCache = [];
+let _mockFilterMode = 'all';
+
 async function initAdminDashboardReal() {
-  // Try to fetch real users; fall back to mock if empty/error
-  const { data: profiles, error } = await sb
-    .from('user_profiles')
-    .select(`
-      account_id,
-      age_range,
-      current_city,
-      target_cities,
-      employment_status,
-      income_range,
-      credit_range,
-      timeline,
-      price_range,
-      story,
-      profile_completed,
-      created_at,
-      consent_to_realtor_matching,
-      accounts!user_profiles_account_id_fkey (
-        id, email, full_name, phone, role, tier, status, created_at
-      )
-    `);
-
-  if (!error && profiles && profiles.length > 0) {
-    // Transform to the shape the existing dashboard renderer expects
-    filteredProfiles = profiles.map(p => ({
-      id: p.account_id,
-      name: p.accounts?.full_name || p.accounts?.email || 'Unnamed',
-      city: p.current_city || '—',
-      targetCities: p.target_cities || [],
-      income: p.income_range || '—',
-      credit: p.credit_range || '—',
-      timeline: p.timeline || '—',
-      price: p.price_range || '—',
-      status: 'Queued',
-      lo: null,
-      employment: p.employment_status || '—',
-      comfort: 4,
-      bio: p.story || '',
-      email: p.accounts?.email,
-      phone: p.accounts?.phone,
-      _real: true
-    }));
-    console.log(`Admin dashboard: loaded ${filteredProfiles.length} real profile(s)`);
-  } else {
-    // Empty database or error: use mock data so dashboard isn't blank
-    filteredProfiles = [...MOCK_PROFILES];
-    console.log('Admin dashboard: using mock data (no real profiles yet)');
+  // Show admin user line
+  const userLine = document.getElementById('admin-current-user');
+  if (userLine && currentAccount) {
+    userLine.textContent = `Signed in: ${currentAccount.full_name || currentAccount.email}`;
   }
-
-  // Run the existing dashboard population logic
-  if (typeof buildAdminCountyOptions === 'function') buildAdminCountyOptions();
-  if (typeof applyFilters === 'function') applyFilters();
-  if (typeof updateAdminStats === 'function') updateAdminStats();
+  // Default tab: Mock Data
+  switchAdminTab('mock-data');
 }
-// Replace the original
 window.initAdminDashboard = initAdminDashboardReal;
 
+function switchAdminTab(tabId) {
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
+  const btn = document.querySelector(`.admin-tab[data-admin-tab="${tabId}"]`);
+  const pane = document.getElementById('admin-tab-' + tabId);
+  if (btn) btn.classList.add('active');
+  if (pane) pane.classList.add('active');
+  if (tabId === 'mock-data') refreshMockData();
+}
+window.switchAdminTab = switchAdminTab;
+
+async function refreshMockData() {
+  // Stats
+  try {
+    const { data: stats, error } = await sb.rpc('admin_mock_stats');
+    if (error) throw error;
+    document.getElementById('ms-users').textContent      = stats?.mock_users ?? 0;
+    document.getElementById('ms-realtors').textContent   = stats?.mock_realtors ?? 0;
+    document.getElementById('ms-visible').textContent    = stats?.visible_realtors ?? 0;
+    document.getElementById('ms-completed').textContent  = stats?.completed_user_profiles ?? 0;
+    document.getElementById('ms-selections').textContent = stats?.selections ?? 0;
+    document.getElementById('ms-reviews').textContent    = stats?.reviews ?? 0;
+  } catch (e) {
+    console.error('mock_stats failed:', e);
+    showToast('Could not load mock stats: ' + (e.message || e), 'error');
+  }
+
+  // List
+  try {
+    const { data: rows, error } = await sb.rpc('admin_list_mock_accounts');
+    if (error) throw error;
+    _mockAccountsCache = rows || [];
+    renderMockList();
+  } catch (e) {
+    console.error('list_mock_accounts failed:', e);
+    document.getElementById('mock-accounts-list').innerHTML =
+      `<div class="mock-empty" style="color:var(--danger);">Failed to load accounts: ${escapeHtml(e.message || String(e))}</div>`;
+  }
+}
+window.refreshMockData = refreshMockData;
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function filterMockList(mode) {
+  _mockFilterMode = mode;
+  document.querySelectorAll('.mock-filter button').forEach(b => {
+    b.classList.toggle('active', b.dataset.mockFilter === mode);
+  });
+  renderMockList();
+}
+window.filterMockList = filterMockList;
+
+function renderMockList() {
+  const list = document.getElementById('mock-accounts-list');
+  if (!list) return;
+  let rows = _mockAccountsCache;
+  if (_mockFilterMode !== 'all') {
+    rows = rows.filter(r => r.role === _mockFilterMode);
+  }
+  if (rows.length === 0) {
+    list.innerHTML = '<div class="mock-empty">No mock accounts. Click <strong>↻ Regenerate Seed</strong> to populate.</div>';
+    return;
+  }
+  list.innerHTML = rows.map(r => {
+    const photoUrl = r.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.full_name)}&background=1B3A6B&color=fff`;
+    let metaHtml = '';
+    if (r.role === 'realtor') {
+      const specs = (r.specialties || []).slice(0, 3).join(', ');
+      const visBadge = r.is_visible
+        ? '<span style="color:var(--green);font-weight:600;">● Visible</span>'
+        : '<span style="color:var(--gray-text);">Not visible</span>';
+      metaHtml = `
+        <div class="meta">
+          <strong>Tier:</strong> ${escapeHtml(r.tier)} · <strong>Cert:</strong> ${escapeHtml(r.cert_status || '—')}<br>
+          <strong>Specialties:</strong> ${escapeHtml(specs || '—')}<br>
+          ${visBadge}
+        </div>`;
+    } else {
+      const targets = (r.target_cities || []).join(', ') || '—';
+      metaHtml = `
+        <div class="meta">
+          <strong>Lives in:</strong> ${escapeHtml(r.city || '—')}<br>
+          <strong>Targets:</strong> ${escapeHtml(targets)}
+        </div>`;
+    }
+    return `
+      <div class="mock-card">
+        <div class="avatar" style="background-image:url('${escapeHtml(photoUrl)}');"></div>
+        <div class="body">
+          <div class="name">${escapeHtml(r.full_name)}</div>
+          <div>
+            <span class="role-pill ${r.role}">${escapeHtml(r.role)}</span>
+            <span style="font-size:.72rem;color:var(--gray-text);font-family:ui-monospace,Menlo,monospace;">${escapeHtml(r.email)}</span>
+          </div>
+          ${metaHtml}
+        </div>
+        <div class="actions">
+          <button class="impersonate-btn" onclick="impersonateMock('${escapeHtml(r.email)}','${escapeHtml(r.full_name)}','${escapeHtml(r.role)}','${escapeHtml(r.photo_url || '')}')">Impersonate →</button>
+          <button class="copy-btn" onclick="copyEmail(this,'${escapeHtml(r.email)}')">Copy email</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function copyEmail(btn, email) {
+  navigator.clipboard.writeText(email).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1100);
+  }).catch(() => showToast('Could not copy', 'error'));
+}
+window.copyEmail = copyEmail;
+
+async function runRegenerate() {
+  if (!confirm('Wipe all mock data and re-seed 30 users + 15 realtors + 12 selections + 27 reviews?\n\nReal accounts (Tyler, info@) are preserved. This may take a few seconds.')) return;
+  const btn = document.getElementById('btn-regen');
+  btn.disabled = true; btn.textContent = '… Regenerating';
+  try {
+    const { data, error } = await sb.rpc('admin_regenerate_mock_data');
+    if (error) throw error;
+    showToast(`Regenerated: ${data.users} users, ${data.realtors} realtors, ${data.selections} selections, ${data.reviews} reviews`, 'success');
+    await refreshMockData();
+  } catch (e) {
+    console.error('regenerate failed:', e);
+    showToast('Regenerate failed: ' + (e.message || e), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '↻ Regenerate Seed';
+  }
+}
+window.runRegenerate = runRegenerate;
+
+async function runWipe() {
+  if (!confirm('Wipe all mock data?\n\nThis removes 30 users, 15 realtors, all their selections and reviews. Real accounts are preserved.\n\nYou can re-seed with the Regenerate button.')) return;
+  const btn = document.getElementById('btn-wipe');
+  btn.disabled = true; btn.textContent = '… Wiping';
+  try {
+    const { data, error } = await sb.rpc('admin_wipe_mock_data');
+    if (error) throw error;
+    showToast(`Wiped ${data.wiped} mock accounts`, 'success');
+    await refreshMockData();
+  } catch (e) {
+    showToast('Wipe failed: ' + (e.message || e), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '🗑 Wipe Mock Data';
+  }
+}
+window.runWipe = runWipe;
+
+// ─── Impersonation ───
+async function impersonateMock(email, fullName, role, photoUrl) {
+  if (!currentAccount || currentAccount.role !== 'admin') {
+    showToast('Only admins can impersonate', 'error');
+    return;
+  }
+  if (!confirm(`Sign out as ${currentAccount.full_name || currentAccount.email} and sign in as ${fullName} (${role})?`)) return;
+
+  // Remember admin email so the banner can offer "Exit Impersonation"
+  try {
+    localStorage.setItem(IMP_LSKEY, JSON.stringify({
+      adminEmail: currentAccount.email,
+      adminName: currentAccount.full_name,
+      mockEmail: email,
+      mockName: fullName,
+      mockRole: role,
+      mockPhoto: photoUrl,
+      at: Date.now()
+    }));
+  } catch (e) { console.warn('localStorage write failed:', e); }
+
+  // Sign out → Sign in as mock
+  try {
+    await sb.auth.signOut({ scope: 'local' });
+  } catch (_) {}
+  const { error } = await sb.auth.signInWithPassword({ email, password: MOCK_PASSWORD });
+  if (error) {
+    localStorage.removeItem(IMP_LSKEY);
+    showToast('Impersonation failed: ' + error.message, 'error');
+    return;
+  }
+  // Reload — onAuthStateChange would handle it but a hard reload guarantees clean state
+  window.location.href = window.location.pathname;
+}
+window.impersonateMock = impersonateMock;
+
+async function exitImpersonation() {
+  // Clear localStorage flag, sign out, return to login modal
+  try { localStorage.removeItem(IMP_LSKEY); } catch (_) {}
+  try { await sb.auth.signOut({ scope: 'local' }); } catch (_) {}
+  // Clear keys belt-and-suspenders
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('sb-') || k.includes('supabase')) localStorage.removeItem(k);
+    });
+  } catch (_) {}
+  window.location.href = window.location.pathname;
+}
+window.exitImpersonation = exitImpersonation;
+
+function maybeShowImpersonationBanner() {
+  let info = null;
+  try { info = JSON.parse(localStorage.getItem(IMP_LSKEY) || 'null'); } catch (_) {}
+  const banner = document.getElementById('impersonation-banner');
+  if (!banner) return;
+  // Only show if (a) we have impersonation info AND (b) the currently signed-in account matches the mockEmail
+  if (info && currentAccount && currentAccount.email === info.mockEmail) {
+    document.getElementById('imp-name').textContent = info.mockName || info.mockEmail;
+    document.getElementById('imp-role').textContent = info.mockRole || 'user';
+    const img = document.getElementById('imp-photo');
+    img.src = info.mockPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(info.mockName || '?')}&background=fff&color=FF5722`;
+    banner.style.display = 'flex';
+    document.body.classList.add('is-impersonating');
+  } else {
+    banner.style.display = 'none';
+    document.body.classList.remove('is-impersonating');
+    // If we have stale info but the account doesn't match anymore, clean up
+    if (info && (!currentAccount || currentAccount.email !== info.mockEmail)) {
+      localStorage.removeItem(IMP_LSKEY);
+    }
+  }
+}
+window.maybeShowImpersonationBanner = maybeShowImpersonationBanner;
+
 // ═══ Boot ═══
-console.log('%c🏠 NEXUS Match — build 2026-04-29-v4 (ZIPs, interests, 5-step onboard, match scoring, docs, revenue)', 'color:#2FD791;font-weight:bold;font-size:14px;');
+console.log('%c🏠 NEXUS Match — build 2026-04-30-phase0 (mock data + admin + impersonation)', 'color:#2FD791;font-weight:bold;font-size:14px;');
 document.addEventListener('DOMContentLoaded', initAuth);
 // In case DOM is already loaded:
 if (document.readyState !== 'loading') initAuth();
