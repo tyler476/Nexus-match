@@ -823,6 +823,50 @@ body.is-impersonating{padding-top:50px;}
 </head>
 <body>
 
+<!-- ═══ Boot flash suppressor — runs before any view renders ═══
+     If a Supabase session is in localStorage we know auth is going to
+     redirect the user to their dashboard. Hide views and show a quiet
+     spinner so the home page doesn't flash before routing fires. -->
+<script>
+(function suppressFlashOnAuthedReload() {
+  try {
+    let hasSession = false;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('sb-') || k.includes('supabase')) && k.endsWith('-auth-token')) {
+        hasSession = true; break;
+      }
+    }
+    if (!hasSession) return;
+    // Inject a style block that hides ALL views until JS removes it
+    const s = document.createElement('style');
+    s.id = 'boot-flash-suppressor';
+    s.textContent = `
+      .view, .view.active { display: none !important; }
+      #boot-loading { position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F4F6FA;z-index:1000; }
+      #boot-loading .bl-spinner { width:36px;height:36px;border:3px solid #E5E9F0;border-top-color:#1D6FA4;border-radius:50%;animation:blspin .8s linear infinite; }
+      @keyframes blspin { to { transform: rotate(360deg); } }
+    `;
+    document.head.appendChild(s);
+    // Boot loader element
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.getElementById('boot-loading')) return;
+      const d = document.createElement('div');
+      d.id = 'boot-loading';
+      d.innerHTML = '<div class="bl-spinner"></div>';
+      document.body.appendChild(d);
+    });
+    // Expose remover for the auth init flow
+    window.__clearBootFlashSuppressor = function() {
+      const sty = document.getElementById('boot-flash-suppressor');
+      if (sty) sty.remove();
+      const bl = document.getElementById('boot-loading');
+      if (bl) bl.remove();
+    };
+  } catch (_) {}
+})();
+</script>
+
 <!-- ═══ Impersonation banner (admin tool — visible only when impersonating a mock user) ═══ -->
 <div id="impersonation-banner" class="imp-banner" style="display:none;">
   <span style="font-size:1.05rem;">🎭</span>
@@ -4254,6 +4298,7 @@ body.is-impersonating{padding-top:50px;}
 <!-- ─── USER-SIDE: FIND A REALTOR ─── -->
 <div id="view-find-realtor" class="view">
   <div class="rp-section">
+    <span class="rp-back-link" onclick="routeForRole()">← Back to dashboard</span>
     <h1 class="rp-h1">Find your <span class="accent">realtor.</span></h1>
     <p class="rp-sub">NEXUS-certified realtors in your target cities. Browse, read reviews, and pick the one that's right for you.</p>
 
@@ -4281,7 +4326,11 @@ body.is-impersonating{padding-top:50px;}
 <!-- ─── USER-SIDE: REALTOR DETAIL VIEW ─── -->
 <div id="view-realtor-profile" class="view">
   <div class="rp-section">
-    <span class="rp-back-link" onclick="showView('find-realtor')">← Back to all realtors</span>
+    <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+      <span class="rp-back-link" onclick="showView('find-realtor')" style="margin-bottom:0;">← Back to all realtors</span>
+      <span style="color:var(--gray);">·</span>
+      <span class="rp-back-link" onclick="routeForRole()" style="margin-bottom:0;">⌂ Dashboard</span>
+    </div>
 
     <div class="rp-card" id="rpf-card">
       <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;">
@@ -4323,6 +4372,7 @@ body.is-impersonating{padding-top:50px;}
 <!-- ─── USER-SIDE: DOCUMENTS (CO-OWNERSHIP TEMPLATES) ─── -->
 <div id="view-documents" class="view">
   <div class="rp-section">
+    <span class="rp-back-link" onclick="routeForRole()">← Back to dashboard</span>
     <h1 class="rp-h1">Co-ownership <span class="accent">documents.</span></h1>
     <p class="rp-sub">When you and your co-buyers find your home, you'll use these six agreements to formalize your partnership. Built by NEXUS, designed to protect every co-owner equally.</p>
 
@@ -6830,13 +6880,20 @@ async function initAuth() {
       // Always route logged-in users to their dashboard. The home/landing view
       // is for anonymous visitors. Once you're signed in (especially when admin
       // impersonates a mock account), you should land on the right portal.
-      setTimeout(() => routeForRole(), 100);
+      setTimeout(() => {
+        routeForRole();
+        // Clear the boot-flash suppressor (if present) AFTER routing has set the right view active
+        setTimeout(() => { if (typeof window.__clearBootFlashSuppressor === 'function') window.__clearBootFlashSuppressor(); }, 50);
+      }, 100);
     } else {
       updateNavForLoggedOut();
+      // No session → suppressor wouldn't have been added anyway, but clear just in case
+      if (typeof window.__clearBootFlashSuppressor === 'function') window.__clearBootFlashSuppressor();
     }
   } catch (err) {
     console.error('Auth init error:', err);
     updateNavForLoggedOut();
+    if (typeof window.__clearBootFlashSuppressor === 'function') window.__clearBootFlashSuppressor();
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
@@ -9119,8 +9176,167 @@ async function loadRealtorDashboard() {
     if (el) el.classList.toggle('selected', m === realtorState.paymentModel);
   });
 
+  // Load actual selections list (the rich UI inside the Selections tab)
+  await loadSelectionsList();
+
   hideSpinner();
 }
+
+// ─── Realtor: load the list of users who have selected them ───
+async function loadSelectionsList() {
+  const container = document.getElementById('rd-selections-list');
+  if (!container || !currentUser || currentAccount?.role !== 'realtor') return;
+
+  const { data: selections, error } = await sb
+    .from('realtor_selections')
+    .select(`
+      id, status, notes, first_contact_at, realtor_responded_at, selected_at, initiated_by, obligation_expires_at,
+      user:accounts!realtor_selections_user_id_fkey(id, full_name, email),
+      user_profile:user_profiles!realtor_selections_user_id_fkey(
+        current_city, target_cities, household_setup, price_range, timeline, story, photo_url, age_range
+      )
+    `)
+    .eq('realtor_id', currentUser.id)
+    .order('first_contact_at', { ascending: false });
+
+  if (error) {
+    console.error('Could not load selections:', error);
+    container.innerHTML = `<div class="rp-empty-state"><div class="rp-empty-state-icon">⚠️</div><div>Could not load selections: ${escapeHtml(error.message)}</div></div>`;
+    return;
+  }
+
+  if (!selections || selections.length === 0) {
+    container.innerHTML = `
+      <div class="rp-empty-state">
+        <div class="rp-empty-state-icon">📭</div>
+        <div>No selections yet.</div>
+        <div style="font-size:.85rem;margin-top:.4rem;">Once users start selecting you, they'll appear here.</div>
+      </div>`;
+    return;
+  }
+
+  const STATUS_DISPLAY = {
+    pending_acceptance: { label: 'Awaiting your response', color: '#F59E0B', bg: '#FEF3C7' },
+    connected:           { label: 'Connected — actively working',  color: '#15803D', bg: '#D1FAE5' },
+    declined:            { label: 'Declined',          color: '#6B7280', bg: '#F3F4F6' },
+    completed:           { label: 'Completed',         color: '#1E40AF', bg: '#DBEAFE' },
+    closed_with_realtor: { label: 'Closed deal',       color: '#0F766E', bg: '#CCFBF1' }
+  };
+  const HOUSEHOLD_LABELS_RD = {
+    single: 'Single buyer', single_parent: 'Single parent',
+    couple_no_kids: 'Couple, no kids', family_with_kids: 'Family with kids',
+    multigenerational: 'Multi-generational', co_buying_partner: 'Co-buying with partner',
+    co_buying_friends: 'Co-buying with friends'
+  };
+
+  container.innerHTML = selections.map(s => {
+    const st = STATUS_DISPLAY[s.status] || { label: s.status, color: '#6B7280', bg: '#F3F4F6' };
+    const u = s.user || {};
+    const up = s.user_profile || {};
+    const initials = (u.full_name || '?').split(' ').map(p => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+    const photoHtml = up.photo_url
+      ? `<div style="width:64px;height:64px;border-radius:50%;background-image:url('${escapeHtml(up.photo_url)}');background-size:cover;background-position:center;flex-shrink:0;"></div>`
+      : `<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">${escapeHtml(initials)}</div>`;
+    const householdLabel = HOUSEHOLD_LABELS_RD[up.household_setup] || up.household_setup || '';
+    const targetsStr = (up.target_cities || []).join(', ') || '—';
+    const firstContactDate = s.first_contact_at ? new Date(s.first_contact_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+    const isPending = s.status === 'pending_acceptance';
+    const isActive = s.status === 'connected';
+
+    let actions = '';
+    if (isPending) {
+      actions = `
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.85rem;">
+          <button class="rp-btn" onclick="respondToSelection('${s.id}', 'connected')" style="padding:.55rem 1.1rem;font-size:.85rem;">✓ Accept selection</button>
+          <button class="rp-btn rp-btn-secondary" onclick="respondToSelection('${s.id}', 'declined')" style="padding:.55rem 1.1rem;font-size:.85rem;">Decline</button>
+        </div>
+      `;
+    } else if (isActive) {
+      actions = `
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.85rem;">
+          <button class="rp-btn rp-btn-secondary" onclick="respondToSelection('${s.id}', 'completed')" style="padding:.5rem 1rem;font-size:.82rem;">Mark completed</button>
+          <button class="rp-btn rp-btn-secondary" onclick="respondToSelection('${s.id}', 'closed_with_realtor')" style="padding:.5rem 1rem;font-size:.82rem;">Closed deal →</button>
+        </div>
+      `;
+    }
+
+    return `
+      <div style="border:1.5px solid var(--gray);border-radius:11px;padding:1.1rem 1.3rem;margin-bottom:.9rem;background:#fff;">
+        <div style="display:flex;gap:1rem;align-items:flex-start;">
+          ${photoHtml}
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;align-items:flex-start;">
+              <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;">${escapeHtml(u.full_name || 'Unknown user')}</div>
+                <div style="font-size:.82rem;color:var(--gray-text);margin-top:.15rem;">
+                  ${escapeHtml(up.age_range || '')}${up.age_range && householdLabel ? ' · ' : ''}${escapeHtml(householdLabel)}${(up.age_range || householdLabel) ? ' · ' : ''}📍 ${escapeHtml(up.current_city || 'Location not set')}
+                </div>
+              </div>
+              <span style="background:${st.bg};color:${st.color};padding:.32rem .8rem;border-radius:14px;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;">${escapeHtml(st.label)}</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem;margin:.85rem 0;font-size:.85rem;">
+              <div><strong style="color:var(--navy);">Target cities:</strong><br>${escapeHtml(targetsStr)}</div>
+              <div><strong style="color:var(--navy);">Price range:</strong><br>${escapeHtml(up.price_range || '—')}</div>
+              <div><strong style="color:var(--navy);">Timeline:</strong><br>${escapeHtml(up.timeline || '—')}</div>
+            </div>
+
+            ${up.story ? `
+              <div style="background:var(--bg);border-left:3px solid var(--blue);padding:.7rem 1rem;border-radius:0 6px 6px 0;font-size:.86rem;color:#374151;line-height:1.5;font-style:italic;margin:.65rem 0;">
+                "${escapeHtml(up.story)}"
+              </div>
+            ` : ''}
+
+            ${s.notes ? `<div style="background:#FEF9C3;padding:.55rem .85rem;border-radius:6px;font-size:.82rem;color:#854D0E;margin-bottom:.5rem;"><strong>User's note:</strong> ${escapeHtml(s.notes)}</div>` : ''}
+
+            <div style="font-size:.74rem;color:var(--gray-text);margin-top:.55rem;">
+              Selected ${escapeHtml(firstContactDate)} · Initiated by ${escapeHtml(s.initiated_by || 'user')}${s.realtor_responded_at ? ' · You responded ' + new Date(s.realtor_responded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+            </div>
+
+            ${actions}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+window.loadSelectionsList = loadSelectionsList;
+
+async function respondToSelection(selectionId, newStatus) {
+  const labels = {
+    connected: 'Accept this selection?',
+    declined: 'Decline this selection? The user can pick another realtor.',
+    completed: 'Mark this engagement as completed?',
+    closed_with_realtor: 'Mark as a closed deal? This locks in the 24-month obligation.'
+  };
+  if (!confirm(labels[newStatus] || 'Update status?')) return;
+
+  showSpinner();
+  try {
+    const update = { status: newStatus };
+    if (newStatus === 'connected' || newStatus === 'declined') {
+      update.realtor_responded_at = new Date().toISOString();
+    }
+    const { error } = await sb
+      .from('realtor_selections')
+      .update(update)
+      .eq('id', selectionId);
+    if (error) throw error;
+    showToast('Status updated', 'success');
+    await loadSelectionsList();
+    // Refresh stat counts on overview tab too
+    const { count: selCount } = await sb.from('realtor_selections').select('id', { count: 'exact', head: true }).eq('realtor_id', currentUser.id);
+    document.getElementById('rd-stat-selections').textContent = selCount || 0;
+    const { count: activeCount } = await sb.from('realtor_selections').select('id', { count: 'exact', head: true }).eq('realtor_id', currentUser.id).in('status', ['connected', 'completed']);
+    document.getElementById('rd-stat-active').textContent = activeCount || 0;
+  } catch (e) {
+    console.error('respondToSelection failed:', e);
+    showToast('Could not update: ' + (e.message || e), 'error');
+  } finally {
+    hideSpinner();
+  }
+}
+window.respondToSelection = respondToSelection;
 
 function paymentModelLabel(model) {
   if (model === 'subscription') return '<span class="rp-badge rp-badge-network">NEXUS Network</span> Subscription · $49.99/mo';
