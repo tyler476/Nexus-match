@@ -497,6 +497,8 @@ td.name-cell{font-weight:600;color:var(--navy);}
 .imp-banner button{background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);padding:.4rem .9rem;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer;transition:background .15s;}
 .imp-banner button:hover{background:rgba(255,255,255,.3);}
 body.is-impersonating{padding-top:50px;}
+body.is-impersonating nav{top:50px;}
+body.is-impersonating .view{padding-top:114px;}
 
 /* ── Unread badge ── */
 .unread-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#EF4444;color:#fff;font-size:.68rem;font-weight:800;line-height:1;letter-spacing:.3px;position:relative;top:-1px;margin-left:.35rem;}
@@ -7182,7 +7184,7 @@ function updateNavForAuthed() {
   document.getElementById('nav-logout').style.display = 'flex';
   // Show Discover tab for users only
   const discTab = document.getElementById('nav-discover');
-  if (discTab) discTab.style.display = (currentAccount?.role === 'user') ? 'flex' : 'none';
+  if (discTab) discTab.style.display = (currentAccount?.role === 'user' || currentAccount?.role === 'admin') ? 'flex' : 'none';
   const info = document.getElementById('nav-user-info');
   if (info && currentAccount) {
     const name = currentAccount.full_name || currentAccount.email || '';
@@ -10577,14 +10579,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (userDash && !document.getElementById('user-find-realtor-link')) {
     const helperBlock = document.createElement('div');
     helperBlock.id = 'user-find-realtor-link';
-    helperBlock.style.cssText = 'max-width:1080px;margin:1.5rem auto 0;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;';
+    helperBlock.style.cssText = 'max-width:1080px;margin:1.5rem auto 0;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;';
     helperBlock.innerHTML =
+      '<div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem 1.4rem;">' +
+      '<div style="font-size:1.5rem;margin-bottom:.5rem;">🔍</div>' +
+      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Discover Co-Buyers</div>' +
+      '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Browse and match with compatible co-borrowers.</div>' +
+      '<button class="rp-btn" style="background:#10B981;border-color:#10B981;color:#fff;" onclick="showView(\'discovery\')">Start Discovering →</button>' +
+      '</div>' +
       '<div style="background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(47,215,145,.04));border:1px solid var(--gray);border-radius:12px;padding:1.25rem 1.4rem;">' +
+      '<div style="font-size:1.5rem;margin-bottom:.5rem;">🏠</div>' +
       '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Find your NEXUS realtor</div>' +
       '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Browse certified realtors in your target cities.</div>' +
       '<button class="rp-btn" onclick="showView(\'find-realtor\')">Find a realtor →</button>' +
       '</div>' +
       '<div style="background:linear-gradient(135deg,rgba(139,92,246,.06),rgba(37,99,235,.04));border:1px solid var(--gray);border-radius:12px;padding:1.25rem 1.4rem;">' +
+      '<div style="font-size:1.5rem;margin-bottom:.5rem;">📄</div>' +
       '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Co-ownership documents</div>' +
       '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Preview the 6 agreements that protect your equity.</div>' +
       '<button class="rp-btn rp-btn-secondary" onclick="showView(\'documents\')">View documents →</button>' +
@@ -10663,7 +10673,9 @@ function calcNexusScore(myProf, cand) {
 
 // ── Load Discovery Stack ──
 async function loadDiscoveryStack() {
-  if (!currentUser || currentAccount?.role !== 'user') return;
+  if (!currentUser) return;
+  // Allow users and admins (for testing)
+  if (currentAccount?.role !== 'user' && currentAccount?.role !== 'admin') return;
   const cardArea = document.getElementById('disc-card-area');
   cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">🔍</div><div>Finding compatible co-buyers…</div></div>';
 
@@ -10671,7 +10683,15 @@ async function loadDiscoveryStack() {
     const { data: mp } = await sb.from('user_profiles').select('*').eq('account_id', currentUser.id).maybeSingle();
     _myProfile = mp;
   }
-  if (!_myProfile || !_myProfile.profile_completed) {
+  // If admin with no user profile, create a default profile for scoring
+  if (!_myProfile) {
+    _myProfile = {
+      target_cities: [], price_range: null, home_type_preference: [],
+      total_coborrowers_desired: 2, has_existing_coborrower: false,
+      profile_completed: false
+    };
+  }
+  if (!_myProfile.profile_completed && currentAccount?.role !== 'admin') {
     cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">📝</div><div>Complete your profile first to start discovering co-buyers.</div><button class="btn-primary" style="margin-top:1rem;" onclick="showView(\'register\')">Complete Profile →</button></div>';
     return;
   }
@@ -10997,7 +11017,7 @@ showView = function(viewName) {
   _showViewPreDisc(viewName);
   if (viewName==='discovery') {
     if (!currentUser) { openLoginModal(); return; }
-    if (currentAccount?.role!=='user') { showToast('Homebuyer account required','error'); return; }
+    if (currentAccount?.role!=='user' && currentAccount?.role!=='admin') { showToast('Homebuyer account required','error'); return; }
     setNavActive('nav-discover');
     setTimeout(()=>loadDiscoveryStack(),50);
   }
