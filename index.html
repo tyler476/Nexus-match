@@ -497,6 +497,41 @@ td.name-cell{font-weight:600;color:var(--navy);}
 .imp-banner button{background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.5);padding:.4rem .9rem;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer;transition:background .15s;}
 .imp-banner button:hover{background:rgba(255,255,255,.3);}
 body.is-impersonating{padding-top:50px;}
+
+/* ── Unread badge ── */
+.unread-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#EF4444;color:#fff;font-size:.68rem;font-weight:800;line-height:1;letter-spacing:.3px;position:relative;top:-1px;margin-left:.35rem;}
+.unread-badge.hidden{display:none;}
+.conv-open-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;font-size:.83rem;font-weight:600;border-radius:7px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border:none;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.conv-open-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3);}
+
+/* ── Conversation view ── */
+.conv-wrap{max-width:720px;margin:0 auto;padding:0 1rem;min-height:calc(100vh - 64px);display:flex;flex-direction:column;}
+.conv-header{background:var(--white);border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;}
+.conv-header-top{display:flex;gap:1rem;align-items:flex-start;}
+.conv-avatar{width:56px;height:56px;border-radius:50%;flex-shrink:0;background-size:cover;background-position:center;}
+.conv-avatar-initials{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.conv-name{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.15rem;color:var(--navy);line-height:1.2;}
+.conv-sub{font-size:.82rem;color:var(--gray-text);margin-top:.15rem;}
+.conv-status-pill{display:inline-block;padding:.28rem .75rem;border-radius:14px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;margin-top:.4rem;}
+.conv-contact{margin-top:1rem;padding:.85rem 1.1rem;background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1px solid rgba(16,185,129,.2);border-radius:10px;font-size:.88rem;color:var(--navy);}
+.conv-contact strong{font-weight:700;}
+.conv-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;}
+.conv-thread{flex:1;display:flex;flex-direction:column;gap:.6rem;padding:.5rem 0;overflow-y:auto;min-height:200px;}
+.conv-bubble{max-width:80%;padding:.85rem 1.1rem;border-radius:14px;font-size:.9rem;line-height:1.55;word-break:break-word;position:relative;}
+.conv-bubble.mine{align-self:flex-end;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border-bottom-right-radius:4px;}
+.conv-bubble.theirs{align-self:flex-start;background:#F3F4F6;color:#374151;border-bottom-left-radius:4px;}
+.conv-bubble .conv-time{font-size:.68rem;opacity:.6;margin-top:.35rem;display:block;}
+.conv-bubble.mine .conv-time{text-align:right;}
+.conv-auto-pill{display:inline-block;padding:.2rem .55rem;border-radius:6px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:.35rem;background:rgba(37,99,235,.1);color:var(--blue);}
+.conv-reply-box{background:var(--white);border:1.5px solid var(--gray);border-radius:14px;padding:1rem 1.25rem;margin-top:.75rem;margin-bottom:1rem;}
+.conv-reply-box textarea{width:100%;border:1.5px solid var(--gray);border-radius:8px;padding:.75rem;font-size:.9rem;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;max-height:200px;transition:border-color .15s;}
+.conv-reply-box textarea:focus{outline:none;border-color:var(--blue);}
+.conv-reply-bar{display:flex;justify-content:space-between;align-items:center;margin-top:.6rem;}
+.conv-char-count{font-size:.72rem;color:var(--gray-text);}
+.conv-send-btn{padding:.6rem 1.5rem;border-radius:8px;font-size:.88rem;font-weight:700;background:var(--blue);color:#fff;border:none;cursor:pointer;transition:background .15s;}
+.conv-send-btn:hover{background:#1a4fcc;}
+.conv-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.conv-empty{text-align:center;padding:3rem 1rem;color:var(--gray-text);font-size:.9rem;}
 @media (max-width:600px){
   .imp-banner{font-size:.75rem;padding:.5rem .75rem;flex-wrap:wrap;}
 }
@@ -874,6 +909,7 @@ body.is-impersonating{padding-top:50px;}
     <img id="imp-photo" src="" alt="" />
     <span>Impersonating <strong id="imp-name">—</strong> · <span id="imp-role" style="opacity:.85;">user</span></span>
   </span>
+  <button onclick="switchImpersonationUser()">⇄ Switch User</button>
   <button onclick="exitImpersonation()">Exit & Sign Out</button>
 </div>
 
@@ -2808,7 +2844,10 @@ body.is-impersonating{padding-top:50px;}
           <div class="pf-item"><div class="pf-label">Price Target</div><div class="pf-value">$800K–$1M</div></div>
           <div class="pf-item"><div class="pf-label">Comfort Level</div><div class="pf-value">4 / 5 — Committed</div></div>
         </div>
-        <button class="btn-outline" style="width:100%;margin-top:1.25rem;font-size:.85rem;" onclick="showView('register')">Edit Profile</button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;width:100%;margin-top:1.25rem;">
+          <button class="btn-primary" style="flex:1;font-size:.85rem;padding:.75rem 1rem;" onclick="showView('find-realtor')">Find a Realtor →</button>
+          <button class="btn-outline" style="flex:1;font-size:.85rem;padding:.75rem 1rem;" onclick="showView('documents')">View Documents</button>
+        </div>
       </div>
 
       <!-- Documents -->
@@ -2899,6 +2938,7 @@ body.is-impersonating{padding-top:50px;}
         <!-- Action bar -->
         <div class="mock-actions">
           <button class="btn-mock primary" id="btn-regen" onclick="runRegenerate()">↻ Regenerate Seed</button>
+          <button class="btn-mock" id="btn-reset-interactions" onclick="runResetInteractions()" style="background:#F59E0B;color:#fff;">🔄 Reset Interactions</button>
           <button class="btn-mock danger" id="btn-wipe" onclick="runWipe()">🗑 Wipe Mock Data</button>
           <button class="btn-mock" onclick="refreshMockData()">↻ Refresh</button>
           <span class="pwd-hint">Password for all mock accounts: <strong>NexusTest2026!</strong></span>
@@ -6887,6 +6927,18 @@ async function initAuth() {
       }, 100);
     } else {
       updateNavForLoggedOut();
+      // Switch User flow: if returning flag is set, auto-open login pre-filled with admin email
+      try {
+        if (localStorage.getItem('nexus_admin_returning') === '1') {
+          setTimeout(() => {
+            openLoginModal();
+            const emailField = document.getElementById('login-email');
+            if (emailField) emailField.value = 'tyler@citizensfinancial.co';
+            const pwField = document.getElementById('login-password');
+            if (pwField) pwField.focus();
+          }, 100);
+        }
+      } catch (_) {}
       // No session → suppressor wouldn't have been added anyway, but clear just in case
       if (typeof window.__clearBootFlashSuppressor === 'function') window.__clearBootFlashSuppressor();
     }
@@ -7578,6 +7630,236 @@ function maybeShowImpersonationBanner() {
   }
 }
 window.maybeShowImpersonationBanner = maybeShowImpersonationBanner;
+
+// ═══ CONVERSATION SYSTEM — In-app messaging for selections ═══
+let _activeSelectionId = null;
+let _activeConvData = null;
+
+async function openConversation(selectionId) {
+  _activeSelectionId = selectionId;
+  showView('conversation');
+}
+window.openConversation = openConversation;
+
+async function loadConversation() {
+  if (!_activeSelectionId || !currentUser) return;
+
+  const header = document.getElementById('conv-header');
+  const thread = document.getElementById('conv-thread');
+  const replyBox = document.getElementById('conv-reply-box');
+
+  header.innerHTML = '<div style="color:var(--gray-text);font-size:.9rem;">Loading…</div>';
+  thread.innerHTML = '<div class="conv-empty">Loading messages…</div>';
+
+  const { data: sel, error: selErr } = await sb
+    .from('realtor_selections')
+    .select('id, status, user_id, realtor_id, notes, first_contact_at')
+    .eq('id', _activeSelectionId)
+    .single();
+
+  if (selErr || !sel) {
+    header.innerHTML = '<div style="color:var(--danger);">Could not load conversation.</div>';
+    return;
+  }
+
+  const isUser = currentAccount.role === 'user';
+  const otherId = isUser ? sel.realtor_id : sel.user_id;
+
+  const { data: otherAccount } = await sb.from('accounts').select('id, full_name, email, phone').eq('id', otherId).single();
+
+  let otherProfile = {};
+  if (isUser) {
+    const { data: rp } = await sb.from('realtor_profiles').select('headshot_url, brokerage, phone').eq('account_id', otherId).maybeSingle();
+    otherProfile = rp || {};
+  } else {
+    const { data: up } = await sb.from('user_profiles').select('photo_url, current_city, target_cities, household_setup').eq('account_id', otherId).maybeSingle();
+    otherProfile = up || {};
+  }
+
+  const { data: messages } = await sb
+    .from('selection_messages')
+    .select('id, sender_id, body, is_auto, created_at, read_at')
+    .eq('selection_id', _activeSelectionId)
+    .order('created_at', { ascending: true });
+
+  try {
+    await sb.rpc('mark_selection_messages_read', { p_selection_id: _activeSelectionId });
+  } catch (e) {
+    console.warn('Could not mark messages read:', e);
+  }
+
+  _activeConvData = { selection: sel, otherAccount, otherProfile, messages: messages || [] };
+
+  const oName = otherAccount?.full_name || 'Unknown';
+  const initials = oName.split(' ').map(p => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+  const photoUrl = isUser ? otherProfile.headshot_url : otherProfile.photo_url;
+  const avatarHtml = photoUrl
+    ? `<div class="conv-avatar" style="background-image:url('${escapeHtml(photoUrl)}')"></div>`
+    : `<div class="conv-avatar-initials">${escapeHtml(initials)}</div>`;
+
+  const STATUS_PILL = {
+    pending_acceptance: { label: 'Pending', color: '#F59E0B', bg: '#FEF3C7' },
+    connected: { label: 'Connected', color: '#15803D', bg: '#D1FAE5' },
+    declined: { label: 'Declined', color: '#6B7280', bg: '#F3F4F6' },
+    completed: { label: 'Completed', color: '#1E40AF', bg: '#DBEAFE' },
+    closed_with_realtor: { label: 'Closed deal', color: '#0F766E', bg: '#CCFBF1' }
+  };
+  const sp = STATUS_PILL[sel.status] || { label: sel.status, color: '#6B7280', bg: '#F3F4F6' };
+
+  const contactRevealed = ['connected', 'completed', 'closed_with_realtor'].includes(sel.status);
+  let contactHtml = '';
+  if (contactRevealed) {
+    const email = otherAccount?.email || '';
+    const phone = otherAccount?.phone || otherProfile?.phone || '';
+    contactHtml = `
+      <div class="conv-contact">
+        <strong>📧 Contact info revealed:</strong>
+        ${email ? ` <span style="margin-left:.5rem;">${escapeHtml(email)}</span>` : ''}
+        ${phone ? ` <span style="margin-left:.75rem;">📞 ${escapeHtml(phone)}</span>` : ''}
+      </div>`;
+  }
+
+  let actionsHtml = '';
+  if (!isUser) {
+    if (sel.status === 'pending_acceptance') {
+      actionsHtml = `<div class="conv-actions">
+        <button class="rp-btn" onclick="respondAndReload('${sel.id}', 'connected')">✓ Accept</button>
+        <button class="rp-btn rp-btn-secondary" onclick="respondAndReload('${sel.id}', 'declined')">Decline</button>
+      </div>`;
+    } else if (sel.status === 'connected') {
+      actionsHtml = `<div class="conv-actions">
+        <button class="rp-btn rp-btn-secondary" onclick="respondAndReload('${sel.id}', 'completed')">Mark completed</button>
+        <button class="rp-btn rp-btn-secondary" onclick="respondAndReload('${sel.id}', 'closed_with_realtor')">Closed deal →</button>
+      </div>`;
+    }
+  }
+
+  const subInfo = isUser
+    ? (otherProfile.brokerage ? escapeHtml(otherProfile.brokerage) : 'Realtor')
+    : (otherProfile.current_city ? `📍 ${escapeHtml(otherProfile.current_city)}` : 'Homebuyer');
+
+  header.innerHTML = `
+    <div class="conv-header-top">
+      ${avatarHtml}
+      <div style="flex:1;min-width:0;">
+        <div class="conv-name">${escapeHtml(oName)}</div>
+        <div class="conv-sub">${subInfo}</div>
+        <span class="conv-status-pill" style="background:${sp.bg};color:${sp.color};">${escapeHtml(sp.label)}</span>
+      </div>
+    </div>
+    ${contactHtml}
+    ${actionsHtml}`;
+
+  if (_activeConvData.messages.length === 0) {
+    thread.innerHTML = '<div class="conv-empty">No messages yet. Start the conversation!</div>';
+  } else {
+    thread.innerHTML = _activeConvData.messages.map(m => {
+      const isMine = m.sender_id === currentUser.id;
+      const timeStr = new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const autoLabel = m.is_auto ? '<div class="conv-auto-pill">Auto-generated from profile</div>' : '';
+      return `<div class="conv-bubble ${isMine ? 'mine' : 'theirs'}">
+        ${autoLabel}
+        ${escapeHtml(m.body)}
+        <span class="conv-time">${timeStr}</span>
+      </div>`;
+    }).join('');
+    setTimeout(() => { thread.scrollTop = thread.scrollHeight; }, 50);
+  }
+
+  if (sel.status === 'declined') {
+    replyBox.style.display = 'none';
+  } else {
+    replyBox.style.display = '';
+    document.getElementById('conv-reply-input').value = '';
+    updateConvCharCount();
+  }
+}
+
+function updateConvCharCount() {
+  const input = document.getElementById('conv-reply-input');
+  const counter = document.getElementById('conv-char-count');
+  const sendBtn = document.getElementById('conv-send-btn');
+  if (!input || !counter) return;
+  const len = input.value.length;
+  counter.textContent = `${len.toLocaleString()} / 4,000`;
+  if (sendBtn) sendBtn.disabled = len === 0 || len > 4000;
+}
+window.updateConvCharCount = updateConvCharCount;
+
+async function sendConvMessage() {
+  if (!_activeSelectionId || !currentUser) return;
+  const input = document.getElementById('conv-reply-input');
+  const body = (input.value || '').trim();
+  if (!body || body.length > 4000) return;
+
+  const sendBtn = document.getElementById('conv-send-btn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending…';
+
+  const { error } = await sb
+    .from('selection_messages')
+    .insert({ selection_id: _activeSelectionId, sender_id: currentUser.id, body, is_auto: false });
+
+  if (error) {
+    showToast('Failed to send: ' + error.message, 'error');
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send →';
+    return;
+  }
+
+  input.value = '';
+  updateConvCharCount();
+  sendBtn.textContent = 'Send →';
+  showToast('Message sent', 'success');
+  await loadConversation();
+}
+window.sendConvMessage = sendConvMessage;
+
+async function respondAndReload(selectionId, newStatus) {
+  const labels = { connected: 'Accept this selection?', declined: 'Decline this selection?', completed: 'Mark as completed?', closed_with_realtor: 'Mark as closed deal?' };
+  if (!confirm(labels[newStatus] || 'Update status?')) return;
+  const update = { status: newStatus };
+  if (newStatus === 'connected' || newStatus === 'declined') update.realtor_responded_at = new Date().toISOString();
+  const { error } = await sb.from('realtor_selections').update(update).eq('id', selectionId);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Status updated', 'success');
+  await loadConversation();
+}
+window.respondAndReload = respondAndReload;
+
+// ═══ SWITCH USER — Quick admin hop between impersonated accounts ═══
+const SWITCH_USER_KEY = 'nexus_admin_returning';
+
+async function switchImpersonationUser() {
+  try { localStorage.setItem(SWITCH_USER_KEY, '1'); } catch (_) {}
+  try { await sb.auth.signOut({ scope: 'local' }); } catch (_) {}
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('sb-') || k.includes('supabase')) localStorage.removeItem(k);
+    });
+  } catch (_) {}
+  window.location.href = window.location.pathname;
+}
+window.switchImpersonationUser = switchImpersonationUser;
+
+// ═══ RESET INTERACTIONS — Admin tool ═══
+async function runResetInteractions() {
+  if (!confirm('Reset all interactions?\n\nThis will wipe:\n• All selections\n• All messages\n• All reviews\n\nBut KEEP:\n• All accounts\n• All profiles\n• All certifications\n\nContinue?')) return;
+  const btn = document.getElementById('btn-reset-interactions');
+  btn.disabled = true; btn.textContent = 'Resetting…';
+  try {
+    const { error } = await sb.rpc('admin_reset_interactions');
+    if (error) throw error;
+    showToast('Interactions reset — selections, messages, and reviews cleared', 'success');
+    await refreshMockData();
+  } catch (e) {
+    showToast('Reset failed: ' + e.message, 'error');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = '🔄 Reset Interactions';
+  }
+}
+window.runResetInteractions = runResetInteractions;
 
 // ════════════════════════════════════════════════════════════════════
 // NEXUS REALTOR CERTIFICATION COURSE
@@ -8671,7 +8953,7 @@ function renderCertCertified(result) {
 window.maybeShowImpersonationBanner = maybeShowImpersonationBanner;
 
 // ═══ Boot ═══
-console.log('%c🏠 NEXUS Match — build 2026-04-30-cert-mock (5-module mock cert course)', 'color:#2FD791;font-weight:bold;font-size:14px;');
+console.log('%c🏠 NEXUS Match — build 2026-04-30-msg-flow (in-app messaging + admin reset)', 'color:#2FD791;font-weight:bold;font-size:14px;');
 document.addEventListener('DOMContentLoaded', initAuth);
 // In case DOM is already loaded:
 if (document.readyState !== 'loading') initAuth();
@@ -9187,14 +9469,12 @@ async function loadSelectionsList() {
   const container = document.getElementById('rd-selections-list');
   if (!container || !currentUser || currentAccount?.role !== 'realtor') return;
 
+  // Query 1: selections + accounts (safe FK)
   const { data: selections, error } = await sb
     .from('realtor_selections')
     .select(`
       id, status, notes, first_contact_at, realtor_responded_at, selected_at, initiated_by, obligation_expires_at,
-      user:accounts!realtor_selections_user_id_fkey(id, full_name, email),
-      user_profile:user_profiles!realtor_selections_user_id_fkey(
-        current_city, target_cities, household_setup, price_range, timeline, story, photo_url, age_range
-      )
+      user:accounts!realtor_selections_user_id_fkey(id, full_name, email)
     `)
     .eq('realtor_id', currentUser.id)
     .order('first_contact_at', { ascending: false });
@@ -9215,6 +9495,34 @@ async function loadSelectionsList() {
     return;
   }
 
+  // Query 2: user_profiles for all user IDs
+  const userIds = selections.map(s => s.user?.id).filter(Boolean);
+  let profileMap = {};
+  if (userIds.length > 0) {
+    const { data: profiles } = await sb
+      .from('user_profiles')
+      .select('account_id, current_city, target_cities, household_setup, price_range, timeline, story, photo_url, age_range')
+      .in('account_id', userIds);
+    if (profiles) {
+      profiles.forEach(p => { profileMap[p.account_id] = p; });
+    }
+  }
+
+  // Query 3: unread message counts
+  const selectionIds = selections.map(s => s.id);
+  let unreadMap = {};
+  if (selectionIds.length > 0) {
+    const { data: unreadRows } = await sb
+      .from('selection_messages')
+      .select('selection_id')
+      .in('selection_id', selectionIds)
+      .neq('sender_id', currentUser.id)
+      .is('read_at', null);
+    if (unreadRows) {
+      unreadRows.forEach(r => { unreadMap[r.selection_id] = (unreadMap[r.selection_id] || 0) + 1; });
+    }
+  }
+
   const STATUS_DISPLAY = {
     pending_acceptance: { label: 'Awaiting your response', color: '#F59E0B', bg: '#FEF3C7' },
     connected:           { label: 'Connected — actively working',  color: '#15803D', bg: '#D1FAE5' },
@@ -9232,7 +9540,7 @@ async function loadSelectionsList() {
   container.innerHTML = selections.map(s => {
     const st = STATUS_DISPLAY[s.status] || { label: s.status, color: '#6B7280', bg: '#F3F4F6' };
     const u = s.user || {};
-    const up = s.user_profile || {};
+    const up = profileMap[u.id] || {};
     const initials = (u.full_name || '?').split(' ').map(p => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
     const photoHtml = up.photo_url
       ? `<div style="width:64px;height:64px;border-radius:50%;background-image:url('${escapeHtml(up.photo_url)}');background-size:cover;background-position:center;flex-shrink:0;"></div>`
@@ -9242,6 +9550,8 @@ async function loadSelectionsList() {
     const firstContactDate = s.first_contact_at ? new Date(s.first_contact_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
     const isPending = s.status === 'pending_acceptance';
     const isActive = s.status === 'connected';
+    const unreadCount = unreadMap[s.id] || 0;
+    const unreadBadge = unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : '';
 
     let actions = '';
     if (isPending) {
@@ -9293,6 +9603,9 @@ async function loadSelectionsList() {
               Selected ${escapeHtml(firstContactDate)} · Initiated by ${escapeHtml(s.initiated_by || 'user')}${s.realtor_responded_at ? ' · You responded ' + new Date(s.realtor_responded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
             </div>
 
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;align-items:center;">
+              <button class="conv-open-btn" onclick="openConversation('${s.id}')">💬 Open conversation${unreadBadge}</button>
+            </div>
             ${actions}
           </div>
         </div>
@@ -9510,7 +9823,8 @@ async function loadUserDashboard() {
           “${escapeHtml(profile.story || 'No story yet — head to your profile to add some context for your future co-buyer.')}”
         </div>
         <div style="margin-top:.85rem;display:flex;gap:.5rem;flex-wrap:wrap;">
-          <button class="rp-btn rp-btn-secondary" onclick="showView('register')">Edit profile →</button>
+          <button class="rp-btn" onclick="showView('find-realtor')">Find a realtor →</button>
+          <button class="rp-btn rp-btn-secondary" onclick="showView('documents')">View documents</button>
         </div>
       </div>
     `;
@@ -9578,11 +9892,40 @@ async function loadUserDashboard() {
   // Pending selections (status = pending_acceptance / connected)
   const pendingDiv = document.getElementById('user-pending-selections');
   if (pendingDiv) {
+    // Query 1: selections + accounts (safe FK)
     const { data: selections } = await sb
       .from('realtor_selections')
-      .select('id, status, notes, first_contact_at, realtor_id, realtor:accounts!realtor_selections_realtor_id_fkey(id, full_name), realtor_profile:realtor_profiles!realtor_selections_realtor_id_fkey(headshot_url, brokerage)')
+      .select('id, status, notes, first_contact_at, realtor_id, realtor:accounts!realtor_selections_realtor_id_fkey(id, full_name)')
       .eq('user_id', currentUser.id)
       .order('first_contact_at', { ascending: false });
+
+    // Query 2: realtor_profiles separately
+    let rpMap = {};
+    if (selections && selections.length > 0) {
+      const realtorIds = selections.map(s => s.realtor?.id).filter(Boolean);
+      if (realtorIds.length > 0) {
+        const { data: rps } = await sb
+          .from('realtor_profiles')
+          .select('account_id, headshot_url, brokerage')
+          .in('account_id', realtorIds);
+        if (rps) rps.forEach(p => { rpMap[p.account_id] = p; });
+      }
+    }
+
+    // Query 3: unread message counts
+    let unreadMap = {};
+    if (selections && selections.length > 0) {
+      const selIds = selections.map(s => s.id);
+      const { data: unreadRows } = await sb
+        .from('selection_messages')
+        .select('selection_id')
+        .in('selection_id', selIds)
+        .neq('sender_id', currentUser.id)
+        .is('read_at', null);
+      if (unreadRows) {
+        unreadRows.forEach(r => { unreadMap[r.selection_id] = (unreadMap[r.selection_id] || 0) + 1; });
+      }
+    }
 
     if (selections && selections.length > 0) {
       pendingDiv.innerHTML = `
@@ -9590,18 +9933,22 @@ async function loadUserDashboard() {
           <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.85rem;">Your realtor selections (${selections.length})</div>
           <div style="display:flex;flex-direction:column;gap:.65rem;">
             ${selections.map(s => {
-              const photoUrl = s.realtor_profile?.headshot_url;
+              const rp = rpMap[s.realtor?.id] || {};
+              const photoUrl = rp.headshot_url;
               const photoHtml = photoUrl
                 ? `<div style="width:42px;height:42px;border-radius:50%;background-image:url('${escapeHtml(photoUrl)}');background-size:cover;flex-shrink:0;"></div>`
                 : `<div style="width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">${(s.realtor?.full_name || '?').split(' ').map(p=>p[0]).slice(0,2).join('')}</div>`;
               const statusColor = STATUS_COLORS[s.status] || '#9CA3AF';
+              const unreadCount = unreadMap[s.id] || 0;
+              const unreadBadge = unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : '';
               return `
                 <div style="display:flex;gap:.85rem;align-items:center;padding:.65rem;border:1px solid var(--gray);border-radius:9px;">
                   ${photoHtml}
                   <div style="flex:1;min-width:0;">
                     <div style="font-weight:700;color:var(--navy);font-size:.92rem;">${escapeHtml(s.realtor?.full_name || 'Unknown')}</div>
-                    <div style="font-size:.78rem;color:var(--gray-text);">${escapeHtml(s.realtor_profile?.brokerage || '')}</div>
+                    <div style="font-size:.78rem;color:var(--gray-text);">${escapeHtml(rp.brokerage || '')}</div>
                   </div>
+                  <button class="conv-open-btn" style="padding:.4rem .7rem;font-size:.75rem;" onclick="openConversation('${s.id}')">💬${unreadBadge}</button>
                   <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:${statusColor};padding:.3rem .7rem;border-radius:14px;white-space:nowrap;">${escapeHtml(STATUS_LABELS[s.status] || s.status)}</span>
                 </div>
               `;
@@ -9923,6 +10270,13 @@ routeForRole = async function() {
   }
   if (currentAccount.role === 'admin') {
     showView('admin');
+    // If returning from Switch User, jump straight to Mock Data tab and clear the flag
+    try {
+      if (localStorage.getItem('nexus_admin_returning') === '1') {
+        localStorage.removeItem('nexus_admin_returning');
+        setTimeout(() => switchAdminTab('mock-data'), 150);
+      }
+    } catch (_) {}
     return;
   }
   if (currentAccount.role === 'realtor') {
@@ -10009,6 +10363,12 @@ showView = function(viewName) {
     // directly without it just leaves the container empty, so kick off the load.
     setTimeout(() => { if (!_certRecord) startCertCourse(); }, 50);
   }
+
+  if (viewName === 'conversation') {
+    if (!currentUser) { openLoginModal(); return; }
+    if (!_activeSelectionId) { routeForRole(); return; }
+    setTimeout(() => loadConversation(), 50);
+  }
 };
 
 // Add helper links (Find a Realtor + Documents) to user dashboard
@@ -10068,6 +10428,26 @@ document.addEventListener('DOMContentLoaded', () => {
 .auth-magic-btn{width:100%;padding:.7rem 1rem;background:#fff;color:var(--navy);border:1.5px solid var(--gray);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:all .15s;}
 .auth-magic-btn:hover{border-color:var(--blue);color:var(--blue);}
 </style>
+
+<!-- ══════════════════════ VIEW: CONVERSATION ══════════════════════ -->
+<div id="view-conversation" class="view">
+  <div class="conv-wrap" style="padding-top:1rem;">
+    <span class="rp-back-link" onclick="routeForRole()">← Back to dashboard</span>
+    <div class="conv-header" id="conv-header">
+      <!-- Populated by JS: openConversation() -->
+    </div>
+    <div class="conv-thread" id="conv-thread">
+      <div class="conv-empty">Loading conversation…</div>
+    </div>
+    <div class="conv-reply-box" id="conv-reply-box">
+      <textarea id="conv-reply-input" maxlength="4000" placeholder="Write a message…" oninput="updateConvCharCount()"></textarea>
+      <div class="conv-reply-bar">
+        <span class="conv-char-count" id="conv-char-count">0 / 4,000</span>
+        <button class="conv-send-btn" id="conv-send-btn" onclick="sendConvMessage()">Send →</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="auth-modal-bg" id="auth-modal">
   <div class="auth-modal-card">
