@@ -532,6 +532,111 @@ body.is-impersonating{padding-top:50px;}
 .conv-send-btn:hover{background:#1a4fcc;}
 .conv-send-btn:disabled{opacity:.5;cursor:not-allowed;}
 .conv-empty{text-align:center;padding:3rem 1rem;color:var(--gray-text);font-size:.9rem;}
+
+/* ── Discovery Stack ── */
+.disc-wrap{max-width:480px;margin:0 auto;padding:1.5rem 1rem;min-height:calc(100vh - 64px);}
+.disc-header{text-align:center;margin-bottom:1.25rem;}
+.disc-header h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.5rem;color:var(--navy);}
+.disc-header p{font-size:.88rem;color:var(--gray-text);margin-top:.25rem;}
+.disc-filters{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;justify-content:center;}
+.disc-filter-btn{padding:.45rem .9rem;border-radius:18px;font-size:.78rem;font-weight:600;border:1.5px solid var(--gray);background:#fff;color:var(--navy);cursor:pointer;transition:all .15s;}
+.disc-filter-btn:hover,.disc-filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.disc-likes-counter{text-align:center;font-size:.78rem;color:var(--gray-text);margin-bottom:.75rem;}
+.disc-likes-counter strong{color:var(--navy);}
+.disc-card{background:#fff;border-radius:18px;border:1.5px solid var(--gray);overflow:hidden;box-shadow:0 8px 32px rgba(11,29,62,.08);position:relative;transition:transform .3s,opacity .3s;}
+.disc-card.swipe-left{transform:translateX(-120%) rotate(-12deg);opacity:0;}
+.disc-card.swipe-right{transform:translateX(120%) rotate(12deg);opacity:0;}
+.disc-card-photo{height:200px;background:linear-gradient(135deg,#0d2245,#1B3A6B);display:flex;align-items:center;justify-content:center;position:relative;}
+.disc-card-photo img{width:100%;height:100%;object-fit:cover;}
+.disc-card-photo .disc-initials{font-size:3rem;font-weight:900;color:rgba(255,255,255,.8);}
+.disc-nexus-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,#10B981,#059669);color:#fff;padding:.4rem .85rem;border-radius:20px;font-size:.82rem;font-weight:800;letter-spacing:.3px;box-shadow:0 4px 12px rgba(16,185,129,.3);}
+.disc-tier-badge{position:absolute;top:14px;left:14px;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;padding:.3rem .65rem;border-radius:14px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+.disc-card-body{padding:1.25rem 1.5rem 1rem;}
+.disc-card-name{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.2rem;color:var(--navy);}
+.disc-card-sub{font-size:.85rem;color:var(--gray-text);margin-top:.2rem;}
+.disc-card-stats{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.85rem 0;}
+.disc-stat{background:var(--bg);border-radius:8px;padding:.6rem .75rem;}
+.disc-stat-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);}
+.disc-stat-val{font-size:.88rem;font-weight:700;color:var(--navy);margin-top:.1rem;}
+.disc-card-story{background:var(--bg);border-left:3px solid var(--blue);padding:.65rem .9rem;border-radius:0 8px 8px 0;font-size:.85rem;color:#374151;line-height:1.5;font-style:italic;margin:.65rem 0;}
+.disc-coborrower-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .7rem;border-radius:14px;font-size:.72rem;font-weight:700;margin-top:.5rem;}
+.disc-cb-solo{background:#EFF6FF;color:#1E40AF;}
+.disc-cb-pair{background:#FEF3C7;color:#92400E;}
+.disc-actions{display:flex;gap:1rem;padding:1rem 1.5rem 1.5rem;justify-content:center;}
+.disc-action-btn{width:64px;height:64px;border-radius:50%;border:2px solid var(--gray);background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;transition:all .2s;box-shadow:0 4px 12px rgba(0,0,0,.06);}
+.disc-action-btn.pass{color:#9CA3AF;border-color:#E5E7EB;}
+.disc-action-btn.pass:hover{background:#FEE2E2;border-color:#EF4444;color:#EF4444;transform:scale(1.1);}
+.disc-action-btn.like{color:#10B981;border-color:#D1FAE5;}
+.disc-action-btn.like:hover{background:#D1FAE5;border-color:#10B981;transform:scale(1.1);}
+.disc-empty{text-align:center;padding:4rem 1.5rem;color:var(--gray-text);}
+.disc-empty-icon{font-size:3rem;margin-bottom:1rem;}
+.disc-score-breakdown{margin-top:.75rem;padding:.75rem;background:rgba(37,99,235,.04);border-radius:8px;border:1px solid rgba(37,99,235,.1);}
+.disc-score-row{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:.2rem 0;}
+.disc-score-row .score-label{color:var(--gray-text);}
+.disc-score-row .score-val{font-weight:700;color:var(--navy);}
+.disc-score-bar{height:4px;background:var(--gray);border-radius:2px;flex:1;margin:0 .5rem;overflow:hidden;}
+.disc-score-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),#10B981);border-radius:2px;transition:width .3s;}
+
+/* ── Match Celebration ── */
+.match-overlay{position:fixed;inset:0;background:rgba(11,29,62,.85);z-index:9998;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px);animation:matchFadeIn .4s ease;}
+@keyframes matchFadeIn{from{opacity:0}to{opacity:1}}
+.match-card{background:#fff;border-radius:20px;max-width:420px;width:100%;padding:2.5rem 2rem;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:matchBounce .5s ease;}
+@keyframes matchBounce{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.match-score-ring{width:100px;height:100px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:#fff;background:linear-gradient(135deg,#10B981,#059669);}
+.match-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:900;color:var(--navy);margin-bottom:.5rem;}
+.match-subtitle{font-size:.92rem;color:var(--gray-text);line-height:1.5;}
+
+/* ── Likes You Section ── */
+.likes-you-section{margin-top:1.5rem;}
+.likes-you-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;}
+.likes-you-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;color:var(--navy);}
+.likes-you-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem;}
+.likes-you-card{border:1.5px solid var(--gray);border-radius:12px;overflow:hidden;background:#fff;cursor:pointer;transition:all .15s;}
+.likes-you-card:hover{border-color:var(--blue);transform:translateY(-2px);}
+.likes-you-card.blurred .lyc-photo{filter:blur(12px);}
+.likes-you-card.blurred .lyc-name{filter:blur(6px);}
+.lyc-photo{height:110px;background:linear-gradient(135deg,var(--navy),var(--blue));display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);font-weight:800;font-size:1.5rem;}
+.lyc-photo img{width:100%;height:100%;object-fit:cover;}
+.lyc-body{padding:.6rem .7rem;}
+.lyc-name{font-weight:700;font-size:.82rem;color:var(--navy);}
+.lyc-sub{font-size:.7rem;color:var(--gray-text);}
+
+/* ── Paywall Modal ── */
+.paywall-overlay{position:fixed;inset:0;background:rgba(11,29,62,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
+.paywall-card{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:2.5rem 2rem;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.paywall-card h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.4rem;color:var(--navy);margin-bottom:.5rem;}
+.paywall-card p{font-size:.9rem;color:var(--gray-text);line-height:1.5;margin-bottom:1.5rem;}
+.paywall-price{font-size:2rem;font-weight:900;color:var(--navy);margin-bottom:.25rem;}
+.paywall-price-sub{font-size:.82rem;color:var(--gray-text);margin-bottom:1.25rem;}
+.paywall-features{text-align:left;margin-bottom:1.5rem;}
+.paywall-feature{display:flex;align-items:center;gap:.6rem;padding:.4rem 0;font-size:.88rem;color:var(--navy);}
+.paywall-feature .check{color:#10B981;font-weight:700;}
+
+/* ── Group Dashboard ── */
+.grp-wrap{max-width:800px;margin:0 auto;padding:1.5rem 1rem;}
+.grp-status-card{background:linear-gradient(135deg,var(--navy),#1B3A6B);border-radius:16px;padding:1.75rem;color:#fff;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.grp-status-card::after{content:'';position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:rgba(255,255,255,.04);border-radius:50%;}
+.grp-status-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;margin-bottom:.3rem;}
+.grp-status-sub{font-size:.88rem;opacity:.8;line-height:1.5;}
+.grp-progress-bar{height:8px;background:rgba(255,255,255,.15);border-radius:4px;margin-top:1rem;overflow:hidden;}
+.grp-progress-fill{height:100%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:4px;transition:width .5s;}
+.grp-members{background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;}
+.grp-member-row{display:flex;gap:.85rem;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--bg);}
+.grp-member-row:last-child{border-bottom:none;}
+.grp-member-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+.grp-member-name{font-weight:700;color:var(--navy);font-size:.92rem;}
+.grp-member-sub{font-size:.78rem;color:var(--gray-text);}
+.grp-member-badge{font-size:.68rem;font-weight:700;padding:.2rem .55rem;border-radius:10px;text-transform:uppercase;letter-spacing:.3px;}
+.grp-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;color:var(--navy);margin-bottom:.75rem;}
+
+/* ── Co-borrower toggle in registration ── */
+.cb-toggle-wrap{display:flex;gap:.6rem;margin-top:.5rem;}
+.cb-toggle-btn{flex:1;padding:.85rem;border-radius:10px;border:2px solid var(--gray);background:#fff;font-weight:700;font-size:.92rem;color:var(--navy);cursor:pointer;text-align:center;transition:all .15s;}
+.cb-toggle-btn:hover{border-color:var(--blue);}
+.cb-toggle-btn.active{border-color:var(--blue);background:rgba(37,99,235,.06);color:var(--blue);}
+.cb-section{margin-top:1.25rem;padding:1.25rem;background:rgba(37,99,235,.03);border:1.5px solid rgba(37,99,235,.12);border-radius:12px;display:none;}
+.cb-section.visible{display:block;animation:cbSlideIn .3s ease;}
+@keyframes cbSlideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 @media (max-width:600px){
   .imp-banner{font-size:.75rem;padding:.5rem .75rem;flex-wrap:wrap;}
 }
@@ -922,6 +1027,7 @@ body.is-impersonating{padding-top:50px;}
   <span class="nav-tab nav-tab-cta" id="nav-cta" onclick="handleFindCoOwnerClick()">Find My Co-Owner →</span>
   <!-- Logged-in: shows Dashboard + name + logout -->
   <span class="nav-tab" id="nav-dashboard" onclick="routeForRole()" style="display:none;">Dashboard</span>
+  <span class="nav-tab" id="nav-discover" onclick="showView('discovery')" style="display:none;">Discover</span>
   <span class="nav-tab" id="nav-user-info" style="display:none;color:var(--gray-text);font-weight:500;font-size:.85rem;cursor:default;border-bottom:none;"></span>
   <span class="nav-tab" id="nav-logout" onclick="handleLogout()" style="display:none;color:var(--gray-text);">Log Out</span>
 </nav>
@@ -1899,6 +2005,71 @@ body.is-impersonating{padding-top:50px;}
             <option>36–40</option><option>41–45</option><option>46–50</option><option>50+</option>
           </select>
         </div>
+
+        <!-- Co-Borrower Toggle -->
+        <div class="field-group">
+          <label class="field-label">Are you entering with an existing co-borrower? *</label>
+          <div class="field-sub" style="margin-bottom:.6rem;">A spouse, partner, friend, or family member who will be on the mortgage with you.</div>
+          <div class="cb-toggle-wrap">
+            <button type="button" class="cb-toggle-btn active" id="cb-no-btn" onclick="setCoborrowerToggle(false)">No — I'm entering solo</button>
+            <button type="button" class="cb-toggle-btn" id="cb-yes-btn" onclick="setCoborrowerToggle(true)">Yes — I have a co-borrower</button>
+          </div>
+        </div>
+
+        <!-- Co-Borrower Info (hidden until toggled) -->
+        <div class="cb-section" id="cb-info-section">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.75rem;">Co-Borrower Details</div>
+          <div style="font-size:.82rem;color:var(--gray-text);margin-bottom:1rem;">You can fill this in later, but it's required before you start matching.</div>
+          <div class="field-group">
+            <label class="field-label">Co-Borrower's Full Name</label>
+            <input class="field-input" id="f-cb-name" placeholder="Jamie Smith" type="text">
+          </div>
+          <div class="field-row field-row-2">
+            <div class="field-group">
+              <label class="field-label">Email</label>
+              <input class="field-input" id="f-cb-email" placeholder="jamie@email.com" type="email">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Phone</label>
+              <input class="field-input" id="f-cb-phone" placeholder="(555) 555-0100" type="tel">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Relationship</label>
+            <select class="field-input" id="f-cb-relationship">
+              <option value="">Select relationship</option>
+              <option value="spouse">Spouse</option>
+              <option value="partner">Domestic partner</option>
+              <option value="friend">Friend</option>
+              <option value="family">Family member</option>
+            </select>
+          </div>
+          <div class="field-row field-row-2">
+            <div class="field-group">
+              <label class="field-label">Their income range</label>
+              <select class="field-input" id="f-cb-income">
+                <option value="">Select</option>
+                <option>Under $4,000/month</option>
+                <option>$4,000 – $6,000/month</option>
+                <option>$6,000 – $8,500/month</option>
+                <option>$8,500 – $12,000/month</option>
+                <option>Over $12,000/month</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Their credit range</label>
+              <select class="field-input" id="f-cb-credit">
+                <option value="">Select</option>
+                <option>Below 580</option>
+                <option>580 – 619</option>
+                <option>620 – 659</option>
+                <option>660 – 699</option>
+                <option>700 – 739</option>
+                <option>740+</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="step-nav">
           <button class="btn-outline" onclick="showView('home')">← Back to Home</button>
           <button class="btn-primary" onclick="nextStep(1)">Next: Location →</button>
@@ -2042,6 +2213,15 @@ body.is-impersonating{padding-top:50px;}
             <label class="check-option" onclick="toggleCheck(this,'proptype')"><div class="check-box">✓</div><span class="check-text">Condo</span></label>
             <label class="check-option" onclick="toggleCheck(this,'proptype')"><div class="check-box">✓</div><span class="check-text">Townhome</span></label>
             <label class="check-option" onclick="toggleCheck(this,'proptype')"><div class="check-box">✓</div><span class="check-text">New Construction</span></label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Total people on the mortgage (including you) *</label>
+          <div class="field-sub" style="margin-bottom:.75rem;">How many total co-borrowers do you want? NEXUS. will match you with compatible co-buyers to complete your group.</div>
+          <div class="radio-group" id="coborrower-count-group">
+            <label class="radio-option" onclick="selectRadio('coborrower-count-group',this,'coborrower_count')"><input type="radio"><div class="radio-check"><div class="radio-check-inner"></div></div><span class="radio-text">2 total (you + 1 co-borrower)</span></label>
+            <label class="radio-option" onclick="selectRadio('coborrower-count-group',this,'coborrower_count')"><input type="radio"><div class="radio-check"><div class="radio-check-inner"></div></div><span class="radio-text">3 total (you + 2 co-borrowers)</span></label>
+            <label class="radio-option" onclick="selectRadio('coborrower-count-group',this,'coborrower_count')"><input type="radio"><div class="radio-check"><div class="radio-check-inner"></div></div><span class="radio-text">4 total (you + 3 co-borrowers)</span></label>
           </div>
         </div>
         <div class="step-nav">
@@ -7000,6 +7180,9 @@ function updateNavForAuthed() {
   document.getElementById('nav-cta').style.display = 'none';
   document.getElementById('nav-dashboard').style.display = 'flex';
   document.getElementById('nav-logout').style.display = 'flex';
+  // Show Discover tab for users only
+  const discTab = document.getElementById('nav-discover');
+  if (discTab) discTab.style.display = (currentAccount?.role === 'user') ? 'flex' : 'none';
   const info = document.getElementById('nav-user-info');
   if (info && currentAccount) {
     const name = currentAccount.full_name || currentAccount.email || '';
@@ -7012,6 +7195,8 @@ function updateNavForLoggedOut() {
   document.getElementById('nav-cta').style.display = 'flex';
   document.getElementById('nav-dashboard').style.display = 'none';
   document.getElementById('nav-logout').style.display = 'none';
+  const discTab = document.getElementById('nav-discover');
+  if (discTab) discTab.style.display = 'none';
   const info = document.getElementById('nav-user-info');
   if (info) info.style.display = 'none';
 }
@@ -7274,6 +7459,10 @@ async function submitProfile() {
   currentAccount.phone = phone || null;
 
   // 2. Upsert user_profiles row
+  const hasCoborrower = document.getElementById('cb-yes-btn')?.classList.contains('active') || false;
+  const coborrowerCountStr = state.radioValues.coborrower_count || '2 total (you + 1 co-borrower)';
+  const totalDesired = parseInt(coborrowerCountStr) || 2;
+
   const profileData = {
     account_id: currentUser.id,
     age_range: document.getElementById('f-age').value || null,
@@ -7288,7 +7477,18 @@ async function submitProfile() {
     story: document.getElementById('f-bio').value.trim() || null,
     consent_to_realtor_matching: document.getElementById('f-consent').checked,
     consent_signed_at: document.getElementById('f-consent').checked ? new Date().toISOString() : null,
-    profile_completed: true
+    profile_completed: true,
+    // New co-borrower fields
+    has_existing_coborrower: hasCoborrower,
+    coborrower_name: hasCoborrower ? (document.getElementById('f-cb-name')?.value.trim() || null) : null,
+    coborrower_email: hasCoborrower ? (document.getElementById('f-cb-email')?.value.trim() || null) : null,
+    coborrower_phone: hasCoborrower ? (document.getElementById('f-cb-phone')?.value.trim() || null) : null,
+    coborrower_relationship: hasCoborrower ? (document.getElementById('f-cb-relationship')?.value || null) : null,
+    coborrower_income_range: hasCoborrower ? (document.getElementById('f-cb-income')?.value || null) : null,
+    coborrower_credit_range: hasCoborrower ? (document.getElementById('f-cb-credit')?.value || null) : null,
+    total_coborrowers_desired: totalDesired,
+    home_type_preference: state.selectedPropertyTypes || [],
+    interests: state.selectedInterests || []
   };
 
   const { error: profErr } = await sb
@@ -10393,6 +10593,426 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════
+// DISCOVERY STACK — Co-Borrower Matching Engine
+// Browse → Like/Pass → Mutual Like = Match → Group Formation
+// ═══════════════════════════════════════════════════════════════
+
+let _discoveryStack = [];
+let _discoveryIndex = 0;
+let _discoveryFilter = 'recommended';
+let _myProfile = null;
+let _todayLikesCount = 0;
+const FREE_DAILY_LIKES = 5;
+
+// ── Co-borrower toggle on registration ──
+function setCoborrowerToggle(hasPartner) {
+  const yesBtn = document.getElementById('cb-yes-btn');
+  const noBtn = document.getElementById('cb-no-btn');
+  const section = document.getElementById('cb-info-section');
+  if (hasPartner) {
+    yesBtn.classList.add('active'); noBtn.classList.remove('active');
+    section.classList.add('visible');
+  } else {
+    noBtn.classList.add('active'); yesBtn.classList.remove('active');
+    section.classList.remove('visible');
+  }
+}
+window.setCoborrowerToggle = setCoborrowerToggle;
+
+// ── NEXUS Score Calculator ──
+const PRICE_RANGES_MAP = {
+  '$400,000 – $600,000': [400000, 600000],
+  '$600,000 – $800,000': [600000, 800000],
+  '$800,000 – $1,000,000': [800000, 1000000],
+  '$1,000,000 – $1,400,000': [1000000, 1400000],
+  'Over $1,400,000': [1400000, 2000000]
+};
+
+function calcNexusScore(myProf, cand) {
+  let score = 0;
+  const bd = {};
+  // City overlap (0-35)
+  const mc = myProf.target_cities || [];
+  const tc = cand.target_cities || [];
+  const cityOl = mc.filter(c => tc.includes(c));
+  bd.city = (mc.length > 0 && tc.length > 0) ? Math.round((cityOl.length / Math.max(mc.length, tc.length)) * 35) : 0;
+  score += bd.city;
+  // Price overlap (0-30)
+  const mr = PRICE_RANGES_MAP[myProf.price_range];
+  const tr = PRICE_RANGES_MAP[cand.price_range];
+  if (mr && tr) {
+    const os = Math.max(mr[0], tr[0]);
+    const oe = Math.min(mr[1], tr[1]);
+    bd.price = oe > os ? Math.round(((oe - os) / Math.max(mr[1]-mr[0], tr[1]-tr[0])) * 30) : (os - oe < 200001 ? 10 : 0);
+  } else { bd.price = myProf.price_range === cand.price_range ? 30 : 0; }
+  score += bd.price;
+  // Home type (0-15)
+  const mh = myProf.home_type_preference || [];
+  const th = cand.home_type_preference || [];
+  bd.home = (mh.length > 0 && th.length > 0) ? (mh.some(t => th.includes(t)) ? 15 : 5) : 8;
+  score += bd.home;
+  // Co-borrower math (0-20)
+  const mu = myProf.has_existing_coborrower ? 2 : 1;
+  const tu = cand.has_existing_coborrower ? 2 : 1;
+  const minD = Math.min(myProf.total_coborrowers_desired || 2, cand.total_coborrowers_desired || 2);
+  bd.coborrower = (mu + tu <= minD) ? 20 : 0;
+  score += bd.coborrower;
+  return { score: Math.min(score, 100), breakdown: bd };
+}
+
+// ── Load Discovery Stack ──
+async function loadDiscoveryStack() {
+  if (!currentUser || currentAccount?.role !== 'user') return;
+  const cardArea = document.getElementById('disc-card-area');
+  cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">🔍</div><div>Finding compatible co-buyers…</div></div>';
+
+  if (!_myProfile) {
+    const { data: mp } = await sb.from('user_profiles').select('*').eq('account_id', currentUser.id).maybeSingle();
+    _myProfile = mp;
+  }
+  if (!_myProfile || !_myProfile.profile_completed) {
+    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">📝</div><div>Complete your profile first to start discovering co-buyers.</div><button class="btn-primary" style="margin-top:1rem;" onclick="showView(\'register\')">Complete Profile →</button></div>';
+    return;
+  }
+
+  const isPaid = currentAccount.discovery_tier === 'paid';
+  if (!isPaid) {
+    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+    const { count } = await sb.from('discovery_likes').select('id', { count: 'exact', head: true }).eq('liker_id', currentUser.id).gte('created_at', todayStart.toISOString());
+    _todayLikesCount = count || 0;
+  }
+  const counterEl = document.getElementById('disc-likes-counter');
+  if (isPaid) {
+    counterEl.innerHTML = '<span style="color:#10B981;font-weight:700;">⭐ NEXUS Home</span> — Unlimited likes';
+  } else {
+    const rem = Math.max(0, FREE_DAILY_LIKES - _todayLikesCount);
+    counterEl.innerHTML = `<strong>${rem}</strong> / ${FREE_DAILY_LIKES} likes remaining today · <a style="color:var(--blue);cursor:pointer;font-weight:600;" onclick="openPaywall()">Upgrade →</a>`;
+  }
+
+  try {
+    const { data: candidates, error } = await sb.rpc('get_discovery_candidates', { p_user_id: currentUser.id, p_limit: 30 });
+    if (error) throw error;
+    if (!candidates || candidates.length === 0) {
+      cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">✨</div><div>No more profiles to show right now.</div><div style="font-size:.85rem;margin-top:.4rem;">Check back later as new co-buyers join NEXUS.</div></div>';
+      await loadLikesYou(); await loadMyMatches(); return;
+    }
+    _discoveryStack = candidates.map(c => {
+      const { score, breakdown } = calcNexusScore(_myProfile, c);
+      return { ...c, nexus_score: score, score_breakdown: breakdown };
+    });
+    applyDiscoveryFilter();
+    _discoveryIndex = 0;
+    renderDiscoveryCard();
+  } catch (e) {
+    console.error('Discovery load failed:', e);
+    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">⚠️</div><div>Could not load profiles.</div><div style="font-size:.82rem;color:var(--gray-text);margin-top:.5rem;">Run migration 026_coborrower_discovery.sql in Supabase first.</div></div>';
+  }
+  await loadLikesYou(); await loadMyMatches();
+}
+window.loadDiscoveryStack = loadDiscoveryStack;
+
+function applyDiscoveryFilter() {
+  const mc = _myProfile?.target_cities || [];
+  if (_discoveryFilter === 'recommended') _discoveryStack.sort((a,b) => b.nexus_score - a.nexus_score);
+  else if (_discoveryFilter === 'city') _discoveryStack.sort((a,b) => (b.target_cities||[]).filter(c=>mc.includes(c)).length - (a.target_cities||[]).filter(c=>mc.includes(c)).length);
+  else if (_discoveryFilter === 'price') _discoveryStack.sort((a,b) => (b.score_breakdown?.price||0) - (a.score_breakdown?.price||0));
+  else if (_discoveryFilter === 'home') _discoveryStack.sort((a,b) => (b.score_breakdown?.home||0) - (a.score_breakdown?.home||0));
+}
+
+function setDiscFilter(f) {
+  _discoveryFilter = f;
+  document.querySelectorAll('.disc-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  if (_discoveryStack.length > 0) { applyDiscoveryFilter(); _discoveryIndex = 0; renderDiscoveryCard(); }
+}
+window.setDiscFilter = setDiscFilter;
+
+function renderDiscoveryCard() {
+  const cardArea = document.getElementById('disc-card-area');
+  if (_discoveryIndex >= _discoveryStack.length) {
+    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">✨</div><div>You\'ve seen all available profiles.</div><div style="font-size:.85rem;margin-top:.4rem;">Check back later for new co-buyers.</div></div>';
+    return;
+  }
+  const c = _discoveryStack[_discoveryIndex];
+  const initials = (c.full_name||'?').split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+  const photoHtml = c.photo_url ? `<img src="${escapeHtml(c.photo_url)}" alt="">` : `<div class="disc-initials">${escapeHtml(initials)}</div>`;
+  const cbLabel = c.has_existing_coborrower
+    ? '<span class="disc-coborrower-badge disc-cb-pair">👫 Entering as a pair</span>'
+    : '<span class="disc-coborrower-badge disc-cb-solo">👤 Solo borrower</span>';
+  const targetStr = (c.target_cities||[]).slice(0,3).join(', ')||'—';
+  const homeTypes = (c.home_type_preference||[]).join(', ')||'Any';
+  const totalD = c.total_coborrowers_desired||2;
+  const isPaid = currentAccount?.discovery_tier === 'paid';
+  const bd = c.score_breakdown||{};
+  const scoreHtml = isPaid ? `
+    <div class="disc-score-breakdown">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--navy);margin-bottom:.4rem;">Score Breakdown</div>
+      <div class="disc-score-row"><span class="score-label">📍 City</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.city/35)*100}%"></div></div><span class="score-val">${bd.city}/35</span></div>
+      <div class="disc-score-row"><span class="score-label">💰 Price</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.price/30)*100}%"></div></div><span class="score-val">${bd.price}/30</span></div>
+      <div class="disc-score-row"><span class="score-label">🏠 Home</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.home/15)*100}%"></div></div><span class="score-val">${bd.home}/15</span></div>
+      <div class="disc-score-row"><span class="score-label">🤝 Co-borrow</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.coborrower/20)*100}%"></div></div><span class="score-val">${bd.coborrower}/20</span></div>
+    </div>` : '';
+  cardArea.innerHTML = `
+    <div class="disc-card" id="disc-current-card">
+      <div class="disc-card-photo">${photoHtml}<div class="disc-nexus-badge">${c.nexus_score}/100</div></div>
+      <div class="disc-card-body">
+        <div class="disc-card-name">${escapeHtml(c.full_name||'Unknown')}</div>
+        <div class="disc-card-sub">${escapeHtml(c.age_range||'')} · 📍 ${escapeHtml(c.current_city||'Unknown')}</div>
+        <div class="disc-card-stats">
+          <div class="disc-stat"><div class="disc-stat-label">Target cities</div><div class="disc-stat-val">${escapeHtml(targetStr)}</div></div>
+          <div class="disc-stat"><div class="disc-stat-label">Price range</div><div class="disc-stat-val">${escapeHtml(c.price_range||'—')}</div></div>
+          <div class="disc-stat"><div class="disc-stat-label">Home type</div><div class="disc-stat-val">${escapeHtml(homeTypes)}</div></div>
+          <div class="disc-stat"><div class="disc-stat-label">Group size</div><div class="disc-stat-val">${totalD} total</div></div>
+        </div>
+        ${c.story ? `<div class="disc-card-story">"${escapeHtml(c.story)}"</div>` : ''}
+        ${cbLabel}
+        ${scoreHtml}
+      </div>
+      <div class="disc-actions">
+        <button class="disc-action-btn pass" onclick="passCandidate('${c.account_id}')" title="Pass">✕</button>
+        <button class="disc-action-btn like" onclick="likeCandidate('${c.account_id}',${c.nexus_score})" title="Like">♡</button>
+      </div>
+    </div>`;
+}
+
+async function likeCandidate(candidateId, nexusScore) {
+  const isPaid = currentAccount?.discovery_tier === 'paid';
+  if (!isPaid && _todayLikesCount >= FREE_DAILY_LIKES) { openPaywall(); return; }
+  const card = document.getElementById('disc-current-card');
+  if (card) card.classList.add('swipe-right');
+  const { error } = await sb.from('discovery_likes').insert({ liker_id: currentUser.id, liked_id: candidateId });
+  if (error && error.code !== '23505') { showToast('Error: '+error.message,'error'); return; }
+  _todayLikesCount++;
+  try {
+    const { data: result } = await sb.rpc('check_and_create_match', { p_liker_id: currentUser.id, p_liked_id: candidateId, p_nexus_score: nexusScore });
+    if (result?.matched) {
+      const cand = _discoveryStack.find(c => c.account_id === candidateId);
+      showMatchCelebration(cand?.full_name||'your match', result.nexus_score, result.group_id);
+      updateLikesCounter(); return;
+    }
+  } catch (e) { console.warn('Match check failed:', e); }
+  showToast('Liked!','success');
+  setTimeout(() => { _discoveryIndex++; renderDiscoveryCard(); updateLikesCounter(); }, 350);
+}
+window.likeCandidate = likeCandidate;
+
+async function passCandidate(candidateId) {
+  const card = document.getElementById('disc-current-card');
+  if (card) card.classList.add('swipe-left');
+  await sb.from('discovery_passes').insert({ passer_id: currentUser.id, passed_id: candidateId });
+  setTimeout(() => { _discoveryIndex++; renderDiscoveryCard(); }, 350);
+}
+window.passCandidate = passCandidate;
+
+function updateLikesCounter() {
+  const isPaid = currentAccount?.discovery_tier === 'paid';
+  const el = document.getElementById('disc-likes-counter');
+  if (!el) return;
+  if (isPaid) { el.innerHTML = '<span style="color:#10B981;font-weight:700;">⭐ NEXUS Home</span> — Unlimited likes'; }
+  else { const r = Math.max(0, FREE_DAILY_LIKES - _todayLikesCount); el.innerHTML = `<strong>${r}</strong> / ${FREE_DAILY_LIKES} likes today · <a style="color:var(--blue);cursor:pointer;font-weight:600;" onclick="openPaywall()">Upgrade →</a>`; }
+}
+
+let _lastMatchGroupId = null;
+function showMatchCelebration(name, score, groupId) {
+  _lastMatchGroupId = groupId;
+  document.getElementById('match-other-name').textContent = name;
+  document.getElementById('match-score-ring').textContent = score;
+  document.getElementById('match-overlay').style.display = 'flex';
+}
+function closeMatchOverlay() { document.getElementById('match-overlay').style.display = 'none'; _discoveryIndex++; }
+window.closeMatchOverlay = closeMatchOverlay;
+function goToGroupDashboard() { closeMatchOverlay(); if (_lastMatchGroupId) { _activeGroupId = _lastMatchGroupId; showView('group-dashboard'); } }
+window.goToGroupDashboard = goToGroupDashboard;
+
+async function loadLikesYou() {
+  const section = document.getElementById('likes-you-section');
+  const grid = document.getElementById('likes-you-grid');
+  if (!section||!grid) return;
+  const { data: likes } = await sb.from('discovery_likes').select('liker_id').eq('liked_id', currentUser.id);
+  if (!likes||likes.length===0) { section.style.display='none'; return; }
+  const { data: myLikes } = await sb.from('discovery_likes').select('liked_id').eq('liker_id', currentUser.id);
+  const mySet = new Set((myLikes||[]).map(l=>l.liked_id));
+  const pending = likes.filter(l=>!mySet.has(l.liker_id));
+  if (pending.length===0) { section.style.display='none'; return; }
+  section.style.display='block';
+  document.getElementById('likes-you-count').textContent = `${pending.length} pending`;
+  const isPaid = currentAccount?.discovery_tier === 'paid';
+  const ids = pending.map(l=>l.liker_id);
+  const { data: profs } = await sb.from('user_profiles').select('account_id,photo_url,current_city').in('account_id',ids);
+  const { data: accts } = await sb.from('accounts').select('id,full_name').in('id',ids);
+  const pm={}; (profs||[]).forEach(p=>{pm[p.account_id]=p;});
+  const am={}; (accts||[]).forEach(a=>{am[a.id]=a;});
+  grid.innerHTML = pending.map(l=>{
+    const a=am[l.liker_id]||{};
+    const p=pm[l.liker_id]||{};
+    const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+    const bl=isPaid?'':'blurred';
+    const ph=p.photo_url?`<img src="${escapeHtml(p.photo_url)}">`:ini;
+    const cl=isPaid?`onclick="likeCandidate('${l.liker_id}',0)"`:`onclick="openPaywall()"`;
+    return `<div class="likes-you-card ${bl}" ${cl}><div class="lyc-photo">${ph}</div><div class="lyc-body"><div class="lyc-name">${isPaid?escapeHtml(a.full_name||'?'):'••••••'}</div><div class="lyc-sub">${isPaid?escapeHtml(p.current_city||''):'Upgrade to see'}</div></div></div>`;
+  }).join('');
+}
+
+async function loadMyMatches() {
+  const section = document.getElementById('my-matches-section');
+  const list = document.getElementById('my-matches-list');
+  if (!section||!list) return;
+  const { data: matches } = await sb.from('discovery_matches').select('id,group_id,account_a_id,account_b_id,nexus_score,matched_at').or(`account_a_id.eq.${currentUser.id},account_b_id.eq.${currentUser.id}`).order('matched_at',{ascending:false});
+  if (!matches||matches.length===0) { section.style.display='none'; return; }
+  section.style.display='block';
+  const oIds = matches.map(m=>m.account_a_id===currentUser.id?m.account_b_id:m.account_a_id);
+  const { data: oa } = await sb.from('accounts').select('id,full_name').in('id',oIds);
+  const { data: op } = await sb.from('user_profiles').select('account_id,photo_url,current_city').in('account_id',oIds);
+  const am={}; (oa||[]).forEach(a=>{am[a.id]=a;});
+  const pm={}; (op||[]).forEach(p=>{pm[p.account_id]=p;});
+  list.innerHTML = matches.map(m=>{
+    const oid=m.account_a_id===currentUser.id?m.account_b_id:m.account_a_id;
+    const a=am[oid]||{}; const p=pm[oid]||{};
+    const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+    const dt=new Date(m.matched_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div style="display:flex;gap:.85rem;align-items:center;padding:.75rem;border:1.5px solid var(--gray);border-radius:10px;background:#fff;margin-bottom:.6rem;cursor:pointer;" onclick="_activeGroupId='${m.group_id}';showView('group-dashboard')">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">${escapeHtml(ini)}</div>
+      <div style="flex:1;"><div style="font-weight:700;color:var(--navy);font-size:.92rem;">${escapeHtml(a.full_name||'Unknown')}</div><div style="font-size:.78rem;color:var(--gray-text);">Matched ${dt}</div></div>
+      <div style="background:linear-gradient(135deg,#10B981,#059669);color:#fff;padding:.35rem .75rem;border-radius:14px;font-size:.78rem;font-weight:800;">${m.nexus_score}/100</div>
+    </div>`;
+  }).join('');
+}
+
+function openPaywall() { document.getElementById('paywall-overlay').style.display='flex'; }
+window.openPaywall = openPaywall;
+function closePaywall() { document.getElementById('paywall-overlay').style.display='none'; }
+window.closePaywall = closePaywall;
+async function handleUpgrade() { showToast('Upgrade framework — Stripe integration coming soon. Use a paid-tier mock account for testing.','info'); closePaywall(); }
+window.handleUpgrade = handleUpgrade;
+
+// ═══ GROUP DASHBOARD ═══
+let _activeGroupId = null;
+
+async function loadGroupDashboard() {
+  if (!_activeGroupId||!currentUser) return;
+  const { data: group, error } = await sb.from('coborrower_groups').select('*').eq('id',_activeGroupId).single();
+  if (error||!group) { document.getElementById('grp-status-text').textContent='Could not load group.'; return; }
+  const { data: members } = await sb.from('coborrower_group_members').select('account_id,role,unit_size,joined_at').eq('group_id',_activeGroupId);
+  const mIds=(members||[]).map(m=>m.account_id);
+  const { data: ma } = await sb.from('accounts').select('id,full_name,email').in('id',mIds);
+  const { data: mp } = await sb.from('user_profiles').select('account_id,photo_url,current_city,price_range').in('account_id',mIds);
+  const am={}; (ma||[]).forEach(a=>{am[a.id]=a;});
+  const pm={}; (mp||[]).forEach(p=>{pm[p.account_id]=p;});
+  const progress = Math.round((group.current_size/group.desired_total)*100);
+  const statL = {forming:'Group forming — finding more co-borrowers',complete:'Group complete! Ready to select a realtor.',seeking_realtor:'Selecting a realtor for your group.',realtor_confirmed:'Realtor confirmed! Contact info revealed.',active:'Active — working with your realtor.'};
+  document.getElementById('grp-status-text').textContent = statL[group.status]||group.status;
+  document.getElementById('grp-progress-fill').style.width = progress+'%';
+  document.getElementById('grp-status-card').querySelector('.grp-status-title').textContent = `Co-Borrower Group · ${group.current_size}/${group.desired_total} members`;
+  document.getElementById('grp-members-list').innerHTML = (members||[]).map(m=>{
+    const a=am[m.account_id]||{}; const p=pm[m.account_id]||{};
+    const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+    const rb = m.role==='founder'?'<span class="grp-member-badge" style="background:#DBEAFE;color:#1E40AF;">Founder</span>':'<span class="grp-member-badge" style="background:#D1FAE5;color:#15803D;">Member</span>';
+    const ul = m.unit_size===2?' · 👫 With co-borrower':'';
+    const isMe = m.account_id===currentUser.id;
+    const ci = group.status==='realtor_confirmed'&&!isMe?`<div style="font-size:.75rem;color:var(--blue);margin-top:.15rem;">📧 ${escapeHtml(a.email||'')}</div>`:'';
+    return `<div class="grp-member-row"><div class="grp-member-avatar">${escapeHtml(ini)}</div><div style="flex:1;"><div class="grp-member-name">${escapeHtml(a.full_name||'Unknown')}${isMe?' (you)':''}</div><div class="grp-member-sub">📍 ${escapeHtml(p.current_city||'—')} · ${escapeHtml(p.price_range||'—')}${ul}</div>${ci}</div>${rb}</div>`;
+  }).join('');
+  const act = document.getElementById('grp-actions-area');
+  if (group.status==='forming') {
+    act.innerHTML = `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-weight:700;color:#92400E;">Need ${group.desired_total-group.current_size} more co-borrower${group.desired_total-group.current_size>1?'s':''}</div><div style="font-size:.85rem;color:#92400E;margin:.3rem 0 1rem;">Keep browsing to find compatible matches.</div><button class="btn-primary" onclick="showView('discovery')">Continue Browsing →</button></div>`;
+  } else if (group.status==='complete'||group.status==='seeking_realtor') {
+    act.innerHTML = `<div style="background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-weight:800;color:var(--navy);font-size:1.1rem;">🎉 Group Complete!</div><div style="font-size:.88rem;color:var(--gray-text);margin:.3rem 0 1rem;">Select your NEXUS-certified realtor to proceed.</div><button class="btn-primary" style="background:#10B981;" onclick="_activeGroupId='${_activeGroupId}';showView('group-realtors')">Select Your Realtor →</button></div>`;
+  } else if (group.status==='realtor_confirmed') {
+    act.innerHTML = `<div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.3);border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-weight:800;color:#15803D;font-size:1.05rem;">✅ Realtor Confirmed</div><div style="font-size:.85rem;color:var(--gray-text);margin:.3rem 0;">Contact info shared with all parties.</div></div>`;
+  }
+  await loadGroupChat();
+}
+
+async function loadGroupChat() {
+  const t = document.getElementById('grp-chat-thread');
+  if (!t||!_activeGroupId) return;
+  const { data: msgs } = await sb.from('group_messages').select('id,sender_id,body,is_system,created_at').eq('group_id',_activeGroupId).order('created_at',{ascending:true});
+  if (!msgs||msgs.length===0) { t.innerHTML='<div style="text-align:center;color:var(--gray-text);font-size:.85rem;padding:1.5rem;">No messages yet.</div>'; return; }
+  const sIds=[...new Set(msgs.map(m=>m.sender_id))];
+  const { data: sa } = await sb.from('accounts').select('id,full_name').in('id',sIds);
+  const nm={}; (sa||[]).forEach(a=>{nm[a.id]=a.full_name;});
+  t.innerHTML = msgs.map(m=>{
+    const isMine=m.sender_id===currentUser.id;
+    const ts=new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    if (m.is_system) return `<div style="text-align:center;padding:.5rem;font-size:.78rem;color:var(--gray-text);font-style:italic;">🔔 ${escapeHtml(m.body)} · ${ts}</div>`;
+    return `<div style="margin-bottom:.5rem;${isMine?'text-align:right;':''}"><div style="font-size:.7rem;color:var(--gray-text);margin-bottom:.15rem;">${isMine?'You':escapeHtml(nm[m.sender_id]||'?')} · ${ts}</div><div class="conv-bubble ${isMine?'mine':'theirs'}" style="display:inline-block;">${escapeHtml(m.body)}</div></div>`;
+  }).join('');
+  setTimeout(()=>{t.scrollTop=t.scrollHeight;},50);
+}
+
+async function sendGroupMessage() {
+  if (!_activeGroupId||!currentUser) return;
+  const input=document.getElementById('grp-chat-input');
+  const body=(input.value||'').trim();
+  if (!body||body.length>4000) return;
+  const { error } = await sb.from('group_messages').insert({group_id:_activeGroupId,sender_id:currentUser.id,body,is_system:false});
+  if (error) { showToast('Send failed: '+error.message,'error'); return; }
+  input.value=''; await loadGroupChat();
+}
+window.sendGroupMessage = sendGroupMessage;
+
+// ═══ GROUP REALTOR SELECTION ═══
+async function loadGroupRealtors() {
+  if (!_activeGroupId||!currentUser) return;
+  const list=document.getElementById('grp-realtor-list');
+  try {
+    const { data: realtors, error } = await sb.rpc('get_group_realtors',{p_group_id:_activeGroupId,p_limit:6});
+    if (error) throw error;
+    if (!realtors||realtors.length===0) { list.innerHTML='<div style="text-align:center;color:var(--gray-text);padding:2rem;">No realtors available yet.</div>'; return; }
+    const { data: existing } = await sb.from('group_realtor_selections').select('realtor_id,status').eq('group_id',_activeGroupId);
+    const sm={}; (existing||[]).forEach(s=>{sm[s.realtor_id]=s.status;});
+    list.innerHTML = realtors.map(r=>{
+      const ini=(r.full_name||'?').split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+      const ph=r.headshot_url?`<div style="width:64px;height:64px;border-radius:50%;background-image:url('${escapeHtml(r.headshot_url)}');background-size:cover;flex-shrink:0;"></div>`:`<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">${escapeHtml(ini)}</div>`;
+      const stars=r.avg_rating>0?'★'.repeat(Math.round(r.avg_rating))+'☆'.repeat(5-Math.round(r.avg_rating))+` (${r.review_count})`:'No reviews';
+      const btn=sm[r.account_id]==='confirmed'?'<span style="color:#15803D;font-weight:700;font-size:.85rem;">✅ Confirmed</span>':sm[r.account_id]==='selected'?`<button class="rp-btn" style="background:#10B981;" onclick="confirmGroupRealtor('${r.account_id}')">Confirm →</button>`:`<button class="rp-btn rp-btn-secondary" onclick="selectGroupRealtor('${r.account_id}')">Select</button>`;
+      return `<div style="border:1.5px solid var(--gray);border-radius:12px;padding:1.1rem;margin-bottom:.75rem;background:#fff;"><div style="display:flex;gap:1rem;align-items:flex-start;">${ph}<div style="flex:1;min-width:0;"><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">${escapeHtml(r.full_name||'Unknown')}</div><div style="font-size:.82rem;color:var(--gray-text);">${escapeHtml(r.brokerage||'')} · ${r.years_experience||'?'} yrs</div><div style="font-size:.82rem;color:#F59E0B;margin-top:.2rem;">${stars}</div>${r.bio?`<div style="font-size:.85rem;color:#374151;margin-top:.5rem;line-height:1.4;">${escapeHtml(r.bio.substring(0,150))}</div>`:''}<div style="margin-top:.75rem;">${btn}</div></div></div></div>`;
+    }).join('');
+  } catch (e) { list.innerHTML='<div style="text-align:center;color:var(--gray-text);padding:2rem;">Could not load realtors.</div>'; }
+}
+
+async function selectGroupRealtor(rid) {
+  const { error } = await sb.from('group_realtor_selections').insert({group_id:_activeGroupId,realtor_id:rid,initiated_by:currentUser.id,status:'selected'});
+  if (error&&error.code!=='23505') { showToast('Error: '+error.message,'error'); return; }
+  showToast('Realtor selected','success');
+  await sb.from('coborrower_groups').update({status:'seeking_realtor',updated_at:new Date().toISOString()}).eq('id',_activeGroupId);
+  await loadGroupRealtors();
+}
+window.selectGroupRealtor = selectGroupRealtor;
+
+async function confirmGroupRealtor(rid) {
+  if (!confirm('Confirm this realtor?\n\nContact info will be revealed to all group members and the realtor.')) return;
+  try {
+    const { error } = await sb.rpc('confirm_group_realtor',{p_group_id:_activeGroupId,p_realtor_id:rid});
+    if (error) throw error;
+    showToast('Realtor confirmed! Contact info revealed.','success');
+    await loadGroupRealtors();
+  } catch (e) { showToast('Error: '+e.message,'error'); }
+}
+window.confirmGroupRealtor = confirmGroupRealtor;
+
+// ═══ Wire showView for discovery views ═══
+const _showViewPreDisc = showView;
+showView = function(viewName) {
+  _showViewPreDisc(viewName);
+  if (viewName==='discovery') {
+    if (!currentUser) { openLoginModal(); return; }
+    if (currentAccount?.role!=='user') { showToast('Homebuyer account required','error'); return; }
+    setNavActive('nav-discover');
+    setTimeout(()=>loadDiscoveryStack(),50);
+  }
+  if (viewName==='group-dashboard') {
+    if (!currentUser) { openLoginModal(); return; }
+    if (!_activeGroupId) { routeForRole(); return; }
+    setTimeout(()=>loadGroupDashboard(),50);
+  }
+  if (viewName==='group-realtors') {
+    if (!currentUser) { openLoginModal(); return; }
+    if (!_activeGroupId) { routeForRole(); return; }
+    setTimeout(()=>loadGroupRealtors(),50);
+  }
+};
+
 </script>
 
 <style>
@@ -10428,6 +11048,134 @@ document.addEventListener('DOMContentLoaded', () => {
 .auth-magic-btn{width:100%;padding:.7rem 1rem;background:#fff;color:var(--navy);border:1.5px solid var(--gray);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:all .15s;}
 .auth-magic-btn:hover{border-color:var(--blue);color:var(--blue);}
 </style>
+
+<!-- ══════════════════════ VIEW: DISCOVERY STACK ══════════════════════ -->
+<div id="view-discovery" class="view">
+  <div class="disc-wrap">
+    <div class="disc-header">
+      <h2>Discover Co-Buyers</h2>
+      <p>Swipe through compatible co-borrowers. Mutual likes = match.</p>
+    </div>
+
+    <div class="disc-filters" id="disc-filters">
+      <button class="disc-filter-btn active" data-filter="recommended" onclick="setDiscFilter('recommended')">⭐ Recommended</button>
+      <button class="disc-filter-btn" data-filter="city" onclick="setDiscFilter('city')">📍 My Cities</button>
+      <button class="disc-filter-btn" data-filter="price" onclick="setDiscFilter('price')">💰 My Price Range</button>
+      <button class="disc-filter-btn" data-filter="home" onclick="setDiscFilter('home')">🏠 My Home Type</button>
+    </div>
+
+    <div class="disc-likes-counter" id="disc-likes-counter"></div>
+
+    <!-- Card stack area -->
+    <div id="disc-card-area">
+      <div class="disc-empty">
+        <div class="disc-empty-icon">🔍</div>
+        <div>Loading co-buyer profiles…</div>
+      </div>
+    </div>
+
+    <!-- Likes You section -->
+    <div class="likes-you-section" id="likes-you-section" style="display:none;">
+      <div class="likes-you-header">
+        <span class="likes-you-title">💛 People who liked you</span>
+        <span id="likes-you-count" style="font-size:.78rem;color:var(--gray-text);"></span>
+      </div>
+      <div class="likes-you-grid" id="likes-you-grid"></div>
+    </div>
+
+    <!-- My Matches section -->
+    <div style="margin-top:1.5rem;" id="my-matches-section" style="display:none;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;color:var(--navy);margin-bottom:.75rem;">🤝 Your Matches</div>
+      <div id="my-matches-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VIEW: GROUP DASHBOARD ══════════════════════ -->
+<div id="view-group-dashboard" class="view">
+  <div class="grp-wrap" style="padding-top:1rem;">
+    <span class="rp-back-link" onclick="routeForRole()">← Back to dashboard</span>
+
+    <!-- Group status card -->
+    <div class="grp-status-card" id="grp-status-card">
+      <div class="grp-status-title">Your Co-Borrower Group</div>
+      <div class="grp-status-sub" id="grp-status-text">Loading…</div>
+      <div class="grp-progress-bar">
+        <div class="grp-progress-fill" id="grp-progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Members -->
+    <div class="grp-members" id="grp-members-card">
+      <div class="grp-section-title">Group Members</div>
+      <div id="grp-members-list">Loading…</div>
+    </div>
+
+    <!-- Actions based on group status -->
+    <div id="grp-actions-area"></div>
+
+    <!-- Group chat -->
+    <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-top:1rem;">
+      <div class="grp-section-title">Group Chat</div>
+      <div id="grp-chat-thread" style="max-height:300px;overflow-y:auto;margin-bottom:.75rem;"></div>
+      <div style="display:flex;gap:.5rem;">
+        <textarea id="grp-chat-input" style="flex:1;border:1.5px solid var(--gray);border-radius:8px;padding:.6rem;font-size:.88rem;font-family:'Inter',sans-serif;resize:none;min-height:40px;" placeholder="Message your group…" maxlength="4000"></textarea>
+        <button class="btn-primary btn-sm" onclick="sendGroupMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VIEW: GROUP REALTOR SELECTION ══════════════════════ -->
+<div id="view-group-realtors" class="view">
+  <div class="grp-wrap" style="padding-top:1rem;">
+    <span class="rp-back-link" onclick="showView('group-dashboard')">← Back to group</span>
+    <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.4rem;color:var(--navy);margin-bottom:.3rem;">Select Your Group's Realtor</h2>
+    <p style="font-size:.88rem;color:var(--gray-text);margin-bottom:1.25rem;">These NEXUS-certified realtors serve your target cities. Select up to 3, message them, then confirm one to proceed.</p>
+    <div id="grp-realtor-list">
+      <div style="text-align:center;color:var(--gray-text);padding:2rem;">Loading realtors…</div>
+    </div>
+    <div id="grp-realtor-confirm-area" style="margin-top:1.25rem;display:none;">
+      <div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">
+        <div style="font-weight:700;color:#92400E;font-size:.92rem;">Ready to confirm?</div>
+        <div style="font-size:.82rem;color:#92400E;margin-top:.25rem;">Once confirmed, contact information is revealed to everyone — your group and the realtor.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Match celebration overlay (hidden, shown on mutual like) ── -->
+<div id="match-overlay" class="match-overlay" style="display:none;">
+  <div class="match-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem;">🎉</div>
+    <div class="match-title">It's a NEXUS Match!</div>
+    <div class="match-subtitle" id="match-subtitle">You and <strong id="match-other-name">—</strong> are co-borrower candidates.</div>
+    <div class="match-score-ring" id="match-score-ring">—</div>
+    <div style="font-size:.82rem;color:var(--gray-text);margin-bottom:1.5rem;">NEXUS Compatibility Score</div>
+    <button class="btn-primary" style="width:100%;margin-bottom:.75rem;" onclick="goToGroupDashboard()">View Your Group →</button>
+    <button class="btn-outline" style="width:100%;" onclick="closeMatchOverlay();loadDiscoveryStack()">Keep Browsing</button>
+  </div>
+</div>
+
+<!-- ── Paywall overlay (hidden, shown on paywall gate) ── -->
+<div id="paywall-overlay" class="paywall-overlay" style="display:none;">
+  <div class="paywall-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem;">🔓</div>
+    <h2>Upgrade to NEXUS Home</h2>
+    <p>See who liked you, get unlimited likes, and unlock full match profiles.</p>
+    <div class="paywall-price">$29<span style="font-size:1rem;">.99</span><span style="font-size:.9rem;font-weight:400;color:var(--gray-text);">/mo</span></div>
+    <div class="paywall-price-sub">or $99.99 one-time (12 months)</div>
+    <div class="paywall-features">
+      <div class="paywall-feature"><span class="check">✓</span> Unlimited daily likes</div>
+      <div class="paywall-feature"><span class="check">✓</span> See who liked your profile</div>
+      <div class="paywall-feature"><span class="check">✓</span> Full match profiles & messaging</div>
+      <div class="paywall-feature"><span class="check">✓</span> Priority placement in the stack</div>
+      <div class="paywall-feature"><span class="check">✓</span> NEXUS Score breakdown on every card</div>
+    </div>
+    <button class="btn-primary" style="width:100%;background:#10B981;margin-bottom:.75rem;" onclick="handleUpgrade()">Upgrade Now →</button>
+    <button class="btn-outline" style="width:100%;" onclick="closePaywall()">Maybe Later</button>
+  </div>
+</div>
 
 <!-- ══════════════════════ VIEW: CONVERSATION ══════════════════════ -->
 <div id="view-conversation" class="view">
