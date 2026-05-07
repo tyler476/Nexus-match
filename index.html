@@ -614,6 +614,19 @@ body.is-impersonating .view{padding-top:114px;}
 .paywall-feature{display:flex;align-items:center;gap:.6rem;padding:.4rem 0;font-size:.88rem;color:var(--navy);}
 .paywall-feature .check{color:#10B981;font-weight:700;}
 
+/* ── Plan selection cards ── */
+.plan-card{border:2px solid var(--gray);border-radius:12px;padding:1rem 1.15rem;cursor:pointer;transition:all .15s;position:relative;}
+.plan-card:hover{border-color:var(--blue);background:rgba(37,99,235,.02);}
+.plan-card.selected{border-color:#10B981;background:rgba(16,185,129,.04);}
+.plan-card.selected::after{content:'✓';position:absolute;top:.75rem;right:.85rem;width:22px;height:22px;border-radius:50%;background:#10B981;color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.plan-card.best-value{border-color:#F59E0B;}
+.plan-card.best-value::before{content:'BEST VALUE';position:absolute;top:-10px;left:1rem;background:#F59E0B;color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.5px;padding:.2rem .6rem;border-radius:6px;}
+.plan-card-name{font-weight:800;color:var(--navy);font-size:.95rem;}
+.plan-card-price{font-size:1.4rem;font-weight:900;color:var(--navy);margin-top:.15rem;}
+.plan-card-price span{font-size:.82rem;font-weight:500;color:var(--gray-text);}
+.plan-card-savings{font-size:.72rem;font-weight:700;color:#10B981;margin-top:.15rem;}
+.plan-card-per{font-size:.72rem;color:var(--gray-text);margin-top:.1rem;}
+
 /* ── Group Dashboard ── */
 .grp-wrap{max-width:800px;margin:0 auto;padding:1.5rem 1rem;}
 .grp-status-card{background:linear-gradient(135deg,var(--navy),#1B3A6B);border-radius:16px;padding:1.75rem;color:#fff;margin-bottom:1.25rem;position:relative;overflow:hidden;}
@@ -10898,11 +10911,158 @@ async function loadMyMatches() {
   }).join('');
 }
 
-function openPaywall() { document.getElementById('paywall-overlay').style.display='flex'; }
+function openPaywall() { renderPaywall(); document.getElementById('paywall-overlay').style.display='flex'; }
 window.openPaywall = openPaywall;
 function closePaywall() { document.getElementById('paywall-overlay').style.display='none'; }
 window.closePaywall = closePaywall;
-async function handleUpgrade() { showToast('Upgrade framework — Stripe integration coming soon. Use a paid-tier mock account for testing.','info'); closePaywall(); }
+
+// ═══ STRIPE PRICE IDS — Replace these with your real Stripe Price IDs ═══
+const STRIPE_PRICES = {
+  user: {
+    monthly:     { id: 'price_NEXUS_HOME_MONTHLY',     label: 'Monthly',     amount: 29.99,  interval: 'month',  perMonth: 29.99,  savings: null },
+    quarterly:   { id: 'price_NEXUS_HOME_QUARTERLY',    label: 'Quarterly',   amount: 79.99,  interval: '3 months', perMonth: 26.66, savings: 'Save 11%' },
+    semiannual:  { id: 'price_NEXUS_HOME_SEMIANNUAL',   label: '6 Months',    amount: 151.99, interval: '6 months', perMonth: 25.33, savings: 'Save 15%', bestValue: true },
+    annual:      { id: 'price_NEXUS_HOME_ANNUAL',       label: 'Annual',      amount: 99.99,  interval: 'year',    perMonth: 8.33,  savings: 'Save 72%' }
+  },
+  realtor: {
+    monthly:     { id: 'price_NEXUS_NETWORK_MONTHLY',   label: 'Monthly',     amount: 49.99,  interval: 'month',  perMonth: 49.99,  savings: null },
+    quarterly:   { id: 'price_NEXUS_NETWORK_QUARTERLY',  label: 'Quarterly',   amount: 133.99, interval: '3 months', perMonth: 44.66, savings: 'Save 11%' },
+    semiannual:  { id: 'price_NEXUS_NETWORK_SEMIANNUAL', label: '6 Months',    amount: 253.99, interval: '6 months', perMonth: 42.33, savings: 'Save 15%', bestValue: true }
+  }
+};
+
+const PAYWALL_FEATURES = {
+  user: [
+    { icon: '♾️', text: 'Unlimited daily likes' },
+    { icon: '👀', text: 'See who liked your profile' },
+    { icon: '📊', text: 'NEXUS Score breakdown on every card' },
+    { icon: '💬', text: 'Full match profiles & messaging' },
+    { icon: '⭐', text: 'Priority placement in the stack' },
+    { icon: '🏠', text: 'Group realtor selection access' }
+  ],
+  realtor: [
+    { icon: '🚀', text: 'Boosted visibility in realtor search' },
+    { icon: '📍', text: 'List in up to 3 cities (swap monthly)' },
+    { icon: '🏅', text: 'Verified NEXUS Network badge' },
+    { icon: '📋', text: 'Expanded profile with specialties' },
+    { icon: '👥', text: 'Priority access to co-buyer groups' },
+    { icon: '📈', text: 'Performance analytics dashboard' }
+  ]
+};
+
+let _selectedPlanKey = 'monthly';
+
+function renderPaywall() {
+  const role = currentAccount?.role === 'realtor' ? 'realtor' : 'user';
+  const prices = STRIPE_PRICES[role];
+  const features = PAYWALL_FEATURES[role];
+  const titleEl = document.getElementById('paywall-title');
+  const subEl = document.getElementById('paywall-subtitle');
+  const plansEl = document.getElementById('paywall-plans');
+  const featEl = document.getElementById('paywall-features');
+
+  if (role === 'realtor') {
+    titleEl.textContent = 'Upgrade to NEXUS Network';
+    subEl.textContent = 'Get boosted visibility, expanded profile, and priority access to co-buyer groups.';
+  } else {
+    titleEl.textContent = 'Upgrade to NEXUS Home';
+    subEl.textContent = 'Unlock the full co-buyer matching experience.';
+  }
+
+  // Default to best value plan
+  _selectedPlanKey = Object.keys(prices).find(k => prices[k].bestValue) || 'monthly';
+
+  plansEl.innerHTML = Object.entries(prices).map(([key, plan]) => {
+    const isSelected = key === _selectedPlanKey;
+    const bestClass = plan.bestValue ? 'best-value' : '';
+    const selClass = isSelected ? 'selected' : '';
+    return `<div class="plan-card ${bestClass} ${selClass}" onclick="selectPlan('${key}')" data-plan="${key}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="plan-card-name">${plan.label}</div>
+          <div class="plan-card-price">$${plan.amount.toFixed(2)} <span>/ ${plan.interval}</span></div>
+          ${plan.savings ? `<div class="plan-card-savings">${plan.savings}</div>` : ''}
+          <div class="plan-card-per">$${plan.perMonth.toFixed(2)}/mo effective</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  featEl.innerHTML = '<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.5rem;">Everything included:</div>' +
+    features.map(f => `<div class="paywall-feature"><span class="check">${f.icon}</span> ${f.text}</div>`).join('');
+
+  updatePaywallCta();
+}
+
+function selectPlan(key) {
+  _selectedPlanKey = key;
+  document.querySelectorAll('.plan-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.plan === key);
+  });
+  updatePaywallCta();
+}
+window.selectPlan = selectPlan;
+
+function updatePaywallCta() {
+  const role = currentAccount?.role === 'realtor' ? 'realtor' : 'user';
+  const plan = STRIPE_PRICES[role][_selectedPlanKey];
+  const btn = document.getElementById('paywall-cta-btn');
+  if (btn && plan) {
+    btn.textContent = `Subscribe — $${plan.amount.toFixed(2)}/${plan.interval} →`;
+  }
+}
+
+async function handleUpgrade() {
+  const role = currentAccount?.role === 'realtor' ? 'realtor' : 'user';
+  const plan = STRIPE_PRICES[role][_selectedPlanKey];
+  if (!plan) return;
+
+  // Check if Price ID is still a placeholder
+  if (plan.id.startsWith('price_NEXUS_')) {
+    showToast('Stripe integration pending — Price IDs not yet configured. Demo mode only.', 'info');
+    // Demo mode: simulate upgrade for testing
+    if (confirm('DEMO MODE: Simulate a successful upgrade?\n\nThis will set your account to paid tier for testing purposes.')) {
+      const { error } = await sb.from('accounts').update({ discovery_tier: 'paid' }).eq('id', currentUser.id);
+      if (!error) {
+        currentAccount.discovery_tier = 'paid';
+        showToast('Demo upgrade successful! You now have paid tier access.', 'success');
+        closePaywall();
+        // Reload current view
+        if (document.getElementById('view-discovery')?.classList.contains('active')) {
+          loadDiscoveryStack();
+        }
+      }
+    }
+    return;
+  }
+
+  // Real Stripe checkout (when Price IDs are configured)
+  const btn = document.getElementById('paywall-cta-btn');
+  btn.disabled = true;
+  btn.textContent = 'Redirecting to checkout…';
+
+  try {
+    const { data, error } = await sb.functions.invoke('create-checkout', {
+      body: {
+        price_id: plan.id,
+        account_id: currentUser.id,
+        role: role,
+        success_url: window.location.origin + '?checkout=success',
+        cancel_url: window.location.origin + '?checkout=cancel'
+      }
+    });
+    if (error) throw error;
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error('No checkout URL returned');
+    }
+  } catch (e) {
+    showToast('Checkout error: ' + e.message, 'error');
+    btn.disabled = false;
+    updatePaywallCta();
+  }
+}
 window.handleUpgrade = handleUpgrade;
 
 // ═══ GROUP DASHBOARD ═══
@@ -11177,23 +11337,27 @@ showView = function(viewName) {
   </div>
 </div>
 
-<!-- ── Paywall overlay (hidden, shown on paywall gate) ── -->
+<!-- ── Paywall overlay (role-aware pricing modal) ── -->
 <div id="paywall-overlay" class="paywall-overlay" style="display:none;">
-  <div class="paywall-card">
-    <div style="font-size:2.5rem;margin-bottom:.5rem;">🔓</div>
-    <h2>Upgrade to NEXUS Home</h2>
-    <p>See who liked you, get unlimited likes, and unlock full match profiles.</p>
-    <div class="paywall-price">$29<span style="font-size:1rem;">.99</span><span style="font-size:.9rem;font-weight:400;color:var(--gray-text);">/mo</span></div>
-    <div class="paywall-price-sub">or $99.99 one-time (12 months)</div>
-    <div class="paywall-features">
-      <div class="paywall-feature"><span class="check">✓</span> Unlimited daily likes</div>
-      <div class="paywall-feature"><span class="check">✓</span> See who liked your profile</div>
-      <div class="paywall-feature"><span class="check">✓</span> Full match profiles & messaging</div>
-      <div class="paywall-feature"><span class="check">✓</span> Priority placement in the stack</div>
-      <div class="paywall-feature"><span class="check">✓</span> NEXUS Score breakdown on every card</div>
+  <div class="paywall-card" style="max-width:640px;text-align:left;">
+    <button onclick="closePaywall()" style="position:absolute;top:1rem;right:1.25rem;background:none;border:none;font-size:1.3rem;color:#9CA3AF;cursor:pointer;">✕</button>
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:2rem;margin-bottom:.4rem;">🔓</div>
+      <h2 id="paywall-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.4rem;color:var(--navy);margin-bottom:.3rem;">Upgrade to NEXUS Home</h2>
+      <p id="paywall-subtitle" style="font-size:.88rem;color:var(--gray-text);margin:0;">Unlock the full co-buyer matching experience.</p>
     </div>
-    <button class="btn-primary" style="width:100%;background:#10B981;margin-bottom:.75rem;" onclick="handleUpgrade()">Upgrade Now →</button>
-    <button class="btn-outline" style="width:100%;" onclick="closePaywall()">Maybe Later</button>
+
+    <!-- Plan cards (populated by JS based on role) -->
+    <div id="paywall-plans" style="display:grid;gap:.75rem;margin-bottom:1.25rem;"></div>
+
+    <!-- Features list -->
+    <div id="paywall-features" style="margin-bottom:1.5rem;"></div>
+
+    <!-- CTA -->
+    <button class="btn-primary" id="paywall-cta-btn" style="width:100%;padding:.85rem;font-size:1rem;font-weight:700;background:#10B981;" onclick="handleUpgrade()">
+      Subscribe Now →
+    </button>
+    <div style="text-align:center;margin-top:.6rem;font-size:.75rem;color:var(--gray-text);">Cancel anytime · Secure payment via Stripe</div>
   </div>
 </div>
 
