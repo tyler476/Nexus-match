@@ -604,8 +604,8 @@ body.is-impersonating .view{padding-top:114px;}
 .lyc-sub{font-size:.7rem;color:var(--gray-text);}
 
 /* ── Paywall Modal ── */
-.paywall-overlay{position:fixed;inset:0;background:rgba(11,29,62,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
-.paywall-card{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:2.5rem 2rem;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.paywall-overlay{position:fixed;inset:0;background:rgba(11,29,62,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto;}
+.paywall-card{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:2.5rem 2rem;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;}
 .paywall-card h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.4rem;color:var(--navy);margin-bottom:.5rem;}
 .paywall-card p{font-size:.9rem;color:var(--gray-text);line-height:1.5;margin-bottom:1.5rem;}
 .paywall-price{font-size:2rem;font-weight:900;color:var(--navy);margin-bottom:.25rem;}
@@ -10921,13 +10921,12 @@ const STRIPE_PRICES = {
   user: {
     monthly:     { id: 'price_NEXUS_HOME_MONTHLY',     label: 'Monthly',     amount: 29.99,  interval: 'month',  perMonth: 29.99,  savings: null },
     quarterly:   { id: 'price_NEXUS_HOME_QUARTERLY',    label: 'Quarterly',   amount: 79.99,  interval: '3 months', perMonth: 26.66, savings: 'Save 11%' },
-    semiannual:  { id: 'price_NEXUS_HOME_SEMIANNUAL',   label: '6 Months',    amount: 151.99, interval: '6 months', perMonth: 25.33, savings: 'Save 15%', bestValue: true },
-    annual:      { id: 'price_NEXUS_HOME_ANNUAL',       label: 'Annual',      amount: 99.99,  interval: 'year',    perMonth: 8.33,  savings: 'Save 72%' }
+    semiannual:  { id: 'price_NEXUS_HOME_SEMIANNUAL',   label: '6 Months',    amount: 149.99, interval: '6 months', perMonth: 25.00, savings: 'Save 17%', bestValue: true }
   },
   realtor: {
     monthly:     { id: 'price_NEXUS_NETWORK_MONTHLY',   label: 'Monthly',     amount: 49.99,  interval: 'month',  perMonth: 49.99,  savings: null },
-    quarterly:   { id: 'price_NEXUS_NETWORK_QUARTERLY',  label: 'Quarterly',   amount: 133.99, interval: '3 months', perMonth: 44.66, savings: 'Save 11%' },
-    semiannual:  { id: 'price_NEXUS_NETWORK_SEMIANNUAL', label: '6 Months',    amount: 253.99, interval: '6 months', perMonth: 42.33, savings: 'Save 15%', bestValue: true }
+    quarterly:   { id: 'price_NEXUS_NETWORK_QUARTERLY',  label: 'Quarterly',   amount: 129.99, interval: '3 months', perMonth: 43.33, savings: 'Save 13%' },
+    semiannual:  { id: 'price_NEXUS_NETWORK_SEMIANNUAL', label: '6 Months',    amount: 249.99, interval: '6 months', perMonth: 41.67, savings: 'Save 17%', bestValue: true }
   }
 };
 
