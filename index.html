@@ -4472,7 +4472,7 @@ body.is-impersonating .view{padding-top:114px;}
             <span class="rp-tier-tag" style="background:var(--blue);">Subscription</span>
             <div class="rp-tier-name">NEXUS Network</div>
             <div class="rp-tier-price">$49.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/mo</span></div>
-            <div class="rp-tier-price-sub">Or $129.99/3mo · $249.99/6mo</div>
+            <div class="rp-tier-price-sub">Or $139.99/3mo · $249.99/6mo</div>
             <ul class="rp-tier-features">
               <li>Up to 3 cities</li>
               <li>Boost placement</li>
@@ -10930,14 +10930,19 @@ window.closePaywall = closePaywall;
 // ═══ STRIPE PRICE IDS — Replace these with your real Stripe Price IDs ═══
 const STRIPE_PRICES = {
   user: {
-    monthly:     { id: 'price_NEXUS_HOME_MONTHLY',     label: 'Monthly',     amount: 29.99,  interval: 'month',  perMonth: 29.99,  savings: null },
-    quarterly:   { id: 'price_NEXUS_HOME_QUARTERLY',    label: 'Quarterly',   amount: 79.99,  interval: '3 months', perMonth: 26.66, savings: 'Save 11%' },
-    semiannual:  { id: 'price_NEXUS_HOME_SEMIANNUAL',   label: '6 Months',    amount: 149.99, interval: '6 months', perMonth: 25.00, savings: 'Save 17%', bestValue: true }
+    monthly:     { id: 'price_1TUsdQRBoWt1VxZ3DSdzgqiT', label: 'Monthly',   amount: 29.99,  interval: 'month',    perMonth: 29.99, savings: null },
+    quarterly:   { id: 'price_1TUsdjRBoWt1VxZ36vlA3eCA', label: 'Quarterly',  amount: 79.99,  interval: '3 months', perMonth: 26.66, savings: 'Save 11%' },
+    semiannual:  { id: 'price_1TUsdzRBoWt1VxZ3CUK1vseD', label: '6 Months',   amount: 149.99, interval: '6 months', perMonth: 25.00, savings: 'Save 17%', bestValue: true }
   },
   realtor: {
-    monthly:     { id: 'price_NEXUS_NETWORK_MONTHLY',   label: 'Monthly',     amount: 49.99,  interval: 'month',  perMonth: 49.99,  savings: null },
-    quarterly:   { id: 'price_NEXUS_NETWORK_QUARTERLY',  label: 'Quarterly',   amount: 129.99, interval: '3 months', perMonth: 43.33, savings: 'Save 13%' },
-    semiannual:  { id: 'price_NEXUS_NETWORK_SEMIANNUAL', label: '6 Months',    amount: 249.99, interval: '6 months', perMonth: 41.67, savings: 'Save 17%', bestValue: true }
+    monthly:     { id: 'price_1TUseSRBoWt1VxZ3QleA2gZr', label: 'Monthly',   amount: 49.99,  interval: 'month',    perMonth: 49.99, savings: null },
+    quarterly:   { id: 'price_1TUsfbRBoWt1VxZ3Req1pnT9', label: 'Quarterly',  amount: 139.99, interval: '3 months', perMonth: 46.66, savings: 'Save 7%' },
+    semiannual:  { id: 'price_1TUsg7RBoWt1VxZ3nn89vUrv', label: '6 Months',   amount: 249.99, interval: '6 months', perMonth: 41.67, savings: 'Save 17%', bestValue: true }
+  },
+  realtor_addon: {
+    monthly:     { id: 'price_1TUshGRBoWt1VxZ3bonD7d6a', label: 'Monthly',   amount: 49.99,  interval: 'month',    perMonth: 49.99, savings: null },
+    quarterly:   { id: 'price_1TUshnRBoWt1VxZ34gXjbHRD', label: 'Quarterly',  amount: 139.99, interval: '3 months', perMonth: 46.66, savings: 'Save 7%' },
+    semiannual:  { id: 'price_1TUsiWRBoWt1VxZ3ZFqkCPR8', label: '6 Months',   amount: 249.99, interval: '6 months', perMonth: 41.67, savings: 'Save 17%', bestValue: true }
   }
 };
 
@@ -11022,18 +11027,20 @@ function updatePaywallCta() {
   }
 }
 
+// Set to true when Supabase 'create-checkout' edge function is deployed
+const STRIPE_LIVE = false;
+
 async function handleUpgrade() {
   const role = currentAccount?.role === 'realtor' ? 'realtor' : 'user';
   const plan = STRIPE_PRICES[role][_selectedPlanKey];
   if (!plan) return;
 
-  // Check if Price ID is still a placeholder → use mock checkout
-  if (plan.id.startsWith('price_NEXUS_')) {
+  if (!STRIPE_LIVE) {
     openMockCheckout(plan, role);
     return;
   }
 
-  // Real Stripe checkout (when Price IDs are configured)
+  // Real Stripe checkout
   const btn = document.getElementById('paywall-cta-btn');
   btn.disabled = true;
   btn.textContent = 'Redirecting to checkout…';
