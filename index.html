@@ -4284,53 +4284,83 @@ body.is-impersonating .view{padding-top:114px;}
 
     <!-- Tabs -->
     <div class="rp-tab-bar">
-      <button class="rp-tab active" id="rd-tab-overview" onclick="rdTab('overview')">Overview</button>
-      <button class="rp-tab" id="rd-tab-profile" onclick="rdTab('profile')">My Profile</button>
+      <button class="rp-tab active" id="rd-tab-markets" onclick="rdTab('markets')">My Markets</button>
+      <button class="rp-tab" id="rd-tab-pipeline" onclick="rdTab('pipeline')">Pipeline</button>
+      <button class="rp-tab" id="rd-tab-profile" onclick="rdTab('profile')">Profile</button>
       <button class="rp-tab" id="rd-tab-cert" onclick="rdTab('cert')">Certification</button>
-      <button class="rp-tab" id="rd-tab-payment" onclick="rdTab('payment')">Payment Model</button>
-      <button class="rp-tab" id="rd-tab-selections" onclick="rdTab('selections')">Selections</button>
+      <button class="rp-tab" id="rd-tab-billing" onclick="rdTab('billing')">Billing</button>
     </div>
 
-    <!-- OVERVIEW TAB -->
-    <div id="rd-content-overview">
+    <!-- MY MARKETS TAB -->
+    <div id="rd-content-markets">
       <div class="rp-card">
         <div class="rp-card-head">
           <div>
-            <h3 class="rp-card-title">Your Status</h3>
-            <div class="rp-card-sub">A snapshot of where you stand on the platform.</div>
+            <h3 class="rp-card-title">Your Active Markets</h3>
+            <div class="rp-card-sub">Manage your ZIP code territories. Your subscription includes 3 ZIPs. Upgrade to Network+ for 3 more.</div>
           </div>
         </div>
 
-        <div class="rp-detail-row">
-          <span class="rp-detail-label">Visibility</span>
-          <span class="rp-detail-value" id="rd-visibility">Not visible — certification required</span>
+        <!-- ZIP allocation bar -->
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;padding:.85rem 1rem;background:var(--bg);border-radius:10px;">
+          <div style="flex:1;">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.3rem;">ZIP Code Allocation</div>
+            <div style="display:flex;gap:.3rem;" id="rd-zip-dots">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+          <div id="rd-zip-count-label" style="font-weight:800;color:var(--navy);font-size:1rem;">0/3</div>
+          <button class="rp-btn rp-btn-secondary" style="padding:.45rem .85rem;font-size:.78rem;" id="rd-upgrade-zips-btn" onclick="openRealtorUpgrade()" style="display:none;">+ Add 3 ZIPs</button>
         </div>
-        <div class="rp-detail-row">
-          <span class="rp-detail-label">Certification</span>
-          <span class="rp-detail-value" id="rd-cert-summary"><span class="rp-badge rp-badge-pending">Pending</span></span>
+
+        <!-- Active ZIP cards -->
+        <div id="rd-zip-cards" style="display:grid;gap:.75rem;">
+          <div style="text-align:center;color:var(--gray-text);padding:1.5rem;font-size:.88rem;">Loading your markets…</div>
         </div>
-        <div class="rp-detail-row">
-          <span class="rp-detail-label">Payment Model</span>
-          <span class="rp-detail-value" id="rd-payment-summary">Not selected</span>
+
+        <!-- Add ZIP button -->
+        <div id="rd-add-zip-area" style="margin-top:1rem;">
+          <button class="rp-btn" id="rd-add-zip-btn" onclick="showAddZipModal()" style="width:100%;padding:.75rem;font-size:.9rem;background:linear-gradient(135deg,var(--navy),var(--blue));">+ Add a ZIP Code to Your Territory</button>
         </div>
-        <div class="rp-detail-row">
-          <span class="rp-detail-label">ZIPs</span>
-          <span class="rp-detail-value" id="rd-cities-summary">None selected</span>
-        </div>
-        <div class="rp-detail-row">
-          <span class="rp-detail-label">Profile Completeness</span>
-          <span class="rp-detail-value" id="rd-completeness">—</span>
+
+        <!-- Swap notice -->
+        <div style="margin-top:.75rem;font-size:.75rem;color:var(--gray-text);text-align:center;" id="rd-swap-notice">
+          You can swap a ZIP code once per billing cycle.
         </div>
       </div>
 
-      <div class="rp-card" id="rd-next-steps-card">
+      <!-- Market Performance Summary -->
+      <div class="rp-card" style="margin-top:1rem;">
         <div class="rp-card-head">
           <div>
-            <h3 class="rp-card-title">Next Steps</h3>
-            <div class="rp-card-sub">Things to finish before you're ready to receive selections.</div>
+            <h3 class="rp-card-title">Market Performance</h3>
+            <div class="rp-card-sub">How your territories are performing. Stats update as co-buyer groups engage.</div>
           </div>
         </div>
-        <div id="rd-next-steps-list"></div>
+        <div id="rd-market-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;">
+          <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:900;color:var(--navy);" id="rd-mstat-views">—</div>
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-top:.2rem;">Profile Views</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:900;color:var(--navy);" id="rd-mstat-selections">—</div>
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-top:.2rem;">Group Selections</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:900;color:var(--navy);" id="rd-mstat-active">—</div>
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-top:.2rem;">Active Connections</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:900;color:#10B981;" id="rd-mstat-commission">$0</div>
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-top:.2rem;">Est. Commission (25%)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 25% Commission Explainer -->
+      <div style="margin-top:1rem;background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.15rem 1.4rem;">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.95rem;">💰 Performance Commission — 25% on Close</div>
+        <div style="font-size:.85rem;color:var(--gray-text);margin-top:.3rem;line-height:1.5;">When a NEXUS-introduced co-buyer group closes a transaction, you keep 75% of the buyer's-agent commission. NEXUS retains 25%. The 24-month attribution window starts from first contact. Compare: Zillow Flex takes 35–40%.</div>
       </div>
     </div>
 
@@ -4454,73 +4484,97 @@ body.is-impersonating .view{padding-top:114px;}
     </div>
 
     <!-- PAYMENT TAB -->
-    <div id="rd-content-payment" style="display:none;">
+    <div id="rd-content-billing" style="display:none;">
       <div class="rp-card">
         <div class="rp-card-head">
           <div>
-            <h3 class="rp-card-title">Your Payment Model</h3>
-            <div class="rp-card-sub">Change any time. Final billing happens after certification.</div>
+            <h3 class="rp-card-title">Your Subscription</h3>
+            <div class="rp-card-sub">Manage your NEXUS Network subscription and ZIP code coverage.</div>
           </div>
+        </div>
+
+        <!-- Current plan summary -->
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;" id="rd-billing-plans">
+          <div style="flex:1;min-width:240px;border:2px solid var(--blue);border-radius:12px;padding:1.1rem;background:rgba(37,99,235,.03);">
+            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--blue);margin-bottom:.3rem;">Current Plan</div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;" id="rd-billing-plan-name">NEXUS Network</div>
+            <div style="font-size:.88rem;color:var(--gray-text);margin-top:.15rem;" id="rd-billing-plan-price">$49.99/month · 3 ZIP codes</div>
+            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.35rem;" id="rd-billing-next-date">Next billing: —</div>
+          </div>
+          <div style="flex:1;min-width:240px;border:2px dashed var(--gray);border-radius:12px;padding:1.1rem;" id="rd-billing-addon-card">
+            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.3rem;">Add-On Available</div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;">NEXUS Network+</div>
+            <div style="font-size:.88rem;color:var(--gray-text);margin-top:.15rem;">+$49.99/month · 3 more ZIP codes</div>
+            <button class="rp-btn" style="margin-top:.75rem;padding:.5rem 1rem;font-size:.82rem;background:#10B981;border-color:#10B981;" onclick="openRealtorUpgrade()">Upgrade to 6 ZIPs →</button>
+          </div>
+        </div>
+
+        <!-- Tier selection -->
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.6rem;">Change Billing Interval</div>
+        <div id="rd-billing-tiers" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem;">
         </div>
 
         <div class="rp-info-banner">
           <strong>Coming soon — payment processing.</strong> Your selection is saved but no charges occur. We'll notify you when billing goes live.
         </div>
+      </div>
 
-        <div class="rp-tier-grid" id="rd-payment-tiers">
-          <div class="rp-tier-card" id="rd-tier-subscription" onclick="changePaymentModel('subscription')">
-            <span class="rp-tier-tag" style="background:var(--blue);">Subscription</span>
-            <div class="rp-tier-name">NEXUS Network</div>
-            <div class="rp-tier-price">$49.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/mo</span></div>
-            <div class="rp-tier-price-sub">Or $139.99/3mo · $249.99/6mo</div>
-            <ul class="rp-tier-features">
-              <li>Up to 3 cities</li>
-              <li>Boost placement</li>
-              <li>Network badge</li>
-              <li>Keep 100% of commissions</li>
-            </ul>
+      <!-- Commission Tracking -->
+      <div class="rp-card" style="margin-top:1rem;">
+        <div class="rp-card-head">
+          <div>
+            <h3 class="rp-card-title">Commission Tracking</h3>
+            <div class="rp-card-sub">25% performance fee on NEXUS-introduced closings. 24-month attribution window.</div>
           </div>
-          <div class="rp-tier-card" id="rd-tier-performance" onclick="changePaymentModel('performance')">
-            <span class="rp-tier-tag" style="background:#1f2937;">Performance</span>
-            <div class="rp-tier-name">Nexus Partner Agent</div>
-            <div class="rp-tier-price" style="color:#1f2937;">$0<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/up front</span></div>
-            <div class="rp-tier-price-sub">Pay only on close</div>
-            <ul class="rp-tier-features">
-              <li>Zero monthly cost</li>
-              <li>25% commission on closes</li>
-              <li>15% partner rate w/ Citizens financing</li>
-              <li>Partner Agent badge</li>
-            </ul>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;">
+          <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
+            <div style="font-size:1.3rem;font-weight:900;color:var(--navy);" id="rd-comm-pending">0</div>
+            <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);margin-top:.2rem;">Pending Closings</div>
           </div>
-          <div class="rp-tier-card" id="rd-tier-both" onclick="changePaymentModel('both')">
-            <span class="rp-tier-tag" style="background:linear-gradient(90deg,#1f2937,var(--blue));">Stacked · Top placement</span>
-            <div class="rp-tier-name">Network <em>+</em> Partner Agent</div>
-            <div class="rp-tier-price">$49.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/mo + close</span></div>
-            <div class="rp-tier-price-sub">Maximum visibility</div>
-            <ul class="rp-tier-features">
-              <li>Subscription + Performance combined</li>
-              <li>Highest placement priority</li>
-              <li>Stacked status badge</li>
-            </ul>
+          <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
+            <div style="font-size:1.3rem;font-weight:900;color:#10B981;" id="rd-comm-closed">0</div>
+            <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);margin-top:.2rem;">Completed</div>
           </div>
+          <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
+            <div style="font-size:1.3rem;font-weight:900;color:var(--navy);" id="rd-comm-total">$0</div>
+            <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);margin-top:.2rem;">Commission Paid (25%)</div>
+          </div>
+        </div>
+        <div style="margin-top:.85rem;font-size:.82rem;color:var(--gray-text);line-height:1.5;">
+          Commission is tracked automatically when a NEXUS-introduced co-buyer group closes a transaction through your representation. The 24-month attribution window starts from the date the group first selects you on the platform.
         </div>
       </div>
     </div>
 
-    <!-- SELECTIONS TAB -->
-    <div id="rd-content-selections" style="display:none;">
+    <!-- PIPELINE TAB -->
+    <div id="rd-content-pipeline" style="display:none;">
       <div class="rp-card">
         <div class="rp-card-head">
           <div>
-            <h3 class="rp-card-title">User Selections</h3>
-            <div class="rp-card-sub">When users pick you, they'll appear here. Respond promptly to improve your ranking.</div>
+            <h3 class="rp-card-title">Your Pipeline</h3>
+            <div class="rp-card-sub">Co-buyer groups that selected you, organized by status. Respond promptly to improve your ranking.</div>
           </div>
         </div>
+
+        <!-- Pipeline stats bar -->
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <div style="background:#FEF3C7;border-radius:8px;padding:.6rem 1rem;font-size:.82rem;">
+            <strong style="color:#92400E;" id="rd-pipe-pending">0</strong> <span style="color:#92400E;">Pending</span>
+          </div>
+          <div style="background:#D1FAE5;border-radius:8px;padding:.6rem 1rem;font-size:.82rem;">
+            <strong style="color:#15803D;" id="rd-pipe-active">0</strong> <span style="color:#15803D;">Active</span>
+          </div>
+          <div style="background:#DBEAFE;border-radius:8px;padding:.6rem 1rem;font-size:.82rem;">
+            <strong style="color:#1E40AF;" id="rd-pipe-completed">0</strong> <span style="color:#1E40AF;">Completed</span>
+          </div>
+        </div>
+
         <div id="rd-selections-list">
           <div class="rp-empty-state">
             <div class="rp-empty-state-icon">📭</div>
             <div>No selections yet.</div>
-            <div style="font-size:.85rem;margin-top:.4rem;">Once users start selecting you, they'll appear here.</div>
+            <div style="font-size:.85rem;margin-top:.4rem;">Once co-buyer groups start selecting you, they'll appear here.</div>
           </div>
         </div>
       </div>
@@ -9604,40 +9658,41 @@ async function loadRealtorDashboard() {
     .in('status', ['connected', 'completed']);
   document.getElementById('rd-stat-active').textContent = activeCount || 0;
 
-  // Visibility status
-  let visibilityHtml;
-  if (profile.is_visible) {
-    if (profile.test_visibility_override) {
-      visibilityHtml = '<span class="rp-badge rp-badge-cert">✓ Visible (test override)</span> <span style="font-size:.8rem;color:var(--gray-text);">Admin enabled this for testing</span>';
+  // Visibility status (now shown in Markets tab if element exists)
+  const visEl = document.getElementById('rd-visibility');
+  if (visEl) {
+    let visibilityHtml;
+    if (profile.is_visible) {
+      visibilityHtml = profile.test_visibility_override
+        ? '<span class="rp-badge rp-badge-cert">✓ Visible (test override)</span>'
+        : '<span class="rp-badge rp-badge-cert">✓ Visible to users</span>';
     } else {
-      visibilityHtml = '<span class="rp-badge rp-badge-cert">✓ Visible to users</span>';
+      const reasons = [];
+      if (profile.cert_status !== 'certified') reasons.push('certification pending');
+      if (currentAccount.tier !== 'paid') reasons.push('paid tier required');
+      if (!profile.profile_completed) reasons.push('profile incomplete');
+      visibilityHtml = '<span class="rp-badge rp-badge-pending">Not visible</span> <span style="font-size:.82rem;color:var(--gray-text);">' + reasons.join(' · ') + '</span>';
     }
-  } else {
-    const reasons = [];
-    if (profile.cert_status !== 'certified') reasons.push('certification pending');
-    if (currentAccount.tier !== 'paid') reasons.push('paid tier required');
-    if (!profile.profile_completed) reasons.push('profile incomplete');
-    visibilityHtml = '<span class="rp-badge rp-badge-pending">Not visible</span> <span style="font-size:.82rem;color:var(--gray-text);">' + reasons.join(' · ') + '</span>';
+    visEl.innerHTML = visibilityHtml;
   }
-  document.getElementById('rd-visibility').innerHTML = visibilityHtml;
 
-  let certHtml = '<span class="rp-badge rp-badge-pending">Pending</span> Not started';
-  if (profile.cert_status === 'certified') certHtml = '<span class="rp-badge rp-badge-cert">Certified</span>';
-  else if (profile.cert_status === 'in_progress') certHtml = '<span class="rp-badge rp-badge-pending">In progress</span>';
-  document.getElementById('rd-cert-summary').innerHTML = certHtml;
+  const certSumEl = document.getElementById('rd-cert-summary');
+  if (certSumEl) {
+    let certHtml = '<span class="rp-badge rp-badge-pending">Pending</span> Not started';
+    if (profile.cert_status === 'certified') certHtml = '<span class="rp-badge rp-badge-cert">Certified</span>';
+    else if (profile.cert_status === 'in_progress') certHtml = '<span class="rp-badge rp-badge-pending">In progress</span>';
+    certSumEl.innerHTML = certHtml;
+  }
 
   // Render the cert tab content (status card + module list)
   await renderCertTabPanel(profile);
 
-  document.getElementById('rd-payment-summary').innerHTML = paymentModelLabel(realtorState.paymentModel);
+  document.getElementById('rd-payment-summary')?.remove(); // removed in restructure
 
-  // Cities summary -> ZIPs
-  const citiesSum = document.getElementById('rd-cities-summary');
-  if (citiesSum) {
-    citiesSum.textContent = realtorState.selectedZips.length > 0
-      ? realtorState.selectedZips.map(z => z + ' (' + (CA_ZIPS[z] || '?') + ')').join(' · ')
-      : 'None selected';
-  }
+  // Cities summary -> ZIPs (no longer in overview, handled by renderMyMarkets)
+
+  // Render My Markets tab
+  renderMyMarkets();
 
   let completeness = 0;
   if (profile.dre_number) completeness += 15;
@@ -9649,19 +9704,23 @@ async function loadRealtorDashboard() {
   if ((profile.selected_zips || []).length >= 1) completeness += 15;
   if (profile.style_communication) completeness += 5;
   if (realtorState.paymentModel) completeness += 5;
-  document.getElementById('rd-completeness').textContent = completeness + '%';
+  const compEl = document.getElementById('rd-completeness');
+  if (compEl) compEl.textContent = completeness + '%';
 
-  const steps = [];
-  if (profile.cert_status !== 'certified') steps.push('Complete certification (coming soon)');
-  if (currentAccount.tier !== 'paid' && !profile.test_visibility_override) steps.push('Activate paid subscription ($49.99/mo) — required for visibility');
-  if (!realtorState.paymentModel) steps.push('Choose a payment model');
-  if ((profile.selected_zips || []).length === 0) steps.push('Add at least one ZIP code');
-  if ((profile.interests || []).length === 0) steps.push('Pick at least one personal interest');
-  if (!profile.bio || profile.bio.length < 80) steps.push('Write a bio (80+ characters)');
-  if (steps.length === 0) {
-    document.getElementById('rd-next-steps-list').innerHTML = '<p style="color:#15803d;font-size:.9rem;">✓ Setup complete. You\'ll be visible to users as soon as certification launches.</p>';
-  } else {
-    document.getElementById('rd-next-steps-list').innerHTML = steps.map(s => '<div style="padding:.5rem 0;border-bottom:1px solid #f3f4f6;font-size:.92rem;">• ' + s + '</div>').join('');
+  const stepsEl = document.getElementById('rd-next-steps-list');
+  if (stepsEl) {
+    const steps = [];
+    if (profile.cert_status !== 'certified') steps.push('Complete certification');
+    if (currentAccount.tier !== 'paid' && !profile.test_visibility_override) steps.push('Activate paid subscription ($49.99/mo)');
+    if (!realtorState.paymentModel) steps.push('Choose a billing interval');
+    if ((profile.selected_zips || []).length === 0) steps.push('Add at least one ZIP code');
+    if ((profile.interests || []).length === 0) steps.push('Pick at least one personal interest');
+    if (!profile.bio || profile.bio.length < 80) steps.push('Write a bio (80+ characters)');
+    if (steps.length === 0) {
+      stepsEl.innerHTML = '<p style="color:#15803d;font-size:.9rem;">✓ Setup complete.</p>';
+    } else {
+      stepsEl.innerHTML = steps.map(s => '<div style="padding:.5rem 0;border-bottom:1px solid #f3f4f6;font-size:.92rem;">• ' + s + '</div>').join('');
+    }
   }
 
   // Profile tab fields (if dashboard markup has these IDs, populate)
@@ -9885,12 +9944,181 @@ function paymentModelLabel(model) {
 }
 
 function rdTab(tab) {
-  ['overview', 'profile', 'cert', 'payment', 'selections'].forEach(t => {
+  ['markets', 'pipeline', 'profile', 'cert', 'billing'].forEach(t => {
     const tabEl = document.getElementById('rd-tab-' + t);
     const contentEl = document.getElementById('rd-content-' + t);
     if (tabEl) tabEl.classList.toggle('active', t === tab);
     if (contentEl) contentEl.style.display = (t === tab) ? 'block' : 'none';
   });
+  if (tab === 'pipeline') loadSelectionsList();
+  if (tab === 'markets') renderMyMarkets();
+  if (tab === 'billing') renderBillingTab();
+}
+
+// ═══ MY MARKETS — ZIP Code Management ═══
+const CA_ZIP_LOOKUP = typeof CA_ZIPS !== 'undefined' ? CA_ZIPS : {};
+
+function renderMyMarkets() {
+  const zips = realtorState.selectedZips || [];
+  const maxZips = (realtorState.zipAddons > 0) ? 6 : 3;
+  const isPaid = currentAccount?.tier === 'paid' || currentAccount?.discovery_tier === 'paid';
+
+  // ZIP allocation dots
+  const dotsEl = document.getElementById('rd-zip-dots');
+  if (dotsEl) {
+    let dots = '';
+    for (let i = 0; i < maxZips; i++) {
+      const filled = i < zips.length;
+      dots += `<div style="width:28px;height:28px;border-radius:50%;${filled ? 'background:linear-gradient(135deg,var(--navy),var(--blue));' : 'background:#E5E7EB;'}display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:${filled ? '#fff' : '#9CA3AF'};">${filled ? (i+1) : '+'}</div>`;
+    }
+    dotsEl.innerHTML = dots;
+  }
+
+  // ZIP count label
+  const countLabel = document.getElementById('rd-zip-count-label');
+  if (countLabel) countLabel.textContent = `${zips.length}/${maxZips}`;
+
+  // Upgrade button visibility
+  const upgradeBtn = document.getElementById('rd-upgrade-zips-btn');
+  if (upgradeBtn) upgradeBtn.style.display = (maxZips < 6 && zips.length >= 3) ? 'inline-flex' : 'none';
+
+  // Add ZIP button visibility
+  const addBtn = document.getElementById('rd-add-zip-btn');
+  if (addBtn) addBtn.style.display = (zips.length < maxZips) ? 'block' : 'none';
+
+  // ZIP cards
+  const cardsEl = document.getElementById('rd-zip-cards');
+  if (cardsEl) {
+    if (zips.length === 0) {
+      cardsEl.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:2rem;border:2px dashed var(--gray);border-radius:12px;"><div style="font-size:1.5rem;margin-bottom:.5rem;">📍</div><div style="font-weight:700;color:var(--navy);">No ZIP codes selected yet</div><div style="font-size:.85rem;margin-top:.3rem;">Add your first ZIP code to start receiving co-buyer group leads in that territory.</div></div>';
+    } else {
+      cardsEl.innerHTML = zips.map((zip, i) => {
+        const cityName = CA_ZIP_LOOKUP[zip] || 'Unknown area';
+        return `<div style="border:1.5px solid var(--gray);border-radius:11px;padding:1rem 1.15rem;background:#fff;display:flex;align-items:center;gap:1rem;">
+          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${escapeHtml(zip)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;color:var(--navy);font-size:.95rem;">${escapeHtml(zip)} — ${escapeHtml(cityName)}</div>
+            <div style="font-size:.78rem;color:var(--gray-text);">Territory ${i+1} of ${maxZips} · <span style="color:#10B981;font-weight:600;">Active</span></div>
+          </div>
+          <button class="rp-btn rp-btn-secondary" style="padding:.35rem .7rem;font-size:.72rem;" onclick="swapZip('${escapeHtml(zip)}')">Swap</button>
+          <button style="background:none;border:none;color:#9CA3AF;font-size:1.1rem;cursor:pointer;padding:.3rem;" onclick="removeZip('${escapeHtml(zip)}')" title="Remove">✕</button>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Market stats
+  const selCount = document.getElementById('rd-stat-selections')?.textContent || '0';
+  const activeCount = document.getElementById('rd-stat-active')?.textContent || '0';
+  const el1 = document.getElementById('rd-mstat-views'); if (el1) el1.textContent = document.getElementById('rd-stat-views')?.textContent || '—';
+  const el2 = document.getElementById('rd-mstat-selections'); if (el2) el2.textContent = selCount;
+  const el3 = document.getElementById('rd-mstat-active'); if (el3) el3.textContent = activeCount;
+}
+
+function showAddZipModal() {
+  const zip = prompt('Enter a 5-digit California ZIP code:');
+  if (!zip || !/^\d{5}$/.test(zip.trim())) {
+    if (zip !== null) showToast('Please enter a valid 5-digit ZIP code.', 'error');
+    return;
+  }
+  const maxZips = (realtorState.zipAddons > 0) ? 6 : 3;
+  if (realtorState.selectedZips.length >= maxZips) {
+    showToast(`You've reached your ${maxZips}-ZIP limit. ${maxZips < 6 ? 'Upgrade to Network+ for 3 more.' : 'Remove one first.'}`, 'error');
+    return;
+  }
+  if (realtorState.selectedZips.includes(zip.trim())) {
+    showToast('You already have this ZIP code.', 'error');
+    return;
+  }
+  realtorState.selectedZips.push(zip.trim());
+  saveRealtorZips();
+  renderMyMarkets();
+  showToast('ZIP ' + zip.trim() + ' added to your territory.', 'success');
+}
+window.showAddZipModal = showAddZipModal;
+
+function removeZip(zip) {
+  if (!confirm('Remove ZIP ' + zip + ' from your territories?')) return;
+  realtorState.selectedZips = realtorState.selectedZips.filter(z => z !== zip);
+  saveRealtorZips();
+  renderMyMarkets();
+  showToast('ZIP ' + zip + ' removed.', 'success');
+}
+window.removeZip = removeZip;
+
+function swapZip(oldZip) {
+  const newZip = prompt('Enter the new 5-digit ZIP to replace ' + oldZip + ':');
+  if (!newZip || !/^\d{5}$/.test(newZip.trim())) {
+    if (newZip !== null) showToast('Please enter a valid 5-digit ZIP code.', 'error');
+    return;
+  }
+  if (realtorState.selectedZips.includes(newZip.trim())) {
+    showToast('You already have this ZIP code.', 'error');
+    return;
+  }
+  const idx = realtorState.selectedZips.indexOf(oldZip);
+  if (idx >= 0) realtorState.selectedZips[idx] = newZip.trim();
+  saveRealtorZips();
+  renderMyMarkets();
+  showToast('Swapped ' + oldZip + ' → ' + newZip.trim(), 'success');
+}
+window.swapZip = swapZip;
+
+async function saveRealtorZips() {
+  await sb.from('realtor_profiles').update({
+    selected_zips: realtorState.selectedZips
+  }).eq('account_id', currentUser.id);
+}
+
+function openRealtorUpgrade() {
+  // Open paywall with realtor pricing for Network+ add-on
+  if (typeof STRIPE_PRICES !== 'undefined' && STRIPE_PRICES.realtor_addon) {
+    const defaultPlan = STRIPE_PRICES.realtor_addon.semiannual || STRIPE_PRICES.realtor_addon.monthly;
+    openMockCheckout(defaultPlan, 'realtor');
+  } else {
+    openPaywall();
+  }
+}
+window.openRealtorUpgrade = openRealtorUpgrade;
+
+// ═══ BILLING TAB — Tier rendering ═══
+function renderBillingTab() {
+  const tiersEl = document.getElementById('rd-billing-tiers');
+  if (!tiersEl || typeof STRIPE_PRICES === 'undefined') return;
+
+  const prices = STRIPE_PRICES.realtor;
+  const currentInterval = realtorState.paymentModel || 'monthly';
+
+  tiersEl.innerHTML = Object.entries(prices).map(([key, plan]) => {
+    const isActive = false; // Will be determined by actual Stripe subscription later
+    return `<div class="plan-card ${plan.bestValue ? 'best-value' : ''}" onclick="selectRealtorBillingInterval('${key}')" style="cursor:pointer;text-align:center;padding:.85rem;">
+      <div style="font-weight:700;color:var(--navy);font-size:.88rem;">${plan.label}</div>
+      <div style="font-size:1.15rem;font-weight:900;color:var(--navy);margin-top:.15rem;">$${plan.amount.toFixed(2)}</div>
+      <div style="font-size:.72rem;color:var(--gray-text);">/${plan.interval}</div>
+      ${plan.savings ? `<div style="font-size:.68rem;font-weight:700;color:#10B981;margin-top:.15rem;">${plan.savings}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Pipeline stats for billing
+  updatePipelineStats();
+}
+
+function selectRealtorBillingInterval(key) {
+  const plan = STRIPE_PRICES.realtor[key];
+  if (!plan) return;
+  openMockCheckout(plan, 'realtor');
+}
+window.selectRealtorBillingInterval = selectRealtorBillingInterval;
+
+async function updatePipelineStats() {
+  if (!currentUser) return;
+  const { count: pending } = await sb.from('realtor_selections').select('id', { count: 'exact', head: true }).eq('realtor_id', currentUser.id).eq('status', 'pending_acceptance');
+  const { count: active } = await sb.from('realtor_selections').select('id', { count: 'exact', head: true }).eq('realtor_id', currentUser.id).in('status', ['connected']);
+  const { count: completed } = await sb.from('realtor_selections').select('id', { count: 'exact', head: true }).eq('realtor_id', currentUser.id).in('status', ['completed', 'closed_with_realtor']);
+
+  const pe = document.getElementById('rd-pipe-pending'); if (pe) pe.textContent = pending || 0;
+  const ac = document.getElementById('rd-pipe-active'); if (ac) ac.textContent = active || 0;
+  const co = document.getElementById('rd-pipe-completed'); if (co) co.textContent = completed || 0;
 }
 
 async function saveRealtorProfile() {
