@@ -4485,46 +4485,142 @@ body.is-impersonating .view{padding-top:114px;}
 
     <!-- PAYMENT TAB -->
     <div id="rd-content-billing" style="display:none;">
-      <div class="rp-card">
-        <div class="rp-card-head">
-          <div>
-            <h3 class="rp-card-title">Your Subscription</h3>
-            <div class="rp-card-sub">Manage your NEXUS Network subscription and ZIP code coverage.</div>
+      <!-- Current plan status banner -->
+      <div id="rd-billing-status-banner" style="background:linear-gradient(135deg,#0B1D3E,#1B3A6B);border-radius:14px;padding:1.4rem 1.6rem;color:#fff;margin-bottom:1.25rem;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-30%;right:-5%;width:180px;height:180px;background:rgba(255,255,255,.03);border-radius:50%;"></div>
+        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.6;margin-bottom:.3rem;">Current Plan</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;" id="rd-billing-current-plan">Partner Agent · Free</div>
+        <div style="font-size:.85rem;opacity:.75;margin-top:.15rem;" id="rd-billing-current-detail">1 ZIP code · 25% commission on close</div>
+      </div>
+
+      <!-- Three-tier comparison -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.25rem;" id="rd-tier-grid">
+
+        <!-- PARTNER AGENT — Free -->
+        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--gray);position:relative;cursor:pointer;" id="rd-tier-partner" onclick="selectRealtorTier('partner')">
+          <div style="background:#F9FAFB;padding:.85rem 1rem .65rem;border-bottom:1px solid var(--gray);">
+            <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#6B7280;">Free Entry</div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;color:var(--navy);font-size:1.05rem;margin-top:.15rem;">Partner Agent</div>
+          </div>
+          <div style="padding:1rem;">
+            <div style="font-size:2rem;font-weight:900;color:var(--navy);">$0<span style="font-size:.85rem;font-weight:500;color:var(--gray-text);">/mo</span></div>
+            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Pay only when you close</div>
+            <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
+              <div>📍 <strong>1</strong> ZIP code</div>
+              <div>📋 Basic listing (not boosted)</div>
+              <div>🏅 Partner Agent badge</div>
+              <div style="color:#B91C1C;font-weight:600;">💸 25% of commission on close</div>
+              <div>📊 15% partner rate w/ Citizens</div>
+            </div>
+            <div style="margin-top:1rem;background:#FEF3C7;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#92400E;line-height:1.4;">
+              <strong>The math:</strong> One $700K close = $17,500 commission. You keep $13,125. NEXUS keeps $4,375.
+            </div>
           </div>
         </div>
 
-        <!-- Current plan summary -->
-        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;" id="rd-billing-plans">
-          <div style="flex:1;min-width:240px;border:2px solid var(--blue);border-radius:12px;padding:1.1rem;background:rgba(37,99,235,.03);">
-            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--blue);margin-bottom:.3rem;">Current Plan</div>
-            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;" id="rd-billing-plan-name">NEXUS Network</div>
-            <div style="font-size:.88rem;color:var(--gray-text);margin-top:.15rem;" id="rd-billing-plan-price">$49.99/month · 3 ZIP codes</div>
-            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.35rem;" id="rd-billing-next-date">Next billing: —</div>
+        <!-- NETWORK — $49.99/mo -->
+        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--blue);position:relative;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.12);" id="rd-tier-network" onclick="selectRealtorTier('network')">
+          <div style="background:linear-gradient(135deg,var(--navy),var(--blue));padding:.85rem 1rem .65rem;color:#fff;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.7;">Most Popular</div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.05rem;margin-top:.15rem;">NEXUS Network</div>
+              </div>
+              <div style="background:rgba(255,255,255,.2);padding:.25rem .6rem;border-radius:10px;font-size:.65rem;font-weight:700;">RECOMMENDED</div>
+            </div>
           </div>
-          <div style="flex:1;min-width:240px;border:2px dashed var(--gray);border-radius:12px;padding:1.1rem;" id="rd-billing-addon-card">
-            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.3rem;">Add-On Available</div>
-            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;">NEXUS Network+</div>
-            <div style="font-size:.88rem;color:var(--gray-text);margin-top:.15rem;">+$49.99/month · 3 more ZIP codes</div>
-            <button class="rp-btn" style="margin-top:.75rem;padding:.5rem 1rem;font-size:.82rem;background:#10B981;border-color:#10B981;" onclick="openRealtorUpgrade()">Upgrade to 6 ZIPs →</button>
+          <div style="padding:1rem;">
+            <div style="font-size:2rem;font-weight:900;color:var(--navy);">$49.99<span style="font-size:.85rem;font-weight:500;color:var(--gray-text);">/mo</span></div>
+            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Or $139.99/3mo · $249.99/6mo</div>
+            <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
+              <div>📍 <strong>3</strong> ZIP codes</div>
+              <div>🚀 Boosted placement in search</div>
+              <div>🏅 Network verified badge</div>
+              <div style="color:#15803D;font-weight:600;">✅ Keep 100% of commissions</div>
+              <div>🔄 Swap ZIPs once per cycle</div>
+              <div>📊 Market analytics dashboard</div>
+            </div>
+            <div style="margin-top:1rem;background:#D1FAE5;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#15803D;line-height:1.4;">
+              <strong>The math:</strong> One close = $17,500 commission. You keep <strong>all $17,500</strong>. Subscription pays for itself 29x over.
+            </div>
           </div>
         </div>
 
-        <!-- Tier selection -->
-        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.6rem;">Change Billing Interval</div>
-        <div id="rd-billing-tiers" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem;">
-        </div>
-
-        <div class="rp-info-banner">
-          <strong>Coming soon — payment processing.</strong> Your selection is saved but no charges occur. We'll notify you when billing goes live.
+        <!-- NETWORK+ — $49.99/mo add-on -->
+        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--gray);position:relative;cursor:pointer;" id="rd-tier-networkplus" onclick="selectRealtorTier('networkplus')">
+          <div style="background:#F0FDF4;padding:.85rem 1rem .65rem;border-bottom:1px solid rgba(16,185,129,.2);">
+            <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#15803D;">Maximum Coverage</div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;color:var(--navy);font-size:1.05rem;margin-top:.15rem;">Network+</div>
+          </div>
+          <div style="padding:1rem;">
+            <div style="font-size:2rem;font-weight:900;color:var(--navy);">$99.98<span style="font-size:.85rem;font-weight:500;color:var(--gray-text);">/mo</span></div>
+            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Network + ZIP Add-On combined</div>
+            <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
+              <div>📍 <strong>6</strong> ZIP codes</div>
+              <div>⚡ Priority over Network agents</div>
+              <div>🏅 Stacked Network+ badge</div>
+              <div style="color:#15803D;font-weight:600;">✅ Keep 100% of commissions</div>
+              <div>🔄 Swap ZIPs once per cycle</div>
+              <div>📊 Advanced analytics + reports</div>
+            </div>
+            <div style="margin-top:1rem;background:#EFF6FF;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#1E40AF;line-height:1.4;">
+              <strong>2x the coverage</strong> at the same per-ZIP cost. Ideal for agents covering multiple markets.
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Commission Tracking -->
+      <!-- Billing interval selector (shows after tier selection) -->
+      <div id="rd-billing-interval-area" style="display:none;">
+        <div class="rp-card">
+          <div class="rp-card-head">
+            <div>
+              <h3 class="rp-card-title" id="rd-billing-interval-title">Choose Billing Interval</h3>
+              <div class="rp-card-sub">Save more with longer commitments.</div>
+            </div>
+          </div>
+          <div id="rd-billing-interval-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;"></div>
+          <button class="btn-primary" style="width:100%;margin-top:1rem;padding:.85rem;font-size:.95rem;" id="rd-billing-subscribe-btn" onclick="subscribeRealtorTier()">Subscribe Now →</button>
+        </div>
+      </div>
+
+      <!-- Zillow comparison bar -->
+      <div style="margin-top:1rem;background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:1.1rem 1.4rem;">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.9rem;margin-bottom:.75rem;">How NEXUS Compares</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:.5rem;font-size:.78rem;">
+          <div style="font-weight:700;color:var(--gray-text);"></div>
+          <div style="font-weight:800;color:var(--gray-text);text-align:center;">Zillow Premier</div>
+          <div style="font-weight:800;color:var(--gray-text);text-align:center;">Zillow Flex</div>
+          <div style="font-weight:800;color:var(--blue);text-align:center;">NEXUS Network</div>
+
+          <div style="color:#374151;padding:.4rem 0;">Monthly cost per ZIP</div>
+          <div style="text-align:center;padding:.4rem 0;color:#B91C1C;font-weight:600;">$150–$1,000+</div>
+          <div style="text-align:center;padding:.4rem 0;">$0</div>
+          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">$16.66</div>
+
+          <div style="color:#374151;padding:.4rem 0;">Commission share</div>
+          <div style="text-align:center;padding:.4rem 0;">0%</div>
+          <div style="text-align:center;padding:.4rem 0;color:#B91C1C;font-weight:600;">35–40%</div>
+          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">0%</div>
+
+          <div style="color:#374151;padding:.4rem 0;">Entry barrier</div>
+          <div style="text-align:center;padding:.4rem 0;">High spend</div>
+          <div style="text-align:center;padding:.4rem 0;">Invite only</div>
+          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">Open</div>
+
+          <div style="color:#374151;padding:.4rem 0;">Free tier available</div>
+          <div style="text-align:center;padding:.4rem 0;">❌</div>
+          <div style="text-align:center;padding:.4rem 0;">❌</div>
+          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">✅</div>
+        </div>
+      </div>
+
+      <!-- Commission tracking -->
       <div class="rp-card" style="margin-top:1rem;">
         <div class="rp-card-head">
           <div>
             <h3 class="rp-card-title">Commission Tracking</h3>
-            <div class="rp-card-sub">25% performance fee on NEXUS-introduced closings. 24-month attribution window.</div>
+            <div class="rp-card-sub">25% performance fee applies to Partner Agent tier only. Network agents keep 100%.</div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;">
@@ -4538,11 +4634,11 @@ body.is-impersonating .view{padding-top:114px;}
           </div>
           <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
             <div style="font-size:1.3rem;font-weight:900;color:var(--navy);" id="rd-comm-total">$0</div>
-            <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);margin-top:.2rem;">Commission Paid (25%)</div>
+            <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);margin-top:.2rem;">Total Earned</div>
           </div>
         </div>
-        <div style="margin-top:.85rem;font-size:.82rem;color:var(--gray-text);line-height:1.5;">
-          Commission is tracked automatically when a NEXUS-introduced co-buyer group closes a transaction through your representation. The 24-month attribution window starts from the date the group first selects you on the platform.
+        <div style="margin-top:.85rem;font-size:.78rem;color:var(--gray-text);line-height:1.5;">
+          24-month attribution window from first group contact. Upgrade to Network to eliminate the 25% fee entirely.
         </div>
       </div>
     </div>
@@ -9994,14 +10090,36 @@ function renderMyMarkets() {
     } else {
       cardsEl.innerHTML = zips.map((zip, i) => {
         const cityName = CA_ZIP_LOOKUP[zip] || 'Unknown area';
-        return `<div style="border:1.5px solid var(--gray);border-radius:11px;padding:1rem 1.15rem;background:#fff;display:flex;align-items:center;gap:1rem;">
-          <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${escapeHtml(zip)}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-weight:700;color:var(--navy);font-size:.95rem;">${escapeHtml(zip)} — ${escapeHtml(cityName)}</div>
-            <div style="font-size:.78rem;color:var(--gray-text);">Territory ${i+1} of ${maxZips} · <span style="color:#10B981;font-weight:600;">Active</span></div>
+        // Mock demand data for demo (in production, query from real stats)
+        const mockBuyers = Math.floor(Math.random() * 18) + 3;
+        const mockGroups = Math.floor(Math.random() * 5) + 1;
+        const heatLevel = mockBuyers > 12 ? 'Hot' : mockBuyers > 7 ? 'Warm' : 'Growing';
+        const heatColor = mockBuyers > 12 ? '#EF4444' : mockBuyers > 7 ? '#F59E0B' : '#10B981';
+        return `<div style="border:1.5px solid var(--gray);border-radius:11px;padding:1rem 1.15rem;background:#fff;">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.75rem;">
+            <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${escapeHtml(zip)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;color:var(--navy);font-size:.95rem;">${escapeHtml(zip)} — ${escapeHtml(cityName)}</div>
+              <div style="font-size:.78rem;color:var(--gray-text);">Territory ${i+1} of ${maxZips} · <span style="color:#10B981;font-weight:600;">Active</span></div>
+            </div>
+            <span style="background:${heatColor}15;color:${heatColor};font-size:.68rem;font-weight:700;padding:.25rem .6rem;border-radius:10px;text-transform:uppercase;letter-spacing:.3px;">${heatLevel}</span>
+            <button class="rp-btn rp-btn-secondary" style="padding:.35rem .7rem;font-size:.72rem;" onclick="swapZip('${escapeHtml(zip)}')">Swap</button>
+            <button style="background:none;border:none;color:#9CA3AF;font-size:1.1rem;cursor:pointer;padding:.3rem;" onclick="removeZip('${escapeHtml(zip)}')" title="Remove">✕</button>
           </div>
-          <button class="rp-btn rp-btn-secondary" style="padding:.35rem .7rem;font-size:.72rem;" onclick="swapZip('${escapeHtml(zip)}')">Swap</button>
-          <button style="background:none;border:none;color:#9CA3AF;font-size:1.1rem;cursor:pointer;padding:.3rem;" onclick="removeZip('${escapeHtml(zip)}')" title="Remove">✕</button>
+          <div style="display:flex;gap:.5rem;">
+            <div style="flex:1;background:var(--bg);border-radius:8px;padding:.55rem .7rem;text-align:center;">
+              <div style="font-size:1rem;font-weight:800;color:var(--navy);">${mockBuyers}</div>
+              <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);">Active Buyers</div>
+            </div>
+            <div style="flex:1;background:var(--bg);border-radius:8px;padding:.55rem .7rem;text-align:center;">
+              <div style="font-size:1rem;font-weight:800;color:var(--navy);">${mockGroups}</div>
+              <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);">Co-Buyer Groups</div>
+            </div>
+            <div style="flex:1;background:var(--bg);border-radius:8px;padding:.55rem .7rem;text-align:center;">
+              <div style="font-size:1rem;font-weight:800;color:${heatColor};">●</div>
+              <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--gray-text);">Demand</div>
+            </div>
+          </div>
         </div>`;
       }).join('');
     }
@@ -10081,34 +10199,82 @@ function openRealtorUpgrade() {
 }
 window.openRealtorUpgrade = openRealtorUpgrade;
 
-// ═══ BILLING TAB — Tier rendering ═══
+// ═══ BILLING TAB — Three-tier model (Partner / Network / Network+) ═══
+let _selectedRealtorTier = null;
+let _selectedRealtorInterval = 'semiannual';
+
 function renderBillingTab() {
-  const tiersEl = document.getElementById('rd-billing-tiers');
-  if (!tiersEl || typeof STRIPE_PRICES === 'undefined') return;
-
-  const prices = STRIPE_PRICES.realtor;
-  const currentInterval = realtorState.paymentModel || 'monthly';
-
-  tiersEl.innerHTML = Object.entries(prices).map(([key, plan]) => {
-    const isActive = false; // Will be determined by actual Stripe subscription later
-    return `<div class="plan-card ${plan.bestValue ? 'best-value' : ''}" onclick="selectRealtorBillingInterval('${key}')" style="cursor:pointer;text-align:center;padding:.85rem;">
-      <div style="font-weight:700;color:var(--navy);font-size:.88rem;">${plan.label}</div>
-      <div style="font-size:1.15rem;font-weight:900;color:var(--navy);margin-top:.15rem;">$${plan.amount.toFixed(2)}</div>
-      <div style="font-size:.72rem;color:var(--gray-text);">/${plan.interval}</div>
-      ${plan.savings ? `<div style="font-size:.68rem;font-weight:700;color:#10B981;margin-top:.15rem;">${plan.savings}</div>` : ''}
-    </div>`;
-  }).join('');
-
-  // Pipeline stats for billing
+  const isPaid = currentAccount?.tier === 'paid' || currentAccount?.discovery_tier === 'paid';
+  const hasAddon = realtorState.zipAddons > 0;
+  const bannerPlan = document.getElementById('rd-billing-current-plan');
+  const bannerDetail = document.getElementById('rd-billing-current-detail');
+  if (bannerPlan) {
+    if (hasAddon && isPaid) { bannerPlan.textContent = 'Network+ · Active'; bannerDetail.textContent = '6 ZIP codes · Keep 100% of commissions'; }
+    else if (isPaid) { bannerPlan.textContent = 'NEXUS Network · Active'; bannerDetail.textContent = '3 ZIP codes · Keep 100% of commissions'; }
+    else { bannerPlan.textContent = 'Partner Agent · Free'; bannerDetail.textContent = '1 ZIP code · 25% commission on close'; }
+  }
+  // Highlight current tier
+  ['partner','network','networkplus'].forEach(t => {
+    const el = document.getElementById('rd-tier-' + t);
+    if (!el) return;
+    const isActive = (t==='partner'&&!isPaid)||(t==='network'&&isPaid&&!hasAddon)||(t==='networkplus'&&isPaid&&hasAddon);
+    el.querySelectorAll('.current-badge').forEach(b=>b.remove());
+    if (isActive) {
+      el.style.borderColor='#10B981'; el.style.boxShadow='0 0 0 2px rgba(16,185,129,.15)';
+      const badge=document.createElement('div'); badge.className='current-badge';
+      badge.style.cssText='position:absolute;top:.6rem;right:.6rem;background:#10B981;color:#fff;font-size:.6rem;font-weight:800;padding:.2rem .5rem;border-radius:8px;text-transform:uppercase;letter-spacing:.3px;';
+      badge.textContent='Current'; el.appendChild(badge);
+    } else { el.style.borderColor = t==='network'?'var(--blue)':'var(--gray)'; el.style.boxShadow='none'; }
+  });
   updatePipelineStats();
 }
 
-function selectRealtorBillingInterval(key) {
-  const plan = STRIPE_PRICES.realtor[key];
-  if (!plan) return;
-  openMockCheckout(plan, 'realtor');
+function selectRealtorTier(tier) {
+  _selectedRealtorTier = tier;
+  const intervalArea = document.getElementById('rd-billing-interval-area');
+  if (tier==='partner') {
+    if (confirm('Switch to Partner Agent (free)?\n\n• 1 ZIP code, basic listing\n• 25% commission on NEXUS closings')) {
+      sb.from('accounts').update({tier:'free',discovery_tier:'free'}).eq('id',currentUser.id).then(()=>{
+        currentAccount.tier='free'; currentAccount.discovery_tier='free';
+        showToast('Switched to Partner Agent','success'); renderBillingTab(); renderMyMarkets();
+      });
+    }
+    if (intervalArea) intervalArea.style.display='none';
+    return;
+  }
+  if (intervalArea) intervalArea.style.display='block';
+  const titleEl=document.getElementById('rd-billing-interval-title');
+  const prices = tier==='networkplus'?(STRIPE_PRICES.realtor_addon||STRIPE_PRICES.realtor):STRIPE_PRICES.realtor;
+  titleEl.textContent = tier==='networkplus'?'NEXUS Network+ — Choose Billing':'NEXUS Network — Choose Billing';
+  _selectedRealtorInterval='semiannual';
+  const cardsEl=document.getElementById('rd-billing-interval-cards');
+  cardsEl.innerHTML = Object.entries(prices).map(([key,plan])=>{
+    const sel=key===_selectedRealtorInterval?'selected':'';
+    const bv=plan.bestValue?'best-value':'';
+    return `<div class="plan-card ${bv} ${sel}" data-interval="${key}" onclick="pickRealtorInterval('${key}')" style="text-align:center;padding:.85rem;cursor:pointer;">
+      <div class="plan-card-name">${plan.label}</div>
+      <div class="plan-card-price">$${plan.amount.toFixed(2)} <span>/ ${plan.interval}</span></div>
+      ${plan.savings?`<div class="plan-card-savings">${plan.savings}</div>`:''}
+      <div class="plan-card-per">$${plan.perMonth.toFixed(2)}/mo</div>
+    </div>`;
+  }).join('');
+  intervalArea.scrollIntoView({behavior:'smooth',block:'center'});
 }
-window.selectRealtorBillingInterval = selectRealtorBillingInterval;
+window.selectRealtorTier = selectRealtorTier;
+
+function pickRealtorInterval(key) {
+  _selectedRealtorInterval=key;
+  document.querySelectorAll('#rd-billing-interval-cards .plan-card').forEach(c=>c.classList.toggle('selected',c.dataset.interval===key));
+}
+window.pickRealtorInterval = pickRealtorInterval;
+
+function subscribeRealtorTier() {
+  const priceKey=_selectedRealtorTier==='networkplus'?'realtor_addon':'realtor';
+  const plan=(STRIPE_PRICES[priceKey]||STRIPE_PRICES.realtor)[_selectedRealtorInterval];
+  if (!plan) return;
+  openMockCheckout(plan,'realtor');
+}
+window.subscribeRealtorTier = subscribeRealtorTier;
 
 async function updatePipelineStats() {
   if (!currentUser) return;
