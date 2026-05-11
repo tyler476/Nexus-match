@@ -652,6 +652,7 @@ body.is-impersonating .view{padding-top:114px;}
 .cb-section{margin-top:1.25rem;padding:1.25rem;background:rgba(37,99,235,.03);border:1.5px solid rgba(37,99,235,.12);border-radius:12px;display:none;}
 .cb-section.visible{display:block;animation:cbSlideIn .3s ease;}
 @keyframes cbSlideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.4)}50%{box-shadow:0 0 0 8px rgba(37,99,235,0)}}
 @media (max-width:600px){
   .imp-banner{font-size:.75rem;padding:.5rem .75rem;flex-wrap:wrap;}
 }
@@ -2304,18 +2305,21 @@ body.is-impersonating .view{padding-top:114px;}
     <!-- Success State -->
     <div class="form-step" id="step-success">
       <div class="success-card">
-        <div class="success-icon" style="font-size:2.5rem;">✅</div>
-        <h2 style="font-size:1.4rem;">Profile created — the algorithm is running.</h2>
-        <p style="margin-bottom:1.5rem;">Matches can surface in <strong>minutes</strong>. You'll be notified by email + SMS the moment a compatible co-buyer is identified.</p>
+        <div class="success-icon" style="font-size:2.5rem;">🎉</div>
+        <h2 style="font-size:1.4rem;">You're in! Let's find your co-buyer.</h2>
+        <p style="margin-bottom:1.25rem;">Your profile is live and the matching algorithm is already working. You'll see compatible co-buyers ranked by NEXUS Score — the higher the score, the better the fit.</p>
         
-        <div style="background:var(--bg);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;border-left:4px solid var(--gold);">
-          <h3 style="font-size:1.05rem;font-weight:800;color:var(--navy);margin-bottom:.5rem;">Want to skip the wait? Get pre-qualified now.</h3>
-          <p style="font-size:.9rem;color:var(--gray-text);line-height:1.6;margin-bottom:0;">Complete your income analysis in the next few minutes and have a fully underwritten pre-qualification ready before your match even arrives. Your co-buyer sees a verified buyer — not just a profile.</p>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;">
+          <div style="font-size:.82rem;color:var(--navy);line-height:1.6;">
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;"><span style="font-size:1.1rem;">👀</span> <strong>Browse</strong> — Swipe through co-buyers matched to your goals</div>
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;"><span style="font-size:1.1rem;">♡</span> <strong>Like</strong> — Both like each other? It's a match</div>
+            <div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:1.1rem;">🏠</span> <strong>Group up</strong> — Complete your co-buyer group and find a realtor together</div>
+          </div>
         </div>
         
-        <button class="btn-primary" style="width:100%;background:var(--gold);margin-bottom:.75rem;font-size:1rem;padding:1rem;" onclick="bridgeToLoan()">Continue to Pre-Qualification →</button>
-        <button class="btn-outline" style="width:100%;" onclick="showView('dashboard')">I'll do this later → Dashboard</button>
-        <p style="font-size:.75rem;color:var(--gray-text);margin-top:.75rem;text-align:center;">Your profile is live either way. Pre-qualification just makes your match stronger.</p>
+        <button class="btn-primary" style="width:100%;font-size:1.05rem;padding:1rem;background:linear-gradient(135deg,#10B981,#059669);" onclick="showView('discovery')">Start Discovering Co-Buyers →</button>
+        <button class="btn-outline" style="width:100%;margin-top:.65rem;" onclick="routeForRole()">Go to Dashboard</button>
+        <p style="font-size:.75rem;color:var(--gray-text);margin-top:.75rem;text-align:center;">5 free likes per day. Upgrade to NEXUS Home for unlimited access.</p>
       </div>
     </div>
   </div>
@@ -10997,8 +11001,38 @@ document.addEventListener('DOMContentLoaded', () => {
   if (userDash && !document.getElementById('user-find-realtor-link')) {
     const helperBlock = document.createElement('div');
     helperBlock.id = 'user-find-realtor-link';
-    helperBlock.style.cssText = 'max-width:1080px;margin:1.5rem auto 0;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;';
+    helperBlock.style.cssText = 'max-width:1080px;margin:1.5rem auto 0;padding:0 1.5rem;';
     helperBlock.innerHTML =
+      // Journey progress tracker
+      '<div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">' +
+      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:.95rem;margin-bottom:.85rem;">Your Co-Buying Journey</div>' +
+      '<div style="display:flex;align-items:center;gap:0;" id="user-journey-tracker">' +
+      '<div style="flex:1;text-align:center;">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:#10B981;color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">✓</div>' +
+      '<div style="font-size:.68rem;font-weight:700;color:#10B981;margin-top:.3rem;">Profile</div></div>' +
+      '<div style="flex:1;height:3px;background:linear-gradient(90deg,#10B981,var(--blue));border-radius:2px;"></div>' +
+      '<div style="flex:1;text-align:center;">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;animation:pulse 2s infinite;">2</div>' +
+      '<div style="font-size:.68rem;font-weight:700;color:var(--blue);margin-top:.3rem;">Discover</div></div>' +
+      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
+      '<div style="flex:1;text-align:center;">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">3</div>' +
+      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Match</div></div>' +
+      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
+      '<div style="flex:1;text-align:center;">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">4</div>' +
+      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Group</div></div>' +
+      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
+      '<div style="flex:1;text-align:center;">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">5</div>' +
+      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Realtor</div></div>' +
+      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
+      '<div style="flex:1;text-align:center;">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">🏠</div>' +
+      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Close</div></div>' +
+      '</div></div>' +
+      // Action cards
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">' +
       '<div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem 1.4rem;">' +
       '<div style="font-size:1.5rem;margin-bottom:.5rem;">🔍</div>' +
       '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Discover Co-Buyers</div>' +
@@ -11016,7 +11050,7 @@ document.addEventListener('DOMContentLoaded', () => {
       '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Co-ownership documents</div>' +
       '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Preview the 6 agreements that protect your equity.</div>' +
       '<button class="rp-btn rp-btn-secondary" onclick="showView(\'documents\')">View documents →</button>' +
-      '</div>';
+      '</div></div>';
     userDash.appendChild(helperBlock);
   }
 });
@@ -11168,47 +11202,119 @@ window.setDiscFilter = setDiscFilter;
 function renderDiscoveryCard() {
   const cardArea = document.getElementById('disc-card-area');
   if (_discoveryIndex >= _discoveryStack.length) {
-    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">✨</div><div>You\'ve seen all available profiles.</div><div style="font-size:.85rem;margin-top:.4rem;">Check back later for new co-buyers.</div></div>';
+    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">✨</div><div style="font-weight:700;color:var(--navy);font-size:1.05rem;">You\'ve seen everyone for now</div><div style="font-size:.85rem;margin-top:.4rem;color:var(--gray-text);">New co-buyers join every day. Check back soon.</div></div>';
     return;
   }
   const c = _discoveryStack[_discoveryIndex];
+  const isPaid = currentAccount?.discovery_tier === 'paid';
   const initials = (c.full_name||'?').split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
-  const photoHtml = c.photo_url ? `<img src="${escapeHtml(c.photo_url)}" alt="">` : `<div class="disc-initials">${escapeHtml(initials)}</div>`;
-  const cbLabel = c.has_existing_coborrower
-    ? '<span class="disc-coborrower-badge disc-cb-pair">👫 Entering as a pair</span>'
-    : '<span class="disc-coborrower-badge disc-cb-solo">👤 Solo borrower</span>';
+  const firstName = (c.full_name||'Unknown').split(' ')[0];
+
+  // Free vs paid display
+  const displayName = isPaid ? escapeHtml(c.full_name||'Unknown') : escapeHtml(firstName);
+  const photoBlur = isPaid ? '' : 'filter:blur(10px);';
+  const photoHtml = c.photo_url
+    ? `<img src="${escapeHtml(c.photo_url)}" alt="" style="${photoBlur}">`
+    : `<div class="disc-initials" style="${photoBlur}">${escapeHtml(initials)}</div>`;
+
   const targetStr = (c.target_cities||[]).slice(0,3).join(', ')||'—';
   const homeTypes = (c.home_type_preference||[]).join(', ')||'Any';
   const totalD = c.total_coborrowers_desired||2;
-  const isPaid = currentAccount?.discovery_tier === 'paid';
+  const cbLabel = c.has_existing_coborrower
+    ? '<span class="disc-coborrower-badge disc-cb-pair">👫 With co-borrower</span>'
+    : '<span class="disc-coborrower-badge disc-cb-solo">👤 Solo</span>';
+
+  // NEXUS Score ring color
+  const ns = c.nexus_score;
+  const scoreColor = ns >= 80 ? '#10B981' : ns >= 60 ? '#3B82F6' : ns >= 40 ? '#F59E0B' : '#9CA3AF';
+  const scoreLabel = ns >= 80 ? 'Excellent match' : ns >= 60 ? 'Strong match' : ns >= 40 ? 'Good match' : 'Possible match';
+
+  // What you have in common
   const bd = c.score_breakdown||{};
+  const myCities = _myProfile?.target_cities||[];
+  const commonCities = (c.target_cities||[]).filter(ci => myCities.includes(ci));
+  const samePrice = _myProfile?.price_range === c.price_range;
+  const myTypes = _myProfile?.home_type_preference||[];
+  const commonTypes = (c.home_type_preference||[]).filter(t => myTypes.includes(t));
+
+  let commonItems = [];
+  if (commonCities.length > 0) commonItems.push('📍 Both looking in ' + commonCities.join(', '));
+  if (samePrice && c.price_range) commonItems.push('💰 Same price range: ' + c.price_range);
+  if (commonTypes.length > 0) commonItems.push('🏠 Both want: ' + commonTypes.join(', '));
+  if (bd.coborrower === 20) commonItems.push('🤝 Compatible co-borrower math');
+
+  const commonHtml = commonItems.length > 0 ? `
+    <div style="margin-top:.75rem;padding:.7rem .85rem;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:10px;">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#15803D;margin-bottom:.35rem;">What you have in common</div>
+      ${commonItems.map(it => `<div style="font-size:.82rem;color:#374151;padding:.15rem 0;">${it}</div>`).join('')}
+    </div>` : '';
+
+  // Story (only for paid, or first 40 chars blurred for free)
+  let storyHtml = '';
+  if (c.story) {
+    if (isPaid) {
+      storyHtml = `<div class="disc-card-story">"${escapeHtml(c.story)}"</div>`;
+    } else {
+      storyHtml = `<div class="disc-card-story" style="position:relative;overflow:hidden;">
+        <div style="filter:blur(4px);">"${escapeHtml(c.story.substring(0,60))}…"</div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <span style="background:var(--navy);color:#fff;padding:.35rem .85rem;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;" onclick="openPaywall()">🔓 Upgrade to read</span>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Score breakdown (paid only)
   const scoreHtml = isPaid ? `
     <div class="disc-score-breakdown">
-      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--navy);margin-bottom:.4rem;">Score Breakdown</div>
-      <div class="disc-score-row"><span class="score-label">📍 City</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.city/35)*100}%"></div></div><span class="score-val">${bd.city}/35</span></div>
-      <div class="disc-score-row"><span class="score-label">💰 Price</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.price/30)*100}%"></div></div><span class="score-val">${bd.price}/30</span></div>
-      <div class="disc-score-row"><span class="score-label">🏠 Home</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.home/15)*100}%"></div></div><span class="score-val">${bd.home}/15</span></div>
-      <div class="disc-score-row"><span class="score-label">🤝 Co-borrow</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.coborrower/20)*100}%"></div></div><span class="score-val">${bd.coborrower}/20</span></div>
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--navy);margin-bottom:.4rem;">Compatibility Breakdown</div>
+      <div class="disc-score-row"><span class="score-label">📍 City overlap</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.city/35)*100}%"></div></div><span class="score-val">${bd.city}/35</span></div>
+      <div class="disc-score-row"><span class="score-label">💰 Price match</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.price/30)*100}%"></div></div><span class="score-val">${bd.price}/30</span></div>
+      <div class="disc-score-row"><span class="score-label">🏠 Home type</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.home/15)*100}%"></div></div><span class="score-val">${bd.home}/15</span></div>
+      <div class="disc-score-row"><span class="score-label">🤝 Group fit</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.coborrower/20)*100}%"></div></div><span class="score-val">${bd.coborrower}/20</span></div>
     </div>` : '';
+
+  // Free tier upgrade nudge
+  const freeNudge = !isPaid ? `
+    <div style="text-align:center;margin-top:.5rem;padding:.6rem;background:rgba(37,99,235,.04);border-radius:8px;cursor:pointer;" onclick="openPaywall()">
+      <span style="font-size:.78rem;color:var(--blue);font-weight:600;">🔓 Upgrade to see full profile, photo & compatibility details</span>
+    </div>` : '';
+
   cardArea.innerHTML = `
     <div class="disc-card" id="disc-current-card">
-      <div class="disc-card-photo">${photoHtml}<div class="disc-nexus-badge">${c.nexus_score}/100</div></div>
+      <div class="disc-card-photo">
+        ${photoHtml}
+        <div class="disc-nexus-badge" style="background:${scoreColor};">${ns}<span style="font-size:.65rem;opacity:.8;">/100</span></div>
+        ${!isPaid ? '<div class="disc-tier-badge">FREE</div>' : ''}
+      </div>
       <div class="disc-card-body">
-        <div class="disc-card-name">${escapeHtml(c.full_name||'Unknown')}</div>
-        <div class="disc-card-sub">${escapeHtml(c.age_range||'')} · 📍 ${escapeHtml(c.current_city||'Unknown')}</div>
-        <div class="disc-card-stats">
-          <div class="disc-stat"><div class="disc-stat-label">Target cities</div><div class="disc-stat-val">${escapeHtml(targetStr)}</div></div>
-          <div class="disc-stat"><div class="disc-stat-label">Price range</div><div class="disc-stat-val">${escapeHtml(c.price_range||'—')}</div></div>
-          <div class="disc-stat"><div class="disc-stat-label">Home type</div><div class="disc-stat-val">${escapeHtml(homeTypes)}</div></div>
-          <div class="disc-stat"><div class="disc-stat-label">Group size</div><div class="disc-stat-val">${totalD} total</div></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div class="disc-card-name">${displayName}</div>
+            <div class="disc-card-sub">${escapeHtml(c.age_range||'')} · 📍 ${escapeHtml(c.current_city||'Unknown')}</div>
+          </div>
+          <div style="text-align:right;">
+            ${cbLabel}
+            <div style="font-size:.7rem;color:${scoreColor};font-weight:700;margin-top:.25rem;">${scoreLabel}</div>
+          </div>
         </div>
-        ${c.story ? `<div class="disc-card-story">"${escapeHtml(c.story)}"</div>` : ''}
-        ${cbLabel}
+
+        ${storyHtml}
+        ${commonHtml}
+
+        <div class="disc-card-stats" style="margin-top:.75rem;">
+          <div class="disc-stat"><div class="disc-stat-label">Looking in</div><div class="disc-stat-val">${escapeHtml(targetStr)}</div></div>
+          <div class="disc-stat"><div class="disc-stat-label">Budget</div><div class="disc-stat-val">${escapeHtml(c.price_range||'—')}</div></div>
+          <div class="disc-stat"><div class="disc-stat-label">Home type</div><div class="disc-stat-val">${escapeHtml(homeTypes)}</div></div>
+          <div class="disc-stat"><div class="disc-stat-label">Group goal</div><div class="disc-stat-val">${totalD} co-buyers</div></div>
+        </div>
+
         ${scoreHtml}
+        ${freeNudge}
       </div>
       <div class="disc-actions">
         <button class="disc-action-btn pass" onclick="passCandidate('${c.account_id}')" title="Pass">✕</button>
-        <button class="disc-action-btn like" onclick="likeCandidate('${c.account_id}',${c.nexus_score})" title="Like">♡</button>
+        <button class="disc-action-btn like" onclick="likeCandidate('${c.account_id}',${ns})" title="Like">♡</button>
       </div>
     </div>`;
 }
