@@ -672,7 +672,7 @@ body.is-impersonating .view{padding-top:114px;}
 .support-contact-form button{margin-top:.5rem;width:100%;}
 
 /* ── Notification Bell ── */
-.nav-notif{position:relative;cursor:pointer;padding:.3rem;margin-left:.25rem;}
+.nav-notif{position:relative;cursor:pointer;padding:0 1rem;display:flex;align-items:center;font-size:1.15rem;height:100%;}
 .nav-notif-dot{position:absolute;top:0;right:0;width:10px;height:10px;border-radius:50%;background:#EF4444;border:2px solid var(--white);display:none;}
 .nav-notif-dot.has-notifs{display:block;}
 .notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;max-height:380px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.18);overflow:hidden;display:none;z-index:2000;}
@@ -1076,7 +1076,7 @@ body.is-impersonating .view{padding-top:114px;}
   <!-- Logged-in: shows Dashboard + name + logout -->
   <span class="nav-tab" id="nav-dashboard" onclick="routeForRole()" style="display:none;">Dashboard</span>
   <span class="nav-tab" id="nav-discover" onclick="showView('discovery')" style="display:none;">Discover</span>
-  <span class="nav-tab" id="nav-user-info" style="display:none;color:var(--gray-text);font-weight:500;font-size:.85rem;cursor:default;border-bottom:none;"></span>
+  <span class="nav-tab" id="nav-user-info" onclick="showView('settings')" style="display:none;color:var(--gray-text);font-weight:500;font-size:.85rem;cursor:pointer;border-bottom:none;" title="Account Settings">⚙️ </span>
   <span class="nav-notif" id="nav-notif-bell" onclick="toggleNotifPanel()" style="display:none;" title="Notifications">
     🔔<div class="nav-notif-dot" id="notif-dot"></div>
     <div class="notif-panel" id="notif-panel">
@@ -4537,7 +4537,7 @@ body.is-impersonating .view{padding-top:114px;}
       </div>
 
       <!-- Three-tier comparison -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.25rem;" id="rd-tier-grid">
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:.85rem;margin-bottom:1.25rem;" id="rd-tier-grid">
 
         <!-- PARTNER AGENT — Free -->
         <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--gray);position:relative;cursor:pointer;" id="rd-tier-partner" onclick="selectRealtorTier('partner')">
@@ -4549,11 +4549,10 @@ body.is-impersonating .view{padding-top:114px;}
             <div style="font-size:2rem;font-weight:900;color:var(--navy);">$0<span style="font-size:.85rem;font-weight:500;color:var(--gray-text);">/mo</span></div>
             <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Pay only when you close</div>
             <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
-              <div>📍 <strong>1</strong> ZIP code</div>
-              <div>📋 Basic listing (not boosted)</div>
-              <div>🏅 Partner Agent badge</div>
-              <div style="color:#B91C1C;font-weight:600;">💸 25% of commission on close</div>
-              <div>📊 15% partner rate w/ Citizens</div>
+              <div>&#x1f4cd; <strong>1</strong> ZIP code</div>
+              <div>&#x1f4cb; Basic listing (not boosted)</div>
+              <div>&#x1f3c5; Partner Agent badge</div>
+              <div style="color:#B91C1C;font-weight:600;">&#x1f4b8; 25% of commission on close</div>
             </div>
             <div style="margin-top:1rem;background:#FEF3C7;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#92400E;line-height:1.4;">
               <strong>The math:</strong> One $700K close = $17,500 commission. You keep $13,125. NEXUS keeps $4,375.
@@ -4561,53 +4560,51 @@ body.is-impersonating .view{padding-top:114px;}
           </div>
         </div>
 
-        <!-- NETWORK — $49.99/mo -->
-        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--blue);position:relative;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.12);" id="rd-tier-network" onclick="selectRealtorTier('network')">
+        <!-- NEXUS NETWORK — Per ZIP -->
+        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--blue);position:relative;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.12);grid-column:span 2;" id="rd-tier-network" onclick="selectRealtorTier('network')">
           <div style="background:linear-gradient(135deg,var(--navy),var(--blue));padding:.85rem 1rem .65rem;color:#fff;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <div>
-                <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.7;">Most Popular</div>
+                <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.7;">Pay Per ZIP Code</div>
                 <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.05rem;margin-top:.15rem;">NEXUS Network</div>
               </div>
               <div style="background:rgba(255,255,255,.2);padding:.25rem .6rem;border-radius:10px;font-size:.65rem;font-weight:700;">RECOMMENDED</div>
             </div>
           </div>
           <div style="padding:1rem;">
-            <div style="font-size:2rem;font-weight:900;color:var(--navy);">$49.99<span style="font-size:.85rem;font-weight:500;color:var(--gray-text);">/mo</span></div>
-            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Or $139.99/3mo · $249.99/6mo</div>
+            <div style="display:flex;align-items:baseline;gap:.3rem;">
+              <div style="font-size:2rem;font-weight:900;color:var(--navy);">$29.99</div>
+              <div style="font-size:.88rem;color:var(--gray-text);">/ zip / month</div>
+            </div>
+            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Or $79.99/zip/3mo &#xb7; $149.99/zip/6mo</div>
             <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
-              <div>📍 <strong>3</strong> ZIP codes</div>
-              <div>🚀 Boosted placement in search</div>
-              <div>🏅 Network verified badge</div>
-              <div style="color:#15803D;font-weight:600;">✅ Keep 100% of commissions</div>
-              <div>🔄 Swap ZIPs once per cycle</div>
-              <div>📊 Market analytics dashboard</div>
+              <div>&#x1f4cd; <strong>1 to 9</strong> ZIP codes &#x2014; you choose</div>
+              <div>&#x1f680; Boosted placement per ZIP</div>
+              <div>&#x1f3c5; Network verified badge</div>
+              <div style="color:#15803D;font-weight:600;">&#x2705; Keep 100% of commissions</div>
+              <div>&#x1f504; Swap ZIPs once per billing cycle</div>
+              <div>&#x1f4ca; Per-ZIP analytics dashboard</div>
+            </div>
+            <div style="margin-top:1.25rem;padding:1rem;background:var(--bg);border-radius:10px;">
+              <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.5rem;">How many ZIP codes?</div>
+              <div style="display:flex;align-items:center;gap:.75rem;">
+                <button onclick="adjustZipQty(-1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--gray);background:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#x2212;</button>
+                <div style="font-size:1.8rem;font-weight:900;color:var(--navy);min-width:40px;text-align:center;" id="rd-zip-qty">3</div>
+                <button onclick="adjustZipQty(1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--gray);background:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+                <div style="flex:1;text-align:right;">
+                  <div style="font-size:1.2rem;font-weight:900;color:var(--navy);" id="rd-zip-total-price">$89.97</div>
+                  <div style="font-size:.72rem;color:var(--gray-text);" id="rd-zip-total-interval">/month</div>
+                </div>
+              </div>
+              <div style="margin-top:.5rem;height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden;">
+                <div style="height:100%;background:linear-gradient(90deg,var(--blue),#10B981);border-radius:2px;transition:width .3s;" id="rd-zip-qty-bar"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--gray-text);margin-top:.2rem;">
+                <span>1 ZIP</span><span>9 ZIPs</span>
+              </div>
             </div>
             <div style="margin-top:1rem;background:#D1FAE5;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#15803D;line-height:1.4;">
-              <strong>The math:</strong> One close = $17,500 commission. You keep <strong>all $17,500</strong>. Subscription pays for itself 29x over.
-            </div>
-          </div>
-        </div>
-
-        <!-- NETWORK+ — $49.99/mo add-on -->
-        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--gray);position:relative;cursor:pointer;" id="rd-tier-networkplus" onclick="selectRealtorTier('networkplus')">
-          <div style="background:#F0FDF4;padding:.85rem 1rem .65rem;border-bottom:1px solid rgba(16,185,129,.2);">
-            <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#15803D;">Maximum Coverage</div>
-            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;color:var(--navy);font-size:1.05rem;margin-top:.15rem;">Network+</div>
-          </div>
-          <div style="padding:1rem;">
-            <div style="font-size:2rem;font-weight:900;color:var(--navy);">$99.98<span style="font-size:.85rem;font-weight:500;color:var(--gray-text);">/mo</span></div>
-            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Network + ZIP Add-On combined</div>
-            <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
-              <div>📍 <strong>6</strong> ZIP codes</div>
-              <div>⚡ Priority over Network agents</div>
-              <div>🏅 Stacked Network+ badge</div>
-              <div style="color:#15803D;font-weight:600;">✅ Keep 100% of commissions</div>
-              <div>🔄 Swap ZIPs once per cycle</div>
-              <div>📊 Advanced analytics + reports</div>
-            </div>
-            <div style="margin-top:1rem;background:#EFF6FF;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#1E40AF;line-height:1.4;">
-              <strong>2x the coverage</strong> at the same per-ZIP cost. Ideal for agents covering multiple markets.
+              <strong>The math:</strong> One close = $17,500 commission. You keep <strong>all $17,500</strong>. Your ZIP subscription pays for itself on a single deal.
             </div>
           </div>
         </div>
@@ -4639,7 +4636,7 @@ body.is-impersonating .view{padding-top:114px;}
           <div style="color:#374151;padding:.4rem 0;">Monthly cost per ZIP</div>
           <div style="text-align:center;padding:.4rem 0;color:#B91C1C;font-weight:600;">$150–$1,000+</div>
           <div style="text-align:center;padding:.4rem 0;">$0</div>
-          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">$16.66</div>
+          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">$29.99</div>
 
           <div style="color:#374151;padding:.4rem 0;">Commission share</div>
           <div style="text-align:center;padding:.4rem 0;">0%</div>
@@ -7396,7 +7393,7 @@ function updateNavForAuthed() {
   const info = document.getElementById('nav-user-info');
   if (info && currentAccount) {
     const name = currentAccount.full_name || currentAccount.email || '';
-    info.textContent = name;
+    info.innerHTML = '⚙️ ' + escapeHtml(name);
     info.style.display = 'flex';
   }
 }
@@ -10103,8 +10100,8 @@ const CA_ZIP_LOOKUP = typeof CA_ZIPS !== 'undefined' ? CA_ZIPS : {};
 
 function renderMyMarkets() {
   const zips = realtorState.selectedZips || [];
-  const maxZips = (realtorState.zipAddons > 0) ? 6 : 3;
   const isPaid = currentAccount?.tier === 'paid' || currentAccount?.discovery_tier === 'paid';
+  const maxZips = isPaid ? MAX_REALTOR_ZIPS : 1; // Free = 1 ZIP, paid = up to 9
 
   // ZIP allocation dots
   const dotsEl = document.getElementById('rd-zip-dots');
@@ -10123,7 +10120,7 @@ function renderMyMarkets() {
 
   // Upgrade button visibility
   const upgradeBtn = document.getElementById('rd-upgrade-zips-btn');
-  if (upgradeBtn) upgradeBtn.style.display = (maxZips < 6 && zips.length >= 3) ? 'inline-flex' : 'none';
+  if (upgradeBtn) upgradeBtn.style.display = (!isPaid && zips.length >= 1) ? 'inline-flex' : 'none';
 
   // Add ZIP button visibility
   const addBtn = document.getElementById('rd-add-zip-btn');
@@ -10261,10 +10258,10 @@ function renderBillingTab() {
     else { bannerPlan.textContent = 'Partner Agent · Free'; bannerDetail.textContent = '1 ZIP code · 25% commission on close'; }
   }
   // Highlight current tier
-  ['partner','network','networkplus'].forEach(t => {
+  ['partner','network'].forEach(t => {
     const el = document.getElementById('rd-tier-' + t);
     if (!el) return;
-    const isActive = (t==='partner'&&!isPaid)||(t==='network'&&isPaid&&!hasAddon)||(t==='networkplus'&&isPaid&&hasAddon);
+    const isActive = (t==='partner'&&!isPaid)||(t==='network'&&isPaid);
     el.querySelectorAll('.current-badge').forEach(b=>b.remove());
     if (isActive) {
       el.style.borderColor='#10B981'; el.style.boxShadow='0 0 0 2px rgba(16,185,129,.15)';
@@ -10275,6 +10272,26 @@ function renderBillingTab() {
   });
   updatePipelineStats();
 }
+
+let _realtorZipQty = 3;
+
+function adjustZipQty(delta) {
+  _realtorZipQty = Math.max(1, Math.min(MAX_REALTOR_ZIPS, _realtorZipQty + delta));
+  const qtyEl = document.getElementById('rd-zip-qty');
+  const priceEl = document.getElementById('rd-zip-total-price');
+  const intervalEl = document.getElementById('rd-zip-total-interval');
+  const barEl = document.getElementById('rd-zip-qty-bar');
+  if (qtyEl) qtyEl.textContent = _realtorZipQty;
+  if (barEl) barEl.style.width = ((_realtorZipQty / MAX_REALTOR_ZIPS) * 100) + '%';
+
+  // Calculate price based on selected interval
+  const prices = STRIPE_PRICES.realtor_per_zip;
+  const plan = prices[_selectedRealtorInterval] || prices.monthly;
+  const total = (_realtorZipQty * plan.amount).toFixed(2);
+  if (priceEl) priceEl.textContent = '$' + total;
+  if (intervalEl) intervalEl.textContent = '/' + plan.interval;
+}
+window.adjustZipQty = adjustZipQty;
 
 function selectRealtorTier(tier) {
   _selectedRealtorTier = tier;
@@ -10291,18 +10308,21 @@ function selectRealtorTier(tier) {
   }
   if (intervalArea) intervalArea.style.display='block';
   const titleEl=document.getElementById('rd-billing-interval-title');
-  const prices = tier==='networkplus'?(STRIPE_PRICES.realtor_addon||STRIPE_PRICES.realtor):STRIPE_PRICES.realtor;
-  titleEl.textContent = tier==='networkplus'?'NEXUS Network+ — Choose Billing':'NEXUS Network — Choose Billing';
+  const prices = STRIPE_PRICES.realtor_per_zip;
+  titleEl.textContent = `NEXUS Network — ${_realtorZipQty} ZIP${_realtorZipQty>1?'s':''} — Choose Billing`;
   _selectedRealtorInterval='semiannual';
   const cardsEl=document.getElementById('rd-billing-interval-cards');
   cardsEl.innerHTML = Object.entries(prices).map(([key,plan])=>{
     const sel=key===_selectedRealtorInterval?'selected':'';
     const bv=plan.bestValue?'best-value':'';
+    const totalAmount = (_realtorZipQty * plan.amount).toFixed(2);
+    const totalPerMonth = (_realtorZipQty * plan.perMonth).toFixed(2);
     return `<div class="plan-card ${bv} ${sel}" data-interval="${key}" onclick="pickRealtorInterval('${key}')" style="text-align:center;padding:.85rem;cursor:pointer;">
       <div class="plan-card-name">${plan.label}</div>
-      <div class="plan-card-price">$${plan.amount.toFixed(2)} <span>/ ${plan.interval}</span></div>
+      <div class="plan-card-price">$${totalAmount} <span>/ ${plan.interval}</span></div>
+      <div class="plan-card-per">${_realtorZipQty} ZIP${_realtorZipQty>1?'s':''} × $${plan.amount.toFixed(2)}</div>
       ${plan.savings?`<div class="plan-card-savings">${plan.savings}</div>`:''}
-      <div class="plan-card-per">$${plan.perMonth.toFixed(2)}/mo</div>
+      <div class="plan-card-per">$${totalPerMonth}/mo effective</div>
     </div>`;
   }).join('');
   intervalArea.scrollIntoView({behavior:'smooth',block:'center'});
@@ -10316,10 +10336,16 @@ function pickRealtorInterval(key) {
 window.pickRealtorInterval = pickRealtorInterval;
 
 function subscribeRealtorTier() {
-  const priceKey=_selectedRealtorTier==='networkplus'?'realtor_addon':'realtor';
-  const plan=(STRIPE_PRICES[priceKey]||STRIPE_PRICES.realtor)[_selectedRealtorInterval];
+  const plan = STRIPE_PRICES.realtor_per_zip[_selectedRealtorInterval];
   if (!plan) return;
-  openMockCheckout(plan,'realtor');
+  // Create a modified plan with total amount for the selected quantity
+  const totalPlan = {
+    ...plan,
+    amount: parseFloat((_realtorZipQty * plan.amount).toFixed(2)),
+    perMonth: parseFloat((_realtorZipQty * plan.perMonth).toFixed(2)),
+    label: plan.label + ' — ' + _realtorZipQty + ' ZIP' + (_realtorZipQty > 1 ? 's' : '')
+  };
+  openMockCheckout(totalPlan, 'realtor');
 }
 window.subscribeRealtorTier = subscribeRealtorTier;
 
@@ -10492,6 +10518,7 @@ async function loadUserDashboard() {
         <div style="margin-top:.85rem;display:flex;gap:.5rem;flex-wrap:wrap;">
           <button class="rp-btn" onclick="showView('find-realtor')">Find a realtor →</button>
           <button class="rp-btn rp-btn-secondary" onclick="showView('documents')">View documents</button>
+          <button class="rp-btn rp-btn-secondary" onclick="showView('settings')" style="font-size:.78rem;">⚙️ Settings</button>
         </div>
       </div>
     `;
@@ -11137,32 +11164,84 @@ const PRICE_RANGES_MAP = {
 function calcNexusScore(myProf, cand) {
   let score = 0;
   const bd = {};
-  // City overlap (0-35)
+
+  // Base compatibility (same platform, same state, both want co-ownership) = 20 pts
+  bd.base = 20;
+  score += bd.base;
+
+  // City overlap (0-28): exact overlap = 28, same metro/partial = 15, none but same state = 8
   const mc = myProf.target_cities || [];
   const tc = cand.target_cities || [];
-  const cityOl = mc.filter(c => tc.includes(c));
-  bd.city = (mc.length > 0 && tc.length > 0) ? Math.round((cityOl.length / Math.max(mc.length, tc.length)) * 35) : 0;
+  if (mc.length === 0 || tc.length === 0) {
+    bd.city = 12; // Neutral — not enough data to penalize
+  } else {
+    const cityOl = mc.filter(c => tc.includes(c));
+    if (cityOl.length > 0) {
+      bd.city = Math.round((cityOl.length / Math.max(mc.length, tc.length)) * 28);
+      bd.city = Math.max(bd.city, 15); // At least 15 if any overlap
+    } else {
+      // Check if cities are in similar regions (both Bay Area, both LA, both Sac)
+      const bayArea = ['San Francisco','Oakland','San Jose','Fremont','Hayward','Berkeley','Walnut Creek','Concord','Richmond','Daly City','Sunnyvale','Santa Clara','Palo Alto','Mountain View','Redwood City'];
+      const laArea = ['Los Angeles','Long Beach','Pasadena','Glendale','Burbank','Santa Monica','Torrance','Inglewood','Pomona','West Covina','Downey'];
+      const sacArea = ['Sacramento','Roseville','Elk Grove','Folsom','Davis','Citrus Heights','Rancho Cordova'];
+      const inSameRegion = [bayArea, laArea, sacArea].some(region => {
+        return mc.some(c => region.includes(c)) && tc.some(c => region.includes(c));
+      });
+      bd.city = inSameRegion ? 14 : 6;
+    }
+  }
   score += bd.city;
-  // Price overlap (0-30)
+
+  // Price range overlap (0-25): exact = 25, adjacent = 18, within 2 = 10, far = 5
   const mr = PRICE_RANGES_MAP[myProf.price_range];
   const tr = PRICE_RANGES_MAP[cand.price_range];
-  if (mr && tr) {
+  if (!mr || !tr) {
+    bd.price = 12; // Neutral
+  } else if (myProf.price_range === cand.price_range) {
+    bd.price = 25;
+  } else {
     const os = Math.max(mr[0], tr[0]);
     const oe = Math.min(mr[1], tr[1]);
-    bd.price = oe > os ? Math.round(((oe - os) / Math.max(mr[1]-mr[0], tr[1]-tr[0])) * 30) : (os - oe < 200001 ? 10 : 0);
-  } else { bd.price = myProf.price_range === cand.price_range ? 30 : 0; }
+    if (oe > os) {
+      const overlapSize = oe - os;
+      const maxSize = Math.max(mr[1]-mr[0], tr[1]-tr[0]);
+      bd.price = Math.round((overlapSize / maxSize) * 25);
+      bd.price = Math.max(bd.price, 14);
+    } else {
+      const gap = os - oe;
+      bd.price = gap < 200001 ? 12 : gap < 400001 ? 8 : 5;
+    }
+  }
   score += bd.price;
-  // Home type (0-15)
+
+  // Home type (5-15): any overlap = 15, partial (one has multiple, other matches one) = 12, none specified = 10, no overlap = 7
   const mh = myProf.home_type_preference || [];
   const th = cand.home_type_preference || [];
-  bd.home = (mh.length > 0 && th.length > 0) ? (mh.some(t => th.includes(t)) ? 15 : 5) : 8;
+  if (mh.length === 0 || th.length === 0) {
+    bd.home = 10;
+  } else if (mh.some(t => th.includes(t))) {
+    bd.home = 15;
+  } else {
+    bd.home = 7;
+  }
   score += bd.home;
-  // Co-borrower math (0-20)
+
+  // Co-borrower math (2-12): compatible = 12, close (off by 1) = 8, incompatible = 4
   const mu = myProf.has_existing_coborrower ? 2 : 1;
   const tu = cand.has_existing_coborrower ? 2 : 1;
-  const minD = Math.min(myProf.total_coborrowers_desired || 2, cand.total_coborrowers_desired || 2);
-  bd.coborrower = (mu + tu <= minD) ? 20 : 0;
+  const myD = myProf.total_coborrowers_desired || 2;
+  const thD = cand.total_coborrowers_desired || 2;
+  const minD = Math.min(myD, thD);
+  const combined = mu + tu;
+  if (combined <= minD) {
+    bd.coborrower = 12;
+  } else if (combined <= minD + 1) {
+    bd.coborrower = 8;
+  } else {
+    bd.coborrower = 4;
+  }
   score += bd.coborrower;
+
   return { score: Math.min(score, 100), breakdown: bd };
 }
 
@@ -11284,7 +11363,7 @@ function renderDiscoveryCard() {
   if (commonCities.length > 0) commonItems.push('📍 Both looking in ' + commonCities.join(', '));
   if (samePrice && c.price_range) commonItems.push('💰 Same price range: ' + c.price_range);
   if (commonTypes.length > 0) commonItems.push('🏠 Both want: ' + commonTypes.join(', '));
-  if (bd.coborrower === 20) commonItems.push('🤝 Compatible co-borrower math');
+  if (bd.coborrower >= 10) commonItems.push('🤝 Compatible co-borrower math');
 
   const commonHtml = commonItems.length > 0 ? `
     <div style="margin-top:.75rem;padding:.7rem .85rem;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:10px;">
@@ -11311,10 +11390,10 @@ function renderDiscoveryCard() {
   const scoreHtml = isPaid ? `
     <div class="disc-score-breakdown">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--navy);margin-bottom:.4rem;">Compatibility Breakdown</div>
-      <div class="disc-score-row"><span class="score-label">📍 City overlap</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.city/35)*100}%"></div></div><span class="score-val">${bd.city}/35</span></div>
-      <div class="disc-score-row"><span class="score-label">💰 Price match</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.price/30)*100}%"></div></div><span class="score-val">${bd.price}/30</span></div>
+      <div class="disc-score-row"><span class="score-label">📍 City overlap</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.city/28)*100}%"></div></div><span class="score-val">${bd.city}/28</span></div>
+      <div class="disc-score-row"><span class="score-label">💰 Price match</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.price/25)*100}%"></div></div><span class="score-val">${bd.price}/25</span></div>
       <div class="disc-score-row"><span class="score-label">🏠 Home type</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.home/15)*100}%"></div></div><span class="score-val">${bd.home}/15</span></div>
-      <div class="disc-score-row"><span class="score-label">🤝 Group fit</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.coborrower/20)*100}%"></div></div><span class="score-val">${bd.coborrower}/20</span></div>
+      <div class="disc-score-row"><span class="score-label">🤝 Group fit</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.coborrower/12)*100}%"></div></div><span class="score-val">${bd.coborrower}/12</span></div>
     </div>` : '';
 
   // Free tier upgrade nudge
@@ -11473,21 +11552,21 @@ window.closePaywall = closePaywall;
 // ═══ STRIPE PRICE IDS — Replace these with your real Stripe Price IDs ═══
 const STRIPE_PRICES = {
   user: {
-    monthly:     { id: 'price_1TUsdQRBoWt1VxZ3DSdzgqiT', label: 'Monthly',   amount: 29.99,  interval: 'month',    perMonth: 29.99, savings: null },
-    quarterly:   { id: 'price_1TUsdjRBoWt1VxZ36vlA3eCA', label: 'Quarterly',  amount: 79.99,  interval: '3 months', perMonth: 26.66, savings: 'Save 11%' },
-    semiannual:  { id: 'price_1TUsdzRBoWt1VxZ3CUK1vseD', label: '6 Months',   amount: 149.99, interval: '6 months', perMonth: 25.00, savings: 'Save 17%', bestValue: true }
+    monthly:     { id: 'price_1TUsdQRBoWt1VxZ3DSdzgqiT', label: 'Monthly',   amount: 19.99,  interval: 'month',    perMonth: 19.99, savings: null },
+    quarterly:   { id: 'price_1TUsdjRBoWt1VxZ36vlA3eCA', label: 'Quarterly',  amount: 54.99,  interval: '3 months', perMonth: 18.33, savings: 'Save 8%' },
+    semiannual:  { id: 'price_1TUsdzRBoWt1VxZ3CUK1vseD', label: '6 Months',   amount: 99.99, interval: '6 months', perMonth: 16.67, savings: 'Save 17%', bestValue: true }
   },
-  realtor: {
-    monthly:     { id: 'price_1TUseSRBoWt1VxZ3QleA2gZr', label: 'Monthly',   amount: 49.99,  interval: 'month',    perMonth: 49.99, savings: null },
-    quarterly:   { id: 'price_1TUsfbRBoWt1VxZ3Req1pnT9', label: 'Quarterly',  amount: 139.99, interval: '3 months', perMonth: 46.66, savings: 'Save 7%' },
-    semiannual:  { id: 'price_1TUsg7RBoWt1VxZ3nn89vUrv', label: '6 Months',   amount: 249.99, interval: '6 months', perMonth: 41.67, savings: 'Save 17%', bestValue: true }
+  realtor_per_zip: {
+    monthly:     { id: 'price_1TUseSRBoWt1VxZ3QleA2gZr', label: 'Monthly',   amount: 29.99,  interval: 'month',    perMonth: 29.99, savings: null },
+    quarterly:   { id: 'price_1TUsfbRBoWt1VxZ3Req1pnT9', label: 'Quarterly',  amount: 79.99, interval: '3 months', perMonth: 26.66, savings: 'Save 11%' },
+    semiannual:  { id: 'price_1TUsg7RBoWt1VxZ3nn89vUrv', label: '6 Months',   amount: 149.99, interval: '6 months', perMonth: 25.00, savings: 'Save 17%', bestValue: true }
   },
-  realtor_addon: {
-    monthly:     { id: 'price_1TUshGRBoWt1VxZ3bonD7d6a', label: 'Monthly',   amount: 49.99,  interval: 'month',    perMonth: 49.99, savings: null },
-    quarterly:   { id: 'price_1TUshnRBoWt1VxZ34gXjbHRD', label: 'Quarterly',  amount: 139.99, interval: '3 months', perMonth: 46.66, savings: 'Save 7%' },
-    semiannual:  { id: 'price_1TUsiWRBoWt1VxZ3ZFqkCPR8', label: '6 Months',   amount: 249.99, interval: '6 months', perMonth: 41.67, savings: 'Save 17%', bestValue: true }
-  }
+  // Legacy keys for backward compat
+  get realtor() { return this.realtor_per_zip; },
+  get realtor_addon() { return this.realtor_per_zip; }
 };
+
+const MAX_REALTOR_ZIPS = 9;
 
 const PAYWALL_FEATURES = {
   user: [
@@ -11690,9 +11769,21 @@ window.completeMockCheckout = completeMockCheckout;
 let _activeGroupId = null;
 
 async function loadGroupDashboard() {
-  if (!_activeGroupId||!currentUser) return;
+  if (!currentUser) return;
+  if (!_activeGroupId || _activeGroupId === 'null' || _activeGroupId === 'undefined') {
+    document.getElementById('grp-status-text').textContent = 'No group selected.';
+    document.getElementById('grp-members-list').innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:1rem;">Return to Discovery to find matches.</div>';
+    document.getElementById('grp-actions-area').innerHTML = '<div style="text-align:center;margin-top:1rem;"><button class="btn-primary" onclick="showView(\'discovery\')">Go to Discovery →</button></div>';
+    return;
+  }
   const { data: group, error } = await sb.from('coborrower_groups').select('*').eq('id',_activeGroupId).single();
-  if (error||!group) { document.getElementById('grp-status-text').textContent='Could not load group.'; return; }
+  if (error||!group) {
+    console.error('Group load failed:', error);
+    document.getElementById('grp-status-text').textContent = 'Could not load group — it may have been reset.';
+    document.getElementById('grp-members-list').innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:1rem;">This group may no longer exist. Try returning to Discovery.</div>';
+    document.getElementById('grp-actions-area').innerHTML = '<div style="text-align:center;margin-top:1rem;"><button class="btn-primary" onclick="showView(\'discovery\')">Back to Discovery →</button></div>';
+    return;
+  }
   const { data: members } = await sb.from('coborrower_group_members').select('account_id,role,unit_size,joined_at').eq('group_id',_activeGroupId);
   const mIds=(members||[]).map(m=>m.account_id);
   const { data: ma } = await sb.from('accounts').select('id,full_name,email').in('id',mIds);
@@ -12060,6 +12151,79 @@ routeForRole = async function() {
   }
 };
 
+// ═══ ACCOUNT SETTINGS ═══
+async function loadSettings() {
+  if (!currentUser || !currentAccount) return;
+  document.getElementById('settings-name').value = currentAccount.full_name || '';
+  document.getElementById('settings-email').value = currentAccount.email || currentUser.email || '';
+  document.getElementById('settings-phone').value = currentAccount.phone || '';
+
+  // Subscription status
+  const isPaid = currentAccount.discovery_tier === 'paid' || currentAccount.tier === 'paid';
+  const statusEl = document.getElementById('settings-sub-status');
+  const actionsEl = document.getElementById('settings-sub-actions');
+
+  if (currentAccount.role === 'realtor') {
+    statusEl.innerHTML = isPaid
+      ? '<span style="background:#D1FAE5;color:#15803D;padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">NEXUS Network · Active</span><span style="font-size:.85rem;color:var(--gray-text);">3+ ZIP codes · Keep 100% commissions</span>'
+      : '<span style="background:#FEF3C7;color:#92400E;padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">Partner Agent · Free</span><span style="font-size:.85rem;color:var(--gray-text);">1 ZIP code · 25% commission on close</span>';
+    actionsEl.innerHTML = isPaid
+      ? '<button class="rp-btn rp-btn-secondary" style="font-size:.82rem;" onclick="rdTab(\'billing\');showView(\'realtor-dashboard\')">Manage Subscription →</button>'
+      : '<button class="rp-btn" style="font-size:.82rem;" onclick="rdTab(\'billing\');showView(\'realtor-dashboard\')">Upgrade to Network →</button>';
+  } else {
+    statusEl.innerHTML = isPaid
+      ? '<span style="background:#D1FAE5;color:#15803D;padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">NEXUS Home · Active</span><span style="font-size:.85rem;color:var(--gray-text);">Unlimited likes · Full profiles</span>'
+      : '<span style="background:var(--bg);color:var(--gray-text);padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">Free Tier</span><span style="font-size:.85rem;color:var(--gray-text);">5 likes/day · Blurred profiles</span>';
+    actionsEl.innerHTML = isPaid
+      ? '<div style="font-size:.82rem;color:var(--gray-text);">Subscription managed via Stripe. Contact support to cancel.</div>'
+      : '<button class="rp-btn" style="font-size:.82rem;background:#10B981;border-color:#10B981;" onclick="openPaywall()">Upgrade to NEXUS Home →</button>';
+  }
+}
+
+async function saveAccountSettings() {
+  const name = document.getElementById('settings-name').value.trim();
+  const phone = document.getElementById('settings-phone').value.trim();
+  if (!name) { showToast('Name is required', 'error'); return; }
+  const { error } = await sb.from('accounts').update({ full_name: name, phone: phone || null }).eq('id', currentUser.id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  currentAccount.full_name = name;
+  currentAccount.phone = phone;
+  updateNavForAuthed();
+  showToast('Settings saved', 'success');
+}
+window.saveAccountSettings = saveAccountSettings;
+
+async function changePassword() {
+  const newPw = document.getElementById('settings-new-pw').value;
+  const confirmPw = document.getElementById('settings-confirm-pw').value;
+  if (!newPw || newPw.length < 8) { showToast('Password must be at least 8 characters', 'error'); return; }
+  if (newPw !== confirmPw) { showToast('Passwords do not match', 'error'); return; }
+  const { error } = await sb.auth.updateUser({ password: newPw });
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  document.getElementById('settings-new-pw').value = '';
+  document.getElementById('settings-confirm-pw').value = '';
+  showToast('Password updated successfully', 'success');
+}
+window.changePassword = changePassword;
+
+function requestDeleteAccount() {
+  if (!confirm('Are you sure you want to delete your account?\n\nThis action is PERMANENT. All your data, matches, groups, and profile will be deleted.\n\nType "DELETE" in the next prompt to confirm.')) return;
+  const confirmation = prompt('Type DELETE to confirm account deletion:');
+  if (confirmation !== 'DELETE') { showToast('Account deletion cancelled', 'info'); return; }
+  showToast('Account deletion requested. Our team will process this within 48 hours and send confirmation to your email.', 'info');
+}
+window.requestDeleteAccount = requestDeleteAccount;
+
+// Wire settings into showView
+const _showViewPreSettings = showView;
+showView = function(viewName) {
+  _showViewPreSettings(viewName);
+  if (viewName === 'settings') {
+    if (!currentUser) { openLoginModal(); return; }
+    setTimeout(() => loadSettings(), 50);
+  }
+};
+
 </script>
 
 <style>
@@ -12095,6 +12259,91 @@ routeForRole = async function() {
 .auth-magic-btn{width:100%;padding:.7rem 1rem;background:#fff;color:var(--navy);border:1.5px solid var(--gray);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:all .15s;}
 .auth-magic-btn:hover{border-color:var(--blue);color:var(--blue);}
 </style>
+
+<!-- ══════════════════════ VIEW: ACCOUNT SETTINGS ══════════════════════ -->
+<div id="view-settings" class="view">
+  <div style="max-width:680px;margin:0 auto;padding:1.5rem 1rem;">
+    <span class="rp-back-link" onclick="routeForRole()">← Back to dashboard</span>
+    <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.5rem;color:var(--navy);margin-bottom:.3rem;">Account Settings</h2>
+    <p style="font-size:.88rem;color:var(--gray-text);margin-bottom:1.5rem;">Manage your account, subscription, and preferences.</p>
+
+    <!-- Account Info -->
+    <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.85rem;">Account Information</div>
+      <div style="display:grid;gap:.75rem;">
+        <div>
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);display:block;margin-bottom:.25rem;">Full Name</label>
+          <input type="text" id="settings-name" class="field-input" style="max-width:100%;">
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);display:block;margin-bottom:.25rem;">Email</label>
+          <input type="email" id="settings-email" class="field-input" style="max-width:100%;" readonly>
+          <div style="font-size:.72rem;color:var(--gray-text);margin-top:.2rem;">Contact support to change your email address.</div>
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);display:block;margin-bottom:.25rem;">Phone</label>
+          <input type="tel" id="settings-phone" class="field-input" style="max-width:100%;" placeholder="(555) 555-0100">
+        </div>
+        <button class="rp-btn" style="justify-self:start;" onclick="saveAccountSettings()">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.85rem;">Change Password</div>
+      <div style="display:grid;gap:.75rem;">
+        <div>
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);display:block;margin-bottom:.25rem;">New Password</label>
+          <input type="password" id="settings-new-pw" class="field-input" style="max-width:100%;" placeholder="Minimum 8 characters">
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);display:block;margin-bottom:.25rem;">Confirm New Password</label>
+          <input type="password" id="settings-confirm-pw" class="field-input" style="max-width:100%;" placeholder="Re-enter new password">
+        </div>
+        <button class="rp-btn rp-btn-secondary" style="justify-self:start;" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+
+    <!-- Subscription -->
+    <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.85rem;">Subscription</div>
+      <div id="settings-sub-status" style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+        <span style="font-size:.88rem;color:var(--navy);font-weight:600;">Loading…</span>
+      </div>
+      <div id="settings-sub-actions"></div>
+    </div>
+
+    <!-- Notifications Preferences -->
+    <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.85rem;">Notification Preferences</div>
+      <div style="display:grid;gap:.6rem;">
+        <label style="display:flex;align-items:center;gap:.75rem;font-size:.88rem;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="settings-notif-likes" checked style="width:18px;height:18px;accent-color:var(--blue);">
+          Notify me when someone likes my profile
+        </label>
+        <label style="display:flex;align-items:center;gap:.75rem;font-size:.88rem;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="settings-notif-matches" checked style="width:18px;height:18px;accent-color:var(--blue);">
+          Notify me when I get a match
+        </label>
+        <label style="display:flex;align-items:center;gap:.75rem;font-size:.88rem;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="settings-notif-group" checked style="width:18px;height:18px;accent-color:var(--blue);">
+          Notify me about group updates
+        </label>
+        <label style="display:flex;align-items:center;gap:.75rem;font-size:.88rem;color:#374151;cursor:pointer;">
+          <input type="checkbox" id="settings-notif-marketing" style="width:18px;height:18px;accent-color:var(--blue);">
+          Product updates and tips (optional)
+        </label>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div style="background:#fff;border:1.5px solid #FCA5A5;border-radius:14px;padding:1.25rem 1.5rem;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#B91C1C;font-size:1rem;margin-bottom:.5rem;">Danger Zone</div>
+      <div style="font-size:.85rem;color:var(--gray-text);margin-bottom:.85rem;">Deleting your account is permanent. All your data, matches, and group memberships will be removed.</div>
+      <button style="padding:.55rem 1.1rem;border-radius:8px;font-size:.85rem;font-weight:700;background:#FEE2E2;color:#B91C1C;border:1.5px solid #FCA5A5;cursor:pointer;" onclick="requestDeleteAccount()">Delete My Account</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════ VIEW: DISCOVERY STACK ══════════════════════ -->
 <div id="view-discovery" class="view">
