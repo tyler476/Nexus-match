@@ -4395,15 +4395,15 @@ body.is-impersonating .view{padding-top:114px;}
           </div>
           <div style="background:var(--bg);border-radius:10px;padding:1rem;text-align:center;">
             <div style="font-size:1.5rem;font-weight:900;color:#10B981;" id="rd-mstat-commission">$0</div>
-            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-top:.2rem;">Est. Commission (25%)</div>
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-top:.2rem;">Est. Commission (15-20%)</div>
           </div>
         </div>
       </div>
 
       <!-- 25% Commission Explainer -->
       <div style="margin-top:1rem;background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.15rem 1.4rem;">
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.95rem;">💰 Performance Commission — 25% on Close</div>
-        <div style="font-size:.85rem;color:var(--gray-text);margin-top:.3rem;line-height:1.5;">When a NEXUS-introduced co-buyer group closes a transaction, you keep 75% of the buyer's-agent commission. NEXUS retains 25%. The 24-month attribution window starts from first contact. Compare: Zillow Flex takes 35–40%.</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.95rem;">💰 Performance Commission — 15% or 20% on Close</div>
+        <div style="font-size:.85rem;color:var(--gray-text);margin-top:.3rem;line-height:1.5;">When a NEXUS-introduced co-buyer group closes, you pay 15% of the buyer's-agent commission if closing with Citizens Financial lending, or 20% with an outside lender. The 24-month attribution window starts from first contact. Compare: leading flex platforms take 35–40%.</div>
       </div>
     </div>
 
@@ -4533,78 +4533,73 @@ body.is-impersonating .view{padding-top:114px;}
         <div style="position:absolute;top:-30%;right:-5%;width:180px;height:180px;background:rgba(255,255,255,.03);border-radius:50%;"></div>
         <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.6;margin-bottom:.3rem;">Current Plan</div>
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;" id="rd-billing-current-plan">Partner Agent · Free</div>
-        <div style="font-size:.85rem;opacity:.75;margin-top:.15rem;" id="rd-billing-current-detail">1 ZIP code · 25% commission on close</div>
+        <div style="font-size:.85rem;opacity:.75;margin-top:.15rem;" id="rd-billing-current-detail">Choose 1-9 ZIP codes at $29.99/zip/month</div>
       </div>
 
-      <!-- Three-tier comparison -->
-      <div style="display:grid;grid-template-columns:1fr 2fr;gap:.85rem;margin-bottom:1.25rem;" id="rd-tier-grid">
-
-        <!-- PARTNER AGENT — Free -->
-        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--gray);position:relative;cursor:pointer;" id="rd-tier-partner" onclick="selectRealtorTier('partner')">
-          <div style="background:#F9FAFB;padding:.85rem 1rem .65rem;border-bottom:1px solid var(--gray);">
-            <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#6B7280;">Free Entry</div>
-            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;color:var(--navy);font-size:1.05rem;margin-top:.15rem;">Partner Agent</div>
+      <!-- Unified NEXUS Network pricing -->
+      <div style="margin-bottom:1.25rem;">
+        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--blue);box-shadow:0 4px 20px rgba(37,99,235,.12);">
+          <div style="background:linear-gradient(135deg,var(--navy),var(--blue));padding:1.1rem 1.4rem;color:#fff;">
+            <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.7;">Pay Per ZIP Code</div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.2rem;margin-top:.2rem;">NEXUS Network</div>
+            <div style="font-size:.82rem;opacity:.75;margin-top:.15rem;">Boosted placement, verified badge, full analytics. Keep the majority of your commissions.</div>
           </div>
-          <div style="padding:1rem;">
-            <div style="font-size:2rem;font-weight:900;color:var(--navy);">$0<span style="font-size:.85rem;font-weight:500;color:var(--gray-text);">/mo</span></div>
-            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Pay only when you close</div>
-            <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
-              <div>&#x1f4cd; <strong>1</strong> ZIP code</div>
-              <div>&#x1f4cb; Basic listing (not boosted)</div>
-              <div>&#x1f3c5; Partner Agent badge</div>
-              <div style="color:#B91C1C;font-weight:600;">&#x1f4b8; 25% of commission on close</div>
+          <div style="padding:1.5rem;">
+            <div style="display:flex;align-items:baseline;gap:.3rem;margin-bottom:.15rem;">
+              <div style="font-size:2.2rem;font-weight:900;color:var(--navy);">$29.99</div>
+              <div style="font-size:.92rem;color:var(--gray-text);">/ zip / month</div>
             </div>
-            <div style="margin-top:1rem;background:#FEF3C7;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#92400E;line-height:1.4;">
-              <strong>The math:</strong> One $700K close = $17,500 commission. You keep $13,125. NEXUS keeps $4,375.
-            </div>
-          </div>
-        </div>
+            <div style="font-size:.82rem;color:var(--gray-text);">Or $79.99/zip/3mo &middot; $149.99/zip/6mo</div>
 
-        <!-- NEXUS NETWORK — Per ZIP -->
-        <div class="rp-card" style="padding:0;overflow:hidden;border:2px solid var(--blue);position:relative;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.12);grid-column:span 2;" id="rd-tier-network" onclick="selectRealtorTier('network')">
-          <div style="background:linear-gradient(135deg,var(--navy),var(--blue));padding:.85rem 1rem .65rem;color:#fff;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.7;">Pay Per ZIP Code</div>
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.05rem;margin-top:.15rem;">NEXUS Network</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1.25rem;">
+              <div style="font-size:.85rem;color:#374151;line-height:1.7;">
+                <div>&#x1f4cd; <strong>1 to 9</strong> ZIP codes</div>
+                <div>&#x1f680; Boosted placement per ZIP</div>
+                <div>&#x1f3c5; Network verified badge</div>
               </div>
-              <div style="background:rgba(255,255,255,.2);padding:.25rem .6rem;border-radius:10px;font-size:.65rem;font-weight:700;">RECOMMENDED</div>
+              <div style="font-size:.85rem;color:#374151;line-height:1.7;">
+                <div>&#x1f504; Swap ZIPs once per cycle</div>
+                <div>&#x1f4ca; Per-ZIP analytics</div>
+                <div>&#x1f4ac; Direct group messaging</div>
+              </div>
             </div>
-          </div>
-          <div style="padding:1rem;">
-            <div style="display:flex;align-items:baseline;gap:.3rem;">
-              <div style="font-size:2rem;font-weight:900;color:var(--navy);">$29.99</div>
-              <div style="font-size:.88rem;color:var(--gray-text);">/ zip / month</div>
-            </div>
-            <div style="font-size:.78rem;color:var(--gray-text);margin-top:.1rem;">Or $79.99/zip/3mo &#xb7; $149.99/zip/6mo</div>
-            <div style="margin-top:1rem;font-size:.82rem;color:#374151;line-height:1.7;">
-              <div>&#x1f4cd; <strong>1 to 9</strong> ZIP codes &#x2014; you choose</div>
-              <div>&#x1f680; Boosted placement per ZIP</div>
-              <div>&#x1f3c5; Network verified badge</div>
-              <div style="color:#15803D;font-weight:600;">&#x2705; Keep 100% of commissions</div>
-              <div>&#x1f504; Swap ZIPs once per billing cycle</div>
-              <div>&#x1f4ca; Per-ZIP analytics dashboard</div>
-            </div>
-            <div style="margin-top:1.25rem;padding:1rem;background:var(--bg);border-radius:10px;">
-              <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.5rem;">How many ZIP codes?</div>
-              <div style="display:flex;align-items:center;gap:.75rem;">
-                <button onclick="adjustZipQty(-1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--gray);background:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#x2212;</button>
-                <div style="font-size:1.8rem;font-weight:900;color:var(--navy);min-width:40px;text-align:center;" id="rd-zip-qty">3</div>
-                <button onclick="adjustZipQty(1)" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--gray);background:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+
+            <!-- ZIP quantity selector -->
+            <div style="margin-top:1.5rem;padding:1.15rem;background:var(--bg);border-radius:12px;">
+              <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.6rem;">How many ZIP codes do you want?</div>
+              <div style="display:flex;align-items:center;gap:.85rem;">
+                <button onclick="adjustZipQty(-1)" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--gray);background:#fff;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;">&#x2212;</button>
+                <div style="font-size:2rem;font-weight:900;color:var(--navy);min-width:45px;text-align:center;" id="rd-zip-qty">3</div>
+                <button onclick="adjustZipQty(1)" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--gray);background:#fff;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;">+</button>
                 <div style="flex:1;text-align:right;">
-                  <div style="font-size:1.2rem;font-weight:900;color:var(--navy);" id="rd-zip-total-price">$89.97</div>
-                  <div style="font-size:.72rem;color:var(--gray-text);" id="rd-zip-total-interval">/month</div>
+                  <div style="font-size:1.4rem;font-weight:900;color:var(--navy);" id="rd-zip-total-price">$89.97</div>
+                  <div style="font-size:.75rem;color:var(--gray-text);" id="rd-zip-total-interval">/month</div>
                 </div>
               </div>
-              <div style="margin-top:.5rem;height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden;">
-                <div style="height:100%;background:linear-gradient(90deg,var(--blue),#10B981);border-radius:2px;transition:width .3s;" id="rd-zip-qty-bar"></div>
+              <div style="margin-top:.6rem;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;background:linear-gradient(90deg,var(--blue),#10B981);border-radius:3px;transition:width .3s;width:33%;" id="rd-zip-qty-bar"></div>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--gray-text);margin-top:.2rem;">
+              <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--gray-text);margin-top:.25rem;">
                 <span>1 ZIP</span><span>9 ZIPs</span>
               </div>
             </div>
-            <div style="margin-top:1rem;background:#D1FAE5;border-radius:8px;padding:.6rem .75rem;font-size:.75rem;color:#15803D;line-height:1.4;">
-              <strong>The math:</strong> One close = $17,500 commission. You keep <strong>all $17,500</strong>. Your ZIP subscription pays for itself on a single deal.
+
+            <!-- Commission structure -->
+            <div style="margin-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+              <div style="background:#D1FAE5;border-radius:10px;padding:.85rem 1rem;text-align:center;">
+                <div style="font-size:1.3rem;font-weight:900;color:#15803D;">15%</div>
+                <div style="font-size:.75rem;font-weight:700;color:#15803D;margin-top:.15rem;">Commission w/ Citizens Financial</div>
+                <div style="font-size:.7rem;color:#374151;margin-top:.25rem;">Use NEXUS internal lending for the lowest rate</div>
+              </div>
+              <div style="background:#FEF3C7;border-radius:10px;padding:.85rem 1rem;text-align:center;">
+                <div style="font-size:1.3rem;font-weight:900;color:#92400E;">20%</div>
+                <div style="font-size:.75rem;font-weight:700;color:#92400E;margin-top:.15rem;">Commission w/ outside lender</div>
+                <div style="font-size:.7rem;color:#374151;margin-top:.25rem;">Close with your preferred mortgage company</div>
+              </div>
+            </div>
+
+            <div style="margin-top:1rem;background:rgba(37,99,235,.04);border:1px solid rgba(37,99,235,.1);border-radius:8px;padding:.7rem .85rem;font-size:.78rem;color:#374151;line-height:1.5;">
+              <strong style="color:var(--navy);">Example:</strong> A $700K close = ~$17,500 buyer&#x2019;s agent commission. With Citizens Financial lending, NEXUS keeps 15% ($2,625) and you keep <strong>$14,875</strong>. With an outside lender, NEXUS keeps 20% ($3,500) and you keep <strong>$14,000</strong>.
             </div>
           </div>
         </div>
@@ -4624,13 +4619,13 @@ body.is-impersonating .view{padding-top:114px;}
         </div>
       </div>
 
-      <!-- Zillow comparison bar -->
+      <!-- leading platforms comparison bar -->
       <div style="margin-top:1rem;background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:1.1rem 1.4rem;">
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.9rem;margin-bottom:.75rem;">How NEXUS Compares</div>
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:.5rem;font-size:.78rem;">
           <div style="font-weight:700;color:var(--gray-text);"></div>
-          <div style="font-weight:800;color:var(--gray-text);text-align:center;">Zillow Premier</div>
-          <div style="font-weight:800;color:var(--gray-text);text-align:center;">Zillow Flex</div>
+          <div style="font-weight:800;color:var(--gray-text);text-align:center;">Premier Platform</div>
+          <div style="font-weight:800;color:var(--gray-text);text-align:center;">Flex Platform</div>
           <div style="font-weight:800;color:var(--blue);text-align:center;">NEXUS Network</div>
 
           <div style="color:#374151;padding:.4rem 0;">Monthly cost per ZIP</div>
@@ -4660,7 +4655,7 @@ body.is-impersonating .view{padding-top:114px;}
         <div class="rp-card-head">
           <div>
             <h3 class="rp-card-title">Commission Tracking</h3>
-            <div class="rp-card-sub">25% performance fee applies to Partner Agent tier only. Network agents keep 100%.</div>
+            <div class="rp-card-sub">15% with Citizens Financial lending · 20% with outside lender. 24-month attribution window.</div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;">
@@ -4678,7 +4673,7 @@ body.is-impersonating .view{padding-top:114px;}
           </div>
         </div>
         <div style="margin-top:.85rem;font-size:.78rem;color:var(--gray-text);line-height:1.5;">
-          24-month attribution window from first group contact. Upgrade to Network to eliminate the 25% fee entirely.
+          24-month attribution window from first group contact. 15% with Citizens Financial lending, 20% with outside lender.
         </div>
       </div>
     </div>
@@ -4965,8 +4960,8 @@ body.is-impersonating .view{padding-top:114px;}
       <div class="rp-card" style="margin:0;">
         <h3 class="rp-card-title">Why realtors choose NEXUS</h3>
         <ul style="line-height:1.7;font-size:.9rem;margin:.5rem 0 0 1.2rem;color:var(--text);">
-          <li>$49.99/mo entry vs Zillow Premier $600-$3,000/zip</li>
-          <li>25% on close vs Zillow Flex 35-40%</li>
+          <li>$49.99/mo entry vs Premier Platform $600-$3,000/zip</li>
+          <li>25% on close vs Flex Platform 35-40%</li>
           <li>Pre-vetted, pre-matched buyers — not cold leads</li>
           <li>Co-ownership market positioning is differentiated</li>
           <li>Keep 75% of every commission you earn</li>
@@ -8651,7 +8646,7 @@ const CERT_MODULES = [
     `,
     quiz: [
       {
-        q: 'A NEXUS-introduced buyer closes a home purchase 14 months after your first contact, but on a property they found through Zillow without your involvement. They use a different realtor at the same brokerage. Does NEXUS\'s 25% performance commission apply?',
+        q: 'A NEXUS-introduced buyer closes a home purchase 14 months after your first contact, but on a property they found through leading platforms without your involvement. They use a different realtor at the same brokerage. Does NEXUS\'s 25% performance commission apply?',
         options: [
           { t: 'No, because the property was not NEXUS-introduced', correct: false, why: 'The obligation tracks the buyer-realtor relationship, not the specific property. The buyer was your NEXUS-introduced selection.' },
           { t: 'No, because a different realtor closed the deal', correct: false, why: 'The obligation extends to other agents at your brokerage during the 24-month window. Your broker is responsible for compliance.' },
@@ -10249,27 +10244,20 @@ let _selectedRealtorInterval = 'semiannual';
 
 function renderBillingTab() {
   const isPaid = currentAccount?.tier === 'paid' || currentAccount?.discovery_tier === 'paid';
-  const hasAddon = realtorState.zipAddons > 0;
   const bannerPlan = document.getElementById('rd-billing-current-plan');
   const bannerDetail = document.getElementById('rd-billing-current-detail');
   if (bannerPlan) {
-    if (hasAddon && isPaid) { bannerPlan.textContent = 'Network+ · Active'; bannerDetail.textContent = '6 ZIP codes · Keep 100% of commissions'; }
-    else if (isPaid) { bannerPlan.textContent = 'NEXUS Network · Active'; bannerDetail.textContent = '3 ZIP codes · Keep 100% of commissions'; }
-    else { bannerPlan.textContent = 'Partner Agent · Free'; bannerDetail.textContent = '1 ZIP code · 25% commission on close'; }
+    const zipCount = (realtorState.selectedZips || []).length;
+    if (isPaid) {
+      bannerPlan.textContent = 'NEXUS Network · Active';
+      bannerDetail.textContent = zipCount + ' ZIP code' + (zipCount !== 1 ? 's' : '') + ' · 15-20% commission on close';
+    } else {
+      bannerPlan.textContent = 'No subscription · Select your ZIPs to get started';
+      bannerDetail.textContent = 'Choose 1-9 ZIP codes at $29.99/zip/month';
+    }
   }
-  // Highlight current tier
-  ['partner','network'].forEach(t => {
-    const el = document.getElementById('rd-tier-' + t);
-    if (!el) return;
-    const isActive = (t==='partner'&&!isPaid)||(t==='network'&&isPaid);
-    el.querySelectorAll('.current-badge').forEach(b=>b.remove());
-    if (isActive) {
-      el.style.borderColor='#10B981'; el.style.boxShadow='0 0 0 2px rgba(16,185,129,.15)';
-      const badge=document.createElement('div'); badge.className='current-badge';
-      badge.style.cssText='position:absolute;top:.6rem;right:.6rem;background:#10B981;color:#fff;font-size:.6rem;font-weight:800;padding:.2rem .5rem;border-radius:8px;text-transform:uppercase;letter-spacing:.3px;';
-      badge.textContent='Current'; el.appendChild(badge);
-    } else { el.style.borderColor = t==='network'?'var(--blue)':'var(--gray)'; el.style.boxShadow='none'; }
-  });
+  // Initialize ZIP qty display
+  adjustZipQty(0);
   updatePipelineStats();
 }
 
@@ -10294,18 +10282,8 @@ function adjustZipQty(delta) {
 window.adjustZipQty = adjustZipQty;
 
 function selectRealtorTier(tier) {
-  _selectedRealtorTier = tier;
+  _selectedRealtorTier = 'network';
   const intervalArea = document.getElementById('rd-billing-interval-area');
-  if (tier==='partner') {
-    if (confirm('Switch to Partner Agent (free)?\n\n• 1 ZIP code, basic listing\n• 25% commission on NEXUS closings')) {
-      sb.from('accounts').update({tier:'free',discovery_tier:'free'}).eq('id',currentUser.id).then(()=>{
-        currentAccount.tier='free'; currentAccount.discovery_tier='free';
-        showToast('Switched to Partner Agent','success'); renderBillingTab(); renderMyMarkets();
-      });
-    }
-    if (intervalArea) intervalArea.style.display='none';
-    return;
-  }
   if (intervalArea) intervalArea.style.display='block';
   const titleEl=document.getElementById('rd-billing-interval-title');
   const prices = STRIPE_PRICES.realtor_per_zip;
