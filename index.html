@@ -10257,14 +10257,21 @@ function renderBillingTab() {
     }
   }
   // Initialize ZIP qty display
-  adjustZipQty(0);
+  _realtorZipInterval = 'monthly';
+  updateZipPriceDisplay();
   updatePipelineStats();
 }
 
 let _realtorZipQty = 3;
+let _realtorZipInterval = 'monthly';
 
 function adjustZipQty(delta) {
   _realtorZipQty = Math.max(1, Math.min(MAX_REALTOR_ZIPS, _realtorZipQty + delta));
+  updateZipPriceDisplay();
+}
+window.adjustZipQty = adjustZipQty;
+
+function updateZipPriceDisplay() {
   const qtyEl = document.getElementById('rd-zip-qty');
   const priceEl = document.getElementById('rd-zip-total-price');
   const intervalEl = document.getElementById('rd-zip-total-interval');
@@ -10272,14 +10279,15 @@ function adjustZipQty(delta) {
   if (qtyEl) qtyEl.textContent = _realtorZipQty;
   if (barEl) barEl.style.width = ((_realtorZipQty / MAX_REALTOR_ZIPS) * 100) + '%';
 
-  // Calculate price based on selected interval
   const prices = STRIPE_PRICES.realtor_per_zip;
-  const plan = prices[_selectedRealtorInterval] || prices.monthly;
+  const plan = prices[_realtorZipInterval] || prices.monthly;
   const total = (_realtorZipQty * plan.amount).toFixed(2);
   if (priceEl) priceEl.textContent = '$' + total;
-  if (intervalEl) intervalEl.textContent = '/' + plan.interval;
+  if (intervalEl) {
+    const labels = { monthly: '/month', quarterly: '/quarter (3 months)', semiannual: '/6 months' };
+    intervalEl.textContent = labels[_realtorZipInterval] || '/' + plan.interval;
+  }
 }
-window.adjustZipQty = adjustZipQty;
 
 function selectRealtorTier(tier) {
   _selectedRealtorTier = 'network';
@@ -10309,7 +10317,9 @@ window.selectRealtorTier = selectRealtorTier;
 
 function pickRealtorInterval(key) {
   _selectedRealtorInterval=key;
+  _realtorZipInterval=key;
   document.querySelectorAll('#rd-billing-interval-cards .plan-card').forEach(c=>c.classList.toggle('selected',c.dataset.interval===key));
+  updateZipPriceDisplay();
 }
 window.pickRealtorInterval = pickRealtorInterval;
 
