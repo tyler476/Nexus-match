@@ -3177,6 +3177,7 @@ body.is-impersonating .view{padding-top:114px;}
         <div class="mock-actions">
           <button class="btn-mock primary" id="btn-regen" onclick="runRegenerate()">↻ Regenerate Seed</button>
           <button class="btn-mock" id="btn-reset-interactions" onclick="runResetInteractions()" style="background:#F59E0B;color:#fff;">🔄 Reset Interactions</button>
+          <button class="btn-mock" id="btn-reset-discovery" onclick="runResetDiscovery()" style="background:#8B5CF6;color:#fff;">🔍 Reset Discovery</button>
           <button class="btn-mock danger" id="btn-wipe" onclick="runWipe()">🗑 Wipe Mock Data</button>
           <button class="btn-mock" onclick="refreshMockData()">↻ Refresh</button>
           <span class="pwd-hint">Password for all mock accounts: <strong>NexusTest2026!</strong></span>
@@ -8173,9 +8174,25 @@ async function loadConversation() {
   if (sel.status === 'declined') {
     replyBox.style.display = 'none';
   } else {
-    replyBox.style.display = '';
-    document.getElementById('conv-reply-input').value = '';
-    updateConvCharCount();
+    // Check if user is on free tier — can read but not respond
+    const isPaidUser = currentAccount?.discovery_tier === 'paid' || currentAccount?.tier === 'paid' || currentAccount?.role === 'admin';
+    if (!isPaidUser) {
+      replyBox.innerHTML = `
+        <div style="text-align:center;padding:1rem;">
+          <div style="font-size:1.2rem;margin-bottom:.5rem;">🔒</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.95rem;">Upgrade to respond</div>
+          <div style="font-size:.82rem;color:var(--gray-text);margin:.3rem 0 .85rem;">You can read messages, but a NEXUS Home subscription is required to send replies.</div>
+          <button class="rp-btn" style="background:#10B981;border-color:#10B981;" onclick="openPaywall()">Upgrade to NEXUS Home →</button>
+        </div>`;
+    } else {
+      replyBox.innerHTML = `
+        <textarea id="conv-reply-input" maxlength="4000" placeholder="Write a message…" oninput="updateConvCharCount()"></textarea>
+        <div class="conv-reply-bar">
+          <span class="conv-char-count" id="conv-char-count">0 / 4,000</span>
+          <button class="conv-send-btn" id="conv-send-btn" onclick="sendConvMessage()">Send →</button>
+        </div>`;
+      updateConvCharCount();
+    }
   }
 }
 
@@ -8264,6 +8281,24 @@ async function runResetInteractions() {
   }
 }
 window.runResetInteractions = runResetInteractions;
+
+// ═══ RESET DISCOVERY — Wipe all likes, passes, matches, groups for clean testing ═══
+async function runResetDiscovery() {
+  if (!confirm('Reset ALL discovery data?\n\nThis wipes:\n• All likes and passes\n• All matches\n• All co-buyer groups and group messages\n• All group realtor selections\n\nProfiles and accounts are kept.\n\nContinue?')) return;
+  const btn = document.getElementById('btn-reset-discovery');
+  btn.disabled = true; btn.textContent = 'Resetting…';
+  try {
+    const { error } = await sb.rpc('admin_reset_discovery');
+    if (error) throw error;
+    showToast('Discovery data reset — all likes, matches, and groups cleared', 'success');
+    await refreshMockData();
+  } catch (e) {
+    showToast('Reset failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 Reset Discovery';
+  }
+}
+window.runResetDiscovery = runResetDiscovery;
 
 // ════════════════════════════════════════════════════════════════════
 // NEXUS REALTOR CERTIFICATION COURSE
@@ -11236,7 +11271,6 @@ function calcNexusScore(myProf, cand) {
 // ── Load Discovery Stack ──
 async function loadDiscoveryStack() {
   if (!currentUser) return;
-  // Allow users and admins (for testing)
   if (currentAccount?.role !== 'user' && currentAccount?.role !== 'admin') return;
   const cardArea = document.getElementById('disc-card-area');
   cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">🔍</div><div>Finding compatible co-buyers…</div></div>';
@@ -11245,7 +11279,6 @@ async function loadDiscoveryStack() {
     const { data: mp } = await sb.from('user_profiles').select('*').eq('account_id', currentUser.id).maybeSingle();
     _myProfile = mp;
   }
-  // If admin with no user profile, create a default profile for scoring
   if (!_myProfile) {
     _myProfile = {
       target_cities: [], price_range: null, home_type_preference: [],
@@ -11256,6 +11289,59 @@ async function loadDiscoveryStack() {
   if (!_myProfile.profile_completed && currentAccount?.role !== 'admin') {
     cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">📝</div><div>Complete your profile first to start discovering co-buyers.</div><button class="btn-primary" style="margin-top:1rem;" onclick="showView(\'register\')">Complete Profile →</button></div>';
     return;
+  }
+
+  // Check if user is part of a forming group (duo browsing)
+  _activeFormingGroup = null;
+  try {
+    const { data: memberships } = await sb.from('coborrower_group_members')
+      .select('group_id').eq('account_id', currentUser.id);
+    if (memberships && memberships.length > 0) {
+      const groupIds = memberships.map(m => m.group_id);
+      const { data: groups } = await sb.from('coborrower_groups')
+        .select('id, status, desired_total, current_size')
+        .in('id', groupIds).eq('status', 'forming');
+      if (groups && groups.length > 0) {
+        _activeFormingGroup = groups[0];
+        // Get other members' names for the duo banner
+        const { data: otherMembers } = await sb.from('coborrower_group_members')
+          .select('account_id').eq('group_id', _activeFormingGroup.id)
+          .neq('account_id', currentUser.id);
+        if (otherMembers && otherMembers.length > 0) {
+          const otherIds = otherMembers.map(m => m.account_id);
+          const { data: otherAccts } = await sb.from('accounts').select('id, full_name').in('id', otherIds);
+          _activeFormingGroup._memberNames = (otherAccts || []).map(a => a.full_name.split(' ')[0]);
+          _activeFormingGroup._memberIds = otherIds;
+        }
+      }
+    }
+  } catch (e) { console.warn('Group check failed:', e); }
+
+  // Show duo browsing banner if in a forming group
+  const headerArea = document.getElementById('disc-header-extra');
+  if (!document.getElementById('disc-header-extra')) {
+    const h = document.querySelector('.disc-header');
+    if (h) {
+      const extra = document.createElement('div');
+      extra.id = 'disc-header-extra';
+      h.after(extra);
+    }
+  }
+  const extraEl = document.getElementById('disc-header-extra');
+  if (extraEl && _activeFormingGroup) {
+    const needed = _activeFormingGroup.desired_total - _activeFormingGroup.current_size;
+    const partnerNames = (_activeFormingGroup._memberNames || []).join(' & ');
+    extraEl.innerHTML = `
+      <div style="background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(37,99,235,.04));border:1.5px solid rgba(139,92,246,.2);border-radius:12px;padding:.85rem 1.15rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;">
+        <div style="font-size:1.5rem;">👥</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;color:var(--navy);font-size:.9rem;">Browsing as a duo with ${escapeHtml(partnerNames)}</div>
+          <div style="font-size:.78rem;color:var(--gray-text);">Looking for ${needed} more co-buyer${needed > 1 ? 's' : ''} to complete your group of ${_activeFormingGroup.desired_total}.</div>
+        </div>
+        <button class="rp-btn rp-btn-secondary" style="padding:.35rem .7rem;font-size:.75rem;" onclick="_activeGroupId='${_activeFormingGroup.id}';showView('group-dashboard')">View Group</button>
+      </div>`;
+  } else if (extraEl) {
+    extraEl.innerHTML = '';
   }
 
   const isPaid = currentAccount.discovery_tier === 'paid';
@@ -11429,6 +11515,8 @@ function renderDiscoveryCard() {
     </div>`;
 }
 
+let _activeFormingGroup = null;
+
 async function likeCandidate(candidateId, nexusScore) {
   const isPaid = currentAccount?.discovery_tier === 'paid';
   if (!isPaid && _todayLikesCount >= FREE_DAILY_LIKES) { openPaywall(); return; }
@@ -11437,12 +11525,66 @@ async function likeCandidate(candidateId, nexusScore) {
   const { error } = await sb.from('discovery_likes').insert({ liker_id: currentUser.id, liked_id: candidateId });
   if (error && error.code !== '23505') { showToast('Error: '+error.message,'error'); return; }
   _todayLikesCount++;
+
+  // Check for mutual like
   try {
-    const { data: result } = await sb.rpc('check_and_create_match', { p_liker_id: currentUser.id, p_liked_id: candidateId, p_nexus_score: nexusScore });
-    if (result?.matched) {
-      const cand = _discoveryStack.find(c => c.account_id === candidateId);
-      showMatchCelebration(cand?.full_name||'your match', result.nexus_score, result.group_id);
-      updateLikesCounter(); return;
+    // If we're in a forming group, add the new match to our existing group
+    if (_activeFormingGroup) {
+      // Check if they liked us back
+      const { data: reciprocal } = await sb.from('discovery_likes')
+        .select('id').eq('liker_id', candidateId).eq('liked_id', currentUser.id).maybeSingle();
+
+      if (reciprocal) {
+        // Mutual like! Add to existing group
+        const candProfile = _discoveryStack.find(c => c.account_id === candidateId);
+        const candUnit = candProfile?.has_existing_coborrower ? 2 : 1;
+
+        // Add member to group
+        await sb.from('coborrower_group_members').insert({
+          group_id: _activeFormingGroup.id,
+          account_id: candidateId,
+          role: 'member',
+          unit_size: candUnit
+        });
+
+        // Update group size and status
+        const newSize = _activeFormingGroup.current_size + candUnit;
+        const newStatus = newSize >= _activeFormingGroup.desired_total ? 'complete' : 'forming';
+        await sb.from('coborrower_groups').update({
+          current_size: newSize,
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        }).eq('id', _activeFormingGroup.id);
+
+        // Create match record
+        await sb.from('discovery_matches').insert({
+          group_id: _activeFormingGroup.id,
+          account_a_id: currentUser.id < candidateId ? currentUser.id : candidateId,
+          account_b_id: currentUser.id < candidateId ? candidateId : currentUser.id,
+          nexus_score: nexusScore
+        });
+
+        // System message in group
+        const candName = candProfile?.full_name || 'New member';
+        await sb.from('group_messages').insert({
+          group_id: _activeFormingGroup.id,
+          sender_id: currentUser.id,
+          body: candName + ' has joined the group! NEXUS Score: ' + nexusScore + '/100.' + (newStatus === 'complete' ? ' 🎉 Your co-buyer group is now complete!' : ''),
+          is_system: true
+        });
+
+        showMatchCelebration(candName, nexusScore, _activeFormingGroup.id);
+        updateLikesCounter();
+        return;
+      }
+    } else {
+      // Standard match check (creates new group)
+      const { data: result } = await sb.rpc('check_and_create_match', { p_liker_id: currentUser.id, p_liked_id: candidateId, p_nexus_score: nexusScore });
+      if (result?.matched) {
+        const cand = _discoveryStack.find(c => c.account_id === candidateId);
+        showMatchCelebration(cand?.full_name||'your match', result.nexus_score, result.group_id);
+        updateLikesCounter(); return;
+      }
     }
   } catch (e) { console.warn('Match check failed:', e); }
   showToast('Liked!','success');
@@ -11796,7 +11938,24 @@ async function loadGroupDashboard() {
   if (group.status==='forming') {
     act.innerHTML = `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-weight:700;color:#92400E;">Need ${group.desired_total-group.current_size} more co-borrower${group.desired_total-group.current_size>1?'s':''}</div><div style="font-size:.85rem;color:#92400E;margin:.3rem 0 1rem;">Keep browsing to find compatible matches.</div><button class="btn-primary" onclick="showView('discovery')">Continue Browsing →</button></div>`;
   } else if (group.status==='complete'||group.status==='seeking_realtor') {
-    act.innerHTML = `<div style="background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-weight:800;color:var(--navy);font-size:1.1rem;">🎉 Group Complete!</div><div style="font-size:.88rem;color:var(--gray-text);margin:.3rem 0 1rem;">Select your NEXUS-certified realtor to proceed.</div><button class="btn-primary" style="background:#10B981;" onclick="_activeGroupId='${_activeGroupId}';showView('group-realtors')">Select Your Realtor →</button></div>`;
+    // Check if pre-approved (placeholder — will be wired to UWM later)
+    const isPreApproved = group.status === 'seeking_realtor'; // seeking_realtor means pre-approval done
+    if (!isPreApproved) {
+      act.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem;text-align:center;">
+          <div style="font-weight:800;color:var(--navy);font-size:1.1rem;font-family:'Plus Jakarta Sans',sans-serif;">🎉 Group Complete!</div>
+          <div style="font-size:.88rem;color:var(--gray-text);margin:.3rem 0 1rem;line-height:1.5;">Before selecting a realtor, your group needs to complete a pre-approval verification. This confirms your combined borrowing power.</div>
+          <button class="btn-primary" style="background:#F59E0B;margin-bottom:.5rem;" onclick="startPreApproval('${_activeGroupId}')">Start Pre-Approval →</button>
+          <div style="font-size:.72rem;color:var(--gray-text);">Takes about 5 minutes · No hard credit pull</div>
+        </div>`;
+    } else {
+      act.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem;text-align:center;">
+          <div style="font-weight:800;color:#15803D;font-size:1.05rem;">✅ Pre-Approved · Ready for Realtor Selection</div>
+          <div style="font-size:.88rem;color:var(--gray-text);margin:.3rem 0 1rem;">Your group's combined borrowing power is verified. Browse and select your NEXUS-certified realtor.</div>
+          <button class="btn-primary" style="background:#10B981;" onclick="_activeGroupId='${_activeGroupId}';showView('group-realtors')">Select Your Realtor →</button>
+        </div>`;
+    }
   } else if (group.status==='realtor_confirmed') {
     act.innerHTML = `<div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.3);border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-weight:800;color:#15803D;font-size:1.05rem;">✅ Realtor Confirmed</div><div style="font-size:.85rem;color:var(--gray-text);margin:.3rem 0;">Contact info shared with all parties.</div></div>`;
   }
@@ -11830,6 +11989,31 @@ async function sendGroupMessage() {
   input.value=''; await loadGroupChat();
 }
 window.sendGroupMessage = sendGroupMessage;
+
+// ═══ PRE-APPROVAL GATE — Placeholder for UWM integration ═══
+async function startPreApproval(groupId) {
+  // For now, simulate pre-approval — will be replaced with UWM integration
+  if (confirm('Start pre-approval for your co-buyer group?\n\nThis will verify your group\'s combined borrowing power. No hard credit pull.\n\n(Demo mode — in production this connects to the lending platform)')) {
+    showToast('Processing pre-approval…', 'info');
+    // Simulate delay
+    await new Promise(r => setTimeout(r, 1500));
+    // Update group status to seeking_realtor (indicates pre-approval complete)
+    const { error } = await sb.from('coborrower_groups')
+      .update({ status: 'seeking_realtor', updated_at: new Date().toISOString() })
+      .eq('id', groupId);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    // System message
+    await sb.from('group_messages').insert({
+      group_id: groupId,
+      sender_id: currentUser.id,
+      body: 'Group pre-approval verified! Your combined borrowing power is confirmed. You can now browse and select a NEXUS-certified realtor.',
+      is_system: true
+    });
+    showToast('Pre-approval complete! You can now select a realtor.', 'success');
+    await loadGroupDashboard();
+  }
+}
+window.startPreApproval = startPreApproval;
 
 // ═══ GROUP REALTOR SELECTION ═══
 async function loadGroupRealtors() {
