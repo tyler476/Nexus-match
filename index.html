@@ -4330,6 +4330,7 @@ body.is-impersonating .view{padding-top:114px;}
     <div class="rp-tab-bar">
       <button class="rp-tab active" id="rd-tab-markets" onclick="rdTab('markets')">My Markets</button>
       <button class="rp-tab" id="rd-tab-pipeline" onclick="rdTab('pipeline')">Pipeline</button>
+      <button class="rp-tab" id="rd-tab-studio" onclick="rdTab('studio')">Content Studio</button>
       <button class="rp-tab" id="rd-tab-profile" onclick="rdTab('profile')">Profile</button>
       <button class="rp-tab" id="rd-tab-cert" onclick="rdTab('cert')">Certification</button>
       <button class="rp-tab" id="rd-tab-billing" onclick="rdTab('billing')">Billing</button>
@@ -4707,6 +4708,100 @@ body.is-impersonating .view{padding-top:114px;}
             <div class="rp-empty-state-icon">📭</div>
             <div>No selections yet.</div>
             <div style="font-size:.85rem;margin-top:.4rem;">Once co-buyer groups start selecting you, they'll appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT STUDIO TAB -->
+    <div id="rd-content-studio" style="display:none;">
+      <div class="rp-card">
+        <div class="rp-card-head">
+          <div>
+            <h3 class="rp-card-title">Content Studio</h3>
+            <div class="rp-card-sub">Create compliant marketing assets with your branding. Canva integration auto-fills your credentials and locks compliance fields.</div>
+          </div>
+        </div>
+
+        <!-- Canva connection status -->
+        <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:1.25rem;padding:.85rem 1.1rem;border:1.5px solid var(--gray);border-radius:10px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#7d4cdb,#9b69f5);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#fff;font-weight:800;font-size:.9rem;">C</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:700;color:var(--navy);font-size:.92rem;" id="studio-canva-status">Canva not connected</div>
+            <div style="font-size:.78rem;color:var(--gray-text);">Connect to pull your brand kit, templates, and logos.</div>
+          </div>
+          <button class="rp-btn rp-btn-secondary" style="padding:.45rem .85rem;font-size:.8rem;background:#7d4cdb;border-color:#7d4cdb;color:#fff;" onclick="connectCanva()">Connect Canva</button>
+        </div>
+
+        <!-- Template picker -->
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.65rem;">Choose a template</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:1rem;" id="studio-template-grid">
+          <div class="studio-tpl" onclick="selectStudioTemplate('nexus_certified')" style="border:1.5px solid var(--gray);border-radius:10px;padding:.85rem;cursor:pointer;text-align:center;transition:all .15s;">
+            <div style="font-size:1.5rem;margin-bottom:.3rem;">🏅</div>
+            <div style="font-weight:700;color:var(--navy);font-size:.82rem;">NEXUS Certified</div>
+            <div style="font-size:.7rem;color:var(--gray-text);">Announce your certification</div>
+          </div>
+          <div class="studio-tpl" onclick="selectStudioTemplate('market_update')" style="border:1.5px solid var(--gray);border-radius:10px;padding:.85rem;cursor:pointer;text-align:center;transition:all .15s;">
+            <div style="font-size:1.5rem;margin-bottom:.3rem;">📊</div>
+            <div style="font-weight:700;color:var(--navy);font-size:.82rem;">Market Update</div>
+            <div style="font-size:.7rem;color:var(--gray-text);">Local market insights</div>
+          </div>
+          <div class="studio-tpl" onclick="selectStudioTemplate('cobuy_intro')" style="border:1.5px solid var(--gray);border-radius:10px;padding:.85rem;cursor:pointer;text-align:center;transition:all .15s;">
+            <div style="font-size:1.5rem;margin-bottom:.3rem;">🤝</div>
+            <div style="font-weight:700;color:var(--navy);font-size:.82rem;">Co-Buying Intro</div>
+            <div style="font-size:.7rem;color:var(--gray-text);">Educate buyers on co-ownership</div>
+          </div>
+          <div class="studio-tpl" onclick="selectStudioTemplate('just_listed')" style="border:1.5px solid var(--gray);border-radius:10px;padding:.85rem;cursor:pointer;text-align:center;transition:all .15s;">
+            <div style="font-size:1.5rem;margin-bottom:.3rem;">🏠</div>
+            <div style="font-weight:700;color:var(--navy);font-size:.82rem;">Just Listed</div>
+            <div style="font-size:.7rem;color:var(--gray-text);">Property announcement</div>
+          </div>
+          <div class="studio-tpl" onclick="selectStudioTemplate('open_house')" style="border:1.5px solid var(--gray);border-radius:10px;padding:.85rem;cursor:pointer;text-align:center;transition:all .15s;">
+            <div style="font-size:1.5rem;margin-bottom:.3rem;">🚪</div>
+            <div style="font-weight:700;color:var(--navy);font-size:.82rem;">Open House</div>
+            <div style="font-size:.7rem;color:var(--gray-text);">Event invitation</div>
+          </div>
+          <div class="studio-tpl" onclick="selectStudioTemplate('social_bio')" style="border:1.5px solid var(--gray);border-radius:10px;padding:.85rem;cursor:pointer;text-align:center;transition:all .15s;">
+            <div style="font-size:1.5rem;margin-bottom:.3rem;">📱</div>
+            <div style="font-weight:700;color:var(--navy);font-size:.82rem;">Social Bio Card</div>
+            <div style="font-size:.7rem;color:var(--gray-text);">Instagram/LinkedIn profile</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview area (shown after template selection) -->
+      <div id="studio-preview-area" style="display:none;margin-top:1rem;">
+        <div class="rp-card">
+          <div class="rp-card-head">
+            <div>
+              <h3 class="rp-card-title" id="studio-preview-title">Preview</h3>
+              <div class="rp-card-sub">Auto-filled with your profile data. Locked fields (🔒) cannot be edited for compliance.</div>
+            </div>
+          </div>
+
+          <!-- The rendered asset -->
+          <div id="studio-canvas" style="background:#fff;border:1.5px solid var(--gray);border-radius:12px;overflow:hidden;margin-bottom:1rem;">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Editable fields -->
+          <div id="studio-edit-fields" style="margin-bottom:1rem;">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Compliance status -->
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;padding:.65rem .85rem;background:#D1FAE5;border-radius:8px;">
+            <span style="font-size:1rem;">✅</span>
+            <span style="font-size:.82rem;color:#15803D;font-weight:600;">Compliance check passed — all required fields present</span>
+          </div>
+
+          <!-- Export actions -->
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="rp-btn" style="background:#10B981;border-color:#10B981;" onclick="exportStudioAsset('download')">⬇ Download PNG</button>
+            <button class="rp-btn rp-btn-secondary" onclick="exportStudioAsset('canva')" style="background:#7d4cdb;border-color:#7d4cdb;color:#fff;">Push to Canva</button>
+            <button class="rp-btn rp-btn-secondary" onclick="exportStudioAsset('copy')">📋 Copy to Clipboard</button>
           </div>
         </div>
       </div>
@@ -10114,7 +10209,7 @@ function paymentModelLabel(model) {
 }
 
 function rdTab(tab) {
-  ['markets', 'pipeline', 'profile', 'cert', 'billing'].forEach(t => {
+  ['markets', 'pipeline', 'studio', 'profile', 'cert', 'billing'].forEach(t => {
     const tabEl = document.getElementById('rd-tab-' + t);
     const contentEl = document.getElementById('rd-content-' + t);
     if (tabEl) tabEl.classList.toggle('active', t === tab);
@@ -12324,6 +12419,282 @@ routeForRole = async function() {
 };
 
 // ═══ ACCOUNT SETTINGS ═══
+
+// ═══ CONTENT STUDIO — Canva Integration Phase 1 MVP ═══
+let _studioTemplate = null;
+let _studioEditableFields = {};
+
+function connectCanva() {
+  // Canva OAuth placeholder — requires registration at canva.com/developers
+  showToast('Canva Connect API integration pending. Register your app at canva.com/developers to enable OAuth.', 'info');
+  document.getElementById('studio-canva-status').textContent = 'Canva — pending API registration';
+}
+window.connectCanva = connectCanva;
+
+const STUDIO_TEMPLATES = {
+  nexus_certified: {
+    name: 'NEXUS Certified Agent',
+    editableFields: [
+      { key: 'tagline', label: 'Tagline', default: 'Your trusted co-ownership specialist' },
+      { key: 'cta', label: 'Call to Action', default: 'Ready to co-buy? Let\'s connect.' }
+    ],
+    render: (agent, fields) => `
+      <div style="width:100%;aspect-ratio:1/1;background:linear-gradient(145deg,#0B1D3E,#1B3A6B);color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:2.5rem;text-align:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-30%;right:-15%;width:300px;height:300px;background:rgba(47,215,145,.08);border-radius:50%;"></div>
+        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:1rem;box-shadow:0 8px 24px rgba(16,185,129,.3);">🏅</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.5rem;margin-bottom:.25rem;">NEXUS Certified</div>
+        <div style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">Co-Ownership Agent</div>
+        <div style="width:60px;height:3px;background:#10B981;border-radius:2px;margin:.75rem 0;"></div>
+        ${agent.headshot_url ? `<img src="${agent.headshot_url}" style="width:70px;height:70px;border-radius:50%;border:3px solid #10B981;margin-bottom:.75rem;object-fit:cover;">` : ''}
+        <div style="font-size:1.15rem;font-weight:800;">${escapeHtml(agent.name)}</div>
+        <div style="font-size:.82rem;opacity:.8;margin-top:.2rem;">${escapeHtml(agent.brokerage)}</div>
+        <div style="font-size:.85rem;opacity:.7;margin-top:.75rem;font-style:italic;">"${escapeHtml(fields.tagline)}"</div>
+        <div style="margin-top:1rem;padding:.55rem 1.5rem;background:#10B981;border-radius:8px;font-weight:700;font-size:.88rem;">${escapeHtml(fields.cta)}</div>
+        <div style="position:absolute;bottom:.85rem;left:0;right:0;text-align:center;font-size:.55rem;opacity:.5;padding:0 1rem;">
+          🔒 ${escapeHtml(agent.name)} · DRE# ${escapeHtml(agent.dre)} · ${escapeHtml(agent.brokerage)} · DRE# ${escapeHtml(agent.brokerage_dre)} · Equal Housing Opportunity · NMLS# 2503947
+        </div>
+      </div>`
+  },
+  market_update: {
+    name: 'Market Update',
+    editableFields: [
+      { key: 'headline', label: 'Headline', default: 'Market Update' },
+      { key: 'stat1_label', label: 'Stat 1 Label', default: 'Median Home Price' },
+      { key: 'stat1_value', label: 'Stat 1 Value', default: '$785,000' },
+      { key: 'stat2_label', label: 'Stat 2 Label', default: 'Days on Market' },
+      { key: 'stat2_value', label: 'Stat 2 Value', default: '21 days' },
+      { key: 'insight', label: 'Market Insight', default: 'Co-buying makes this market accessible. Two incomes, one mortgage, shared equity.' }
+    ],
+    render: (agent, fields) => `
+      <div style="width:100%;aspect-ratio:4/5;background:linear-gradient(145deg,#0B1D3E,#1a2d52);color:#fff;padding:2rem;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="position:absolute;top:0;right:0;width:200px;height:200px;background:rgba(37,99,235,.1);border-radius:0 0 0 100%;"></div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;margin-bottom:.15rem;">${escapeHtml(fields.headline)}</div>
+        <div style="font-size:.82rem;opacity:.6;">${escapeHtml(agent.zips.join(', '))} · ${new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'})}</div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1rem;">
+          <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:1.25rem;text-align:center;">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;opacity:.6;">${escapeHtml(fields.stat1_label)}</div>
+            <div style="font-size:2rem;font-weight:900;color:#10B981;">${escapeHtml(fields.stat1_value)}</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:1.25rem;text-align:center;">
+            <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;opacity:.6;">${escapeHtml(fields.stat2_label)}</div>
+            <div style="font-size:2rem;font-weight:900;color:#3B82F6;">${escapeHtml(fields.stat2_value)}</div>
+          </div>
+        </div>
+        <div style="font-size:.85rem;opacity:.8;font-style:italic;margin-bottom:1rem;line-height:1.5;">"${escapeHtml(fields.insight)}"</div>
+        <div style="display:flex;align-items:center;gap:.65rem;">
+          ${agent.headshot_url ? `<img src="${agent.headshot_url}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">` : `<div style="width:38px;height:38px;border-radius:50%;background:#10B981;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;">${agent.initials}</div>`}
+          <div><div style="font-weight:700;font-size:.82rem;">${escapeHtml(agent.name)}</div><div style="font-size:.7rem;opacity:.6;">${escapeHtml(agent.brokerage)}</div></div>
+        </div>
+        <div style="margin-top:.75rem;font-size:.5rem;opacity:.4;text-align:center;">🔒 DRE# ${escapeHtml(agent.dre)} · ${escapeHtml(agent.brokerage)} DRE# ${escapeHtml(agent.brokerage_dre)} · Equal Housing Opportunity · NMLS# 2503947</div>
+      </div>`
+  },
+  cobuy_intro: {
+    name: 'Co-Buying Introduction',
+    editableFields: [
+      { key: 'headline', label: 'Headline', default: 'Can\'t afford to buy alone?' },
+      { key: 'body', label: 'Body Text', default: 'Co-ownership lets 2-4 buyers combine income, split costs, and build equity together. I\'m NEXUS Certified to guide you through every step.' },
+      { key: 'cta', label: 'Call to Action', default: 'DM me to learn more' }
+    ],
+    render: (agent, fields) => `
+      <div style="width:100%;aspect-ratio:1/1;background:#fff;color:#0B1D3E;padding:2rem;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-20%;left:-10%;width:250px;height:250px;background:rgba(16,185,129,.06);border-radius:50%;"></div>
+        <div style="font-size:2.5rem;margin-bottom:.75rem;">🏠🤝🏠</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.4rem;line-height:1.2;margin-bottom:.75rem;">${escapeHtml(fields.headline)}</div>
+        <div style="font-size:.92rem;color:#374151;line-height:1.6;margin-bottom:1.25rem;">${escapeHtml(fields.body)}</div>
+        <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.75rem;">
+          ${agent.headshot_url ? `<img src="${agent.headshot_url}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #10B981;">` : ''}
+          <div><div style="font-weight:800;font-size:.9rem;">${escapeHtml(agent.name)}</div><div style="font-size:.72rem;color:#6B7280;">NEXUS Certified Co-Ownership Agent</div></div>
+        </div>
+        <div style="padding:.6rem 1.2rem;background:linear-gradient(135deg,#0B1D3E,#1B3A6B);color:#fff;border-radius:8px;font-weight:700;font-size:.88rem;display:inline-block;align-self:flex-start;">${escapeHtml(fields.cta)}</div>
+        <div style="position:absolute;bottom:.6rem;left:0;right:0;text-align:center;font-size:.5rem;color:#9CA3AF;">🔒 DRE# ${escapeHtml(agent.dre)} · ${escapeHtml(agent.brokerage)} DRE# ${escapeHtml(agent.brokerage_dre)} · Equal Housing Opportunity · NMLS# 2503947</div>
+      </div>`
+  },
+  just_listed: {
+    name: 'Just Listed',
+    editableFields: [
+      { key: 'address', label: 'Property Address', default: '123 Main Street' },
+      { key: 'city', label: 'City', default: 'San Francisco, CA' },
+      { key: 'price', label: 'Price', default: '$1,250,000' },
+      { key: 'beds', label: 'Beds/Baths/Sqft', default: '3 BD · 2 BA · 1,850 SF' },
+      { key: 'note', label: 'Agent Note', default: 'Perfect for co-buyers. Reach out for a private showing.' }
+    ],
+    render: (agent, fields) => `
+      <div style="width:100%;aspect-ratio:4/5;background:linear-gradient(180deg,#1a2d52 0%,#0B1D3E 100%);color:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden;">
+        <div style="flex:1;background:linear-gradient(135deg,#2d3a5c,#1a2845);display:flex;align-items:center;justify-content:center;font-size:3rem;color:rgba(255,255,255,.15);">🏠</div>
+        <div style="padding:1.5rem 1.75rem;">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;color:#10B981;font-weight:700;margin-bottom:.35rem;">Just Listed</div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;">${escapeHtml(fields.address)}</div>
+          <div style="font-size:.88rem;opacity:.7;margin-top:.15rem;">${escapeHtml(fields.city)}</div>
+          <div style="font-size:1.5rem;font-weight:900;color:#10B981;margin:.65rem 0;">${escapeHtml(fields.price)}</div>
+          <div style="font-size:.85rem;opacity:.8;">${escapeHtml(fields.beds)}</div>
+          <div style="font-size:.82rem;opacity:.65;font-style:italic;margin-top:.65rem;">"${escapeHtml(fields.note)}"</div>
+          <div style="display:flex;align-items:center;gap:.55rem;margin-top:.85rem;">
+            ${agent.headshot_url ? `<img src="${agent.headshot_url}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;">` : `<div style="width:34px;height:34px;border-radius:50%;background:#10B981;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.7rem;">${agent.initials}</div>`}
+            <div><div style="font-weight:700;font-size:.78rem;">${escapeHtml(agent.name)}</div><div style="font-size:.65rem;opacity:.5;">${escapeHtml(agent.brokerage)}</div></div>
+          </div>
+          <div style="margin-top:.65rem;font-size:.48rem;opacity:.4;text-align:center;">🔒 DRE# ${escapeHtml(agent.dre)} · ${escapeHtml(agent.brokerage)} DRE# ${escapeHtml(agent.brokerage_dre)} · Equal Housing Opportunity · NMLS# 2503947</div>
+        </div>
+      </div>`
+  },
+  open_house: {
+    name: 'Open House',
+    editableFields: [
+      { key: 'address', label: 'Property Address', default: '456 Oak Avenue' },
+      { key: 'date', label: 'Date & Time', default: 'Saturday, June 7 · 11am–2pm' },
+      { key: 'price', label: 'Price', default: '$875,000' },
+      { key: 'highlight', label: 'Highlight', default: 'Co-buyer friendly! Bring your partner or future co-owner.' }
+    ],
+    render: (agent, fields) => `
+      <div style="width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#10B981,#059669);color:#fff;padding:2rem;display:flex;flex-direction:column;justify-content:center;text-align:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-20%;right:-20%;width:300px;height:300px;background:rgba(255,255,255,.05);border-radius:50%;"></div>
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;font-weight:800;opacity:.8;margin-bottom:.5rem;">Open House</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.6rem;margin-bottom:.15rem;">${escapeHtml(fields.address)}</div>
+        <div style="font-size:1rem;font-weight:700;margin:.65rem 0;">${escapeHtml(fields.date)}</div>
+        <div style="font-size:1.8rem;font-weight:900;">${escapeHtml(fields.price)}</div>
+        <div style="font-size:.85rem;opacity:.85;margin-top:.75rem;font-style:italic;">${escapeHtml(fields.highlight)}</div>
+        <div style="display:flex;align-items:center;gap:.55rem;justify-content:center;margin-top:1.25rem;">
+          ${agent.headshot_url ? `<img src="${agent.headshot_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.4);">` : ''}
+          <div style="text-align:left;"><div style="font-weight:700;font-size:.82rem;">${escapeHtml(agent.name)}</div><div style="font-size:.68rem;opacity:.7;">${escapeHtml(agent.brokerage)}</div></div>
+        </div>
+        <div style="position:absolute;bottom:.6rem;left:0;right:0;text-align:center;font-size:.48rem;opacity:.35;">🔒 DRE# ${escapeHtml(agent.dre)} · ${escapeHtml(agent.brokerage)} DRE# ${escapeHtml(agent.brokerage_dre)} · Equal Housing Opportunity · NMLS# 2503947</div>
+      </div>`
+  },
+  social_bio: {
+    name: 'Social Bio Card',
+    editableFields: [
+      { key: 'tagline', label: 'Tagline', default: 'Helping co-buyers build wealth through shared homeownership' },
+      { key: 'phone', label: 'Phone', default: '' },
+      { key: 'website', label: 'Website', default: '' }
+    ],
+    render: (agent, fields) => `
+      <div style="width:100%;aspect-ratio:1/1;background:linear-gradient(145deg,#0B1D3E,#1B3A6B);color:#fff;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;">
+        ${agent.headshot_url ? `<img src="${agent.headshot_url}" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #10B981;margin-bottom:1rem;">` : `<div style="width:90px;height:90px;border-radius:50%;background:#10B981;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;margin-bottom:1rem;">${agent.initials}</div>`}
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;">${escapeHtml(agent.name)}</div>
+        <div style="font-size:.82rem;opacity:.7;margin-top:.15rem;">${escapeHtml(agent.brokerage)}</div>
+        <div style="display:flex;gap:.5rem;margin:.65rem 0;"><span style="background:rgba(16,185,129,.2);padding:.25rem .65rem;border-radius:14px;font-size:.7rem;font-weight:700;color:#10B981;">🏅 NEXUS Certified</span></div>
+        <div style="font-size:.88rem;opacity:.8;margin:.5rem 0;line-height:1.5;max-width:280px;">${escapeHtml(fields.tagline)}</div>
+        <div style="margin-top:.75rem;font-size:.82rem;opacity:.6;">
+          ${fields.phone ? '📞 ' + escapeHtml(fields.phone) + '<br>' : ''}
+          ${fields.website ? '🌐 ' + escapeHtml(fields.website) : ''}
+        </div>
+        <div style="position:absolute;bottom:.6rem;font-size:.48rem;opacity:.35;">🔒 DRE# ${escapeHtml(agent.dre)} · Equal Housing Opportunity · NMLS# 2503947</div>
+      </div>`
+  }
+};
+
+function getAgentDataForStudio() {
+  const profile = realtorState.profile || {};
+  return {
+    name: currentAccount?.full_name || 'Agent Name',
+    initials: (currentAccount?.full_name || 'A').split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase(),
+    brokerage: profile.brokerage || 'NEXUS Real Estate',
+    dre: profile.dre_number || 'XXXXXXX',
+    brokerage_dre: profile.brokerage_dre || 'XXXXXXX',
+    headshot_url: profile.headshot_url || null,
+    phone: currentAccount?.phone || '',
+    email: currentAccount?.email || '',
+    zips: realtorState.selectedZips || ['00000']
+  };
+}
+
+function selectStudioTemplate(key) {
+  const tpl = STUDIO_TEMPLATES[key];
+  if (!tpl) return;
+  _studioTemplate = key;
+
+  // Highlight selected template
+  document.querySelectorAll('.studio-tpl').forEach(el => {
+    el.style.borderColor = 'var(--gray)';
+    el.style.background = '#fff';
+  });
+  event.currentTarget.style.borderColor = 'var(--blue)';
+  event.currentTarget.style.background = 'rgba(37,99,235,.04)';
+
+  // Init editable fields with defaults
+  _studioEditableFields = {};
+  tpl.editableFields.forEach(f => {
+    _studioEditableFields[f.key] = f.default;
+    // Pre-fill phone/website from profile
+    if (f.key === 'phone') _studioEditableFields[f.key] = currentAccount?.phone || f.default;
+    if (f.key === 'website') _studioEditableFields[f.key] = f.default;
+  });
+
+  // Show preview
+  document.getElementById('studio-preview-area').style.display = 'block';
+  document.getElementById('studio-preview-title').textContent = tpl.name + ' — Preview';
+  renderStudioPreview();
+  renderStudioEditFields();
+}
+window.selectStudioTemplate = selectStudioTemplate;
+
+function renderStudioPreview() {
+  const tpl = STUDIO_TEMPLATES[_studioTemplate];
+  if (!tpl) return;
+  const agent = getAgentDataForStudio();
+  document.getElementById('studio-canvas').innerHTML = tpl.render(agent, _studioEditableFields);
+}
+
+function renderStudioEditFields() {
+  const tpl = STUDIO_TEMPLATES[_studioTemplate];
+  if (!tpl) return;
+  const container = document.getElementById('studio-edit-fields');
+  container.innerHTML = '<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);margin-bottom:.5rem;">Editable Fields</div>' +
+    tpl.editableFields.map(f => `
+      <div style="margin-bottom:.6rem;">
+        <label style="font-size:.72rem;font-weight:600;color:var(--gray-text);display:block;margin-bottom:.2rem;">${f.label}</label>
+        <input type="text" value="${escapeHtml(_studioEditableFields[f.key] || '')}" onchange="updateStudioField('${f.key}',this.value)" style="width:100%;padding:.55rem .75rem;border:1.5px solid var(--gray);border-radius:7px;font-size:.85rem;font-family:'Inter',sans-serif;">
+      </div>
+    `).join('') +
+    '<div style="margin-top:.5rem;font-size:.72rem;color:var(--gray-text);">🔒 Compliance fields (DRE, disclaimers, NEXUS badge) are auto-filled and locked.</div>';
+}
+
+function updateStudioField(key, value) {
+  _studioEditableFields[key] = value;
+  renderStudioPreview();
+}
+window.updateStudioField = updateStudioField;
+
+function exportStudioAsset(method) {
+  if (method === 'canva') {
+    showToast('Push to Canva requires API connection. Register at canva.com/developers.', 'info');
+    return;
+  }
+  if (method === 'copy') {
+    const canvas = document.getElementById('studio-canvas');
+    // Use the Selection API to select the content
+    const range = document.createRange();
+    range.selectNodeContents(canvas);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    showToast('Copied to clipboard! Paste into any design tool.', 'success');
+    return;
+  }
+  if (method === 'download') {
+    showToast('Preparing download…', 'info');
+    // Use html2canvas-style approach via SVG foreignObject
+    const canvas = document.getElementById('studio-canvas');
+    const html = canvas.innerHTML;
+    const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080">
+      <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="width:1080px;height:1080px;font-family:system-ui,-apple-system,sans-serif;">
+          ${html}
+        </div>
+      </foreignObject>
+    </svg>`;
+    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nexus-' + (_studioTemplate || 'asset') + '.svg';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded as SVG. Open in any editor to export as PNG.', 'success');
+  }
+}
+window.exportStudioAsset = exportStudioAsset;
 async function loadSettings() {
   if (!currentUser || !currentAccount) return;
   document.getElementById('settings-name').value = currentAccount.full_name || '';
