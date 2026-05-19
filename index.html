@@ -7638,6 +7638,25 @@ async function handleMagicLink() {
   document.getElementById('auth-magic-sent-panel').style.display = 'block';
 }
 
+// ═══ Forgot Password ═══
+async function handleForgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) {
+    showAuthError('login-error', 'Enter your email above first, then click forgot password.');
+    return;
+  }
+  hideAuthErrors();
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '?reset=true'
+  });
+  if (error) {
+    showAuthError('login-error', error.message);
+    return;
+  }
+  showToast('Password reset email sent! Check your inbox.', 'success');
+}
+window.handleForgotPassword = handleForgotPassword;
+
 // ═══ Signup ═══
 async function handleSignup() {
   const fullName = document.getElementById('signup-fullname').value.trim();
@@ -7788,7 +7807,14 @@ async function submitProfile() {
     coborrower_credit_range: hasCoborrower ? (document.getElementById('f-cb-credit')?.value || null) : null,
     total_coborrowers_desired: totalDesired,
     home_type_preference: state.selectedPropertyTypes || [],
-    interests: state.selectedInterests || []
+    interests: state.selectedInterests || [],
+    // Set defaults for display fields not in registration form
+    household_setup: hasCoborrower ? 'couple' : 'single',
+    style_communication: 3,
+    style_decision: 3,
+    style_pace: 3,
+    style_education: 3,
+    style_negotiation: 3
   };
 
   const { error: profErr } = await sb
@@ -11621,6 +11647,10 @@ async function likeCandidate(candidateId, nexusScore) {
   if (error && error.code !== '23505') { showToast('Error: '+error.message,'error'); return; }
   _todayLikesCount++;
 
+  // Notify the liked user
+  const likerName = (currentAccount?.full_name || 'Someone').split(' ')[0];
+  queueNotification(candidateId, 'like_received', 'Someone liked your profile', likerName + ' liked your profile on NEXUS Match.', { liker_id: currentUser.id });
+
   // Check for mutual like
   try {
     // If we're in a forming group, add the new match to our existing group
@@ -11739,7 +11769,7 @@ async function loadLikesYou() {
     const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
     const bl=isPaid?'':'blurred';
     const ph=p.photo_url?`<img src="${escapeHtml(p.photo_url)}">`:ini;
-    const cl=isPaid?`onclick="likeCandidate('${l.liker_id}',0)"`:`onclick="openPaywall()"`;
+    const cl=isPaid?`onclick="likeBackFromLikesYou('${l.liker_id}')"`:`onclick="openPaywall()"`;
     return `<div class="likes-you-card ${bl}" ${cl}><div class="lyc-photo">${ph}</div><div class="lyc-body"><div class="lyc-name">${isPaid?escapeHtml(a.full_name||'?'):'••••••'}</div><div class="lyc-sub">${isPaid?escapeHtml(p.current_city||''):'Upgrade to see'}</div></div></div>`;
   }).join('');
 }
@@ -12110,6 +12140,82 @@ async function startPreApproval(groupId) {
 }
 window.startPreApproval = startPreApproval;
 
+// ═══ LIKE BACK FROM LIKES YOU — Calculate real NEXUS score ═══
+async function likeBackFromLikesYou(candidateId) {
+  // Load candidate's profile to calculate real score
+  const { data: candProfile } = await sb.from('user_profiles')
+    .select('account_id, target_cities, price_range, home_type_preference, has_existing_coborrower, total_coborrowers_desired')
+    .eq('account_id', candidateId).maybeSingle();
+  let score = 50; // Fallback
+  if (candProfile && _myProfile) {
+    const result = calcNexusScore(_myProfile, candProfile);
+    score = result.score;
+  }
+  await likeCandidate(candidateId, score);
+}
+window.likeBackFromLikesYou = likeBackFromLikesYou;
+
+// ═══ NOTIFICATION QUEUE — Insert into notifications table ═══
+async function queueNotification(recipientId, type, title, body, metadata) {
+  try {
+    await sb.from('notifications').insert({
+      recipient_id: recipientId,
+      type: type,
+      title: title,
+      body: body,
+      metadata: metadata || {}
+    });
+  } catch (e) { console.warn('Notification queue failed:', e); }
+}
+
+// Wire notifications into key events
+const _origLikeCandidate = likeCandidate;
+// Notifications are triggered inside likeCandidate when a match is found
+// Additional triggers for group events are in startPreApproval and confirmGroupRealtor
+
+// ═══ IMAGE UPLOAD — Profile photo to Supabase Storage ═══
+async function uploadProfilePhoto(file) {
+  if (!currentUser || !file) return null;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['jpg','jpeg','png','webp','gif'].includes(ext)) {
+    showToast('Please upload a JPG, PNG, or WebP image.', 'error');
+    return null;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Image must be under 5MB.', 'error');
+    return null;
+  }
+  const path = `${currentUser.id}/avatar.${ext}`;
+  const { error } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    showToast('Upload failed: ' + error.message, 'error');
+    return null;
+  }
+  const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
+  const publicUrl = urlData?.publicUrl + '?t=' + Date.now(); // Cache bust
+  // Save to user_profiles or realtor_profiles
+  if (currentAccount?.role === 'realtor') {
+    await sb.from('realtor_profiles').update({ headshot_url: publicUrl }).eq('account_id', currentUser.id);
+  } else {
+    await sb.from('user_profiles').update({ photo_url: publicUrl }).eq('account_id', currentUser.id);
+  }
+  showToast('Photo uploaded!', 'success');
+  return publicUrl;
+}
+window.uploadProfilePhoto = uploadProfilePhoto;
+
+function handlePhotoUpload(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) return;
+  uploadProfilePhoto(file).then(url => {
+    if (url) {
+      const preview = document.getElementById('photo-upload-preview');
+      if (preview) preview.innerHTML = `<img src="${url}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;">`;
+    }
+  });
+}
+window.handlePhotoUpload = handlePhotoUpload;
+
 // ═══ GROUP REALTOR SELECTION ═══
 async function loadGroupRealtors() {
   if (!_activeGroupId||!currentUser) return;
@@ -12218,6 +12324,11 @@ function closeNotifOnOutside(e) {
 function clearNotifs(e) {
   e.stopPropagation();
   _notifications.forEach(n => n.read = true);
+  // Mark all as read in database
+  if (currentUser) {
+    sb.from('notifications').update({ read_at: new Date().toISOString() })
+      .eq('recipient_id', currentUser.id).is('read_at', null).then(() => {});
+  }
   renderNotifs();
 }
 window.clearNotifs = clearNotifs;
@@ -12269,53 +12380,57 @@ async function loadNotifications() {
   if (!currentUser) return;
   _notifications = [];
 
-  // Likes received (last 7 days)
   try {
-    const weekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();
-    const { data: likes } = await sb.from('discovery_likes')
-      .select('liker_id, created_at')
-      .eq('liked_id', currentUser.id)
-      .gte('created_at', weekAgo)
+    const { data: notifs } = await sb.from('notifications')
+      .select('id, type, title, body, metadata, read_at, created_at')
+      .eq('recipient_id', currentUser.id)
       .order('created_at', { ascending: false })
-      .limit(10);
-    if (likes) {
-      const likerIds = likes.map(l => l.liker_id);
-      const { data: likerAccts } = await sb.from('accounts').select('id, full_name').in('id', likerIds);
-      const nameMap = {};
-      (likerAccts || []).forEach(a => { nameMap[a.id] = a.full_name; });
-      const isPaid = currentAccount?.discovery_tier === 'paid';
-      likes.forEach(l => {
-        const name = isPaid ? (nameMap[l.liker_id] || 'Someone').split(' ')[0] : 'Someone';
-        addNotification(`♡ ${name} liked your profile`, 'like', `showView('discovery')`);
-        _notifications[0].time = new Date(l.created_at);
+      .limit(30);
+
+    if (notifs && notifs.length > 0) {
+      notifs.forEach(n => {
+        let link = '';
+        if (n.type === 'like_received') link = "showView('discovery')";
+        else if (n.type === 'match_created') link = n.metadata?.group_id ? `_activeGroupId='${n.metadata.group_id}';showView('group-dashboard')` : "showView('discovery')";
+        else if (n.type === 'group_complete') link = n.metadata?.group_id ? `_activeGroupId='${n.metadata.group_id}';showView('group-dashboard')` : '';
+        else if (n.type === 'realtor_confirmed') link = n.metadata?.group_id ? `_activeGroupId='${n.metadata.group_id}';showView('group-dashboard')` : '';
+
+        _notifications.push({
+          id: n.id,
+          text: n.body,
+          type: n.type,
+          link: link,
+          time: new Date(n.created_at),
+          read: !!n.read_at,
+          dbId: n.id
+        });
       });
     }
-  } catch (e) { /* table may not exist yet */ }
+  } catch (e) {
+    // Fallback to reading directly from discovery tables if notifications table is empty/fails
+    try {
+      const weekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();
+      const { data: likes } = await sb.from('discovery_likes')
+        .select('liker_id, created_at')
+        .eq('liked_id', currentUser.id)
+        .gte('created_at', weekAgo)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (likes) {
+        likes.forEach(l => {
+          _notifications.push({
+            id: Date.now() + Math.random(),
+            text: 'Someone liked your profile',
+            type: 'like',
+            link: "showView('discovery')",
+            time: new Date(l.created_at),
+            read: false
+          });
+        });
+      }
+    } catch (_) {}
+  }
 
-  // Matches (last 30 days)
-  try {
-    const monthAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString();
-    const { data: matches } = await sb.from('discovery_matches')
-      .select('account_a_id, account_b_id, nexus_score, matched_at, group_id')
-      .or(`account_a_id.eq.${currentUser.id},account_b_id.eq.${currentUser.id}`)
-      .gte('matched_at', monthAgo)
-      .order('matched_at', { ascending: false })
-      .limit(5);
-    if (matches) {
-      const otherIds = matches.map(m => m.account_a_id === currentUser.id ? m.account_b_id : m.account_a_id);
-      const { data: otherAccts } = await sb.from('accounts').select('id, full_name').in('id', otherIds);
-      const nameMap = {};
-      (otherAccts || []).forEach(a => { nameMap[a.id] = a.full_name; });
-      matches.forEach(m => {
-        const otherId = m.account_a_id === currentUser.id ? m.account_b_id : m.account_a_id;
-        const name = (nameMap[otherId] || 'Someone').split(' ')[0];
-        addNotification(`🎉 You matched with ${name}! NEXUS Score: ${m.nexus_score}/100`, 'match', `_activeGroupId='${m.group_id}';showView('group-dashboard')`);
-        _notifications[0].time = new Date(m.matched_at);
-      });
-    }
-  } catch (e) { /* table may not exist */ }
-
-  // Sort by time
   _notifications.sort((a, b) => b.time - a.time);
   renderNotifs();
 }
@@ -12701,6 +12816,21 @@ async function loadSettings() {
   document.getElementById('settings-email').value = currentAccount.email || currentUser.email || '';
   document.getElementById('settings-phone').value = currentAccount.phone || '';
 
+  // Load avatar
+  const avatarEl = document.getElementById('settings-avatar');
+  if (avatarEl) {
+    const table = currentAccount.role === 'realtor' ? 'realtor_profiles' : 'user_profiles';
+    const photoCol = currentAccount.role === 'realtor' ? 'headshot_url' : 'photo_url';
+    const { data: prof } = await sb.from(table).select(photoCol).eq('account_id', currentUser.id).maybeSingle();
+    const url = prof?.[photoCol];
+    if (url) {
+      avatarEl.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      const initials = (currentAccount.full_name || '?').split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+      avatarEl.textContent = initials;
+    }
+  }
+
   // Subscription status
   const isPaid = currentAccount.discovery_tier === 'paid' || currentAccount.tier === 'paid';
   const statusEl = document.getElementById('settings-sub-status');
@@ -12803,6 +12933,81 @@ showView = function(viewName) {
 .auth-magic-btn:hover{border-color:var(--blue);color:var(--blue);}
 </style>
 
+<!-- ══════════════════════ VIEW: TERMS OF SERVICE ══════════════════════ -->
+<div id="view-terms" class="view">
+  <div style="max-width:780px;margin:0 auto;padding:2rem 1.5rem;">
+    <span class="rp-back-link" onclick="history.back()">← Back</span>
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.8rem;color:var(--navy);margin-bottom:.5rem;">Terms of Service</h1>
+    <p style="font-size:.82rem;color:var(--gray-text);margin-bottom:2rem;">Last updated: May 2026 · NEXUS Match, a product of Citizens Financial (NMLS #2503947)</p>
+
+    <div style="font-size:.92rem;color:#374151;line-height:1.8;">
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">1. Acceptance of Terms</h3>
+      <p>By creating an account on NEXUS Match ("the Platform"), you agree to these Terms of Service. The Platform is operated by Citizens Financial, a California-licensed mortgage brokerage (NMLS #2503947, DRE #02155916), with principal offices in Vacaville, CA. If you do not agree, do not use the Platform.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">2. Platform Description</h3>
+      <p>NEXUS Match is a co-borrower discovery and matching platform that connects homebuyers seeking to co-purchase residential property in California. The Platform also connects co-buyer groups with NEXUS-certified real estate agents. NEXUS Match is not a lender, real estate brokerage, or financial advisor. Mortgage lending services are provided separately by Citizens Financial.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">3. Eligibility</h3>
+      <p>You must be at least 18 years old and a legal U.S. resident to use the Platform. By registering, you represent that all information you provide is accurate, current, and complete.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">4. Account Registration</h3>
+      <p>You are responsible for maintaining the confidentiality of your account credentials. You agree to notify us immediately of any unauthorized access. NEXUS Match reserves the right to suspend or terminate accounts that violate these terms or provide false information.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">5. Subscription Services</h3>
+      <p>NEXUS Match offers free and paid subscription tiers for both homebuyers ("NEXUS Home") and real estate agents ("NEXUS Network"). Paid subscriptions are billed through Stripe on a recurring basis (monthly, quarterly, or semi-annually). You may cancel at any time; cancellation takes effect at the end of the current billing period. No refunds are provided for partial billing periods.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">6. Co-Borrower Matching</h3>
+      <p>NEXUS Match provides a compatibility score ("NEXUS Score") based on publicly shared profile preferences. This score is informational only and does not constitute financial advice, a lending decision, or a guarantee of mortgage qualification. All co-buying arrangements are subject to independent verification, underwriting, and legal agreement between the parties.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">7. Real Estate Agent Services</h3>
+      <p>NEXUS-certified real estate agents are independent licensed professionals. NEXUS Match does not employ, supervise, or guarantee the performance of any agent. A performance commission (15% with Citizens Financial lending or 20% with an outside lender) applies to transactions originating from NEXUS introductions within a 24-month attribution window.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">8. Limitation of Liability</h3>
+      <p>NEXUS Match is provided "as is" without warranties of any kind. Citizens Financial shall not be liable for any damages arising from use of the Platform, including but not limited to lost profits, data loss, or failure of any co-buying arrangement. Our total liability shall not exceed the amount you paid for Platform services in the 12 months preceding the claim.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">9. Contact</h3>
+      <p>Questions about these terms should be directed to: support@nexushomesca.com or Citizens Financial, Vacaville, CA. NMLS #2503947.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VIEW: PRIVACY POLICY ══════════════════════ -->
+<div id="view-privacy" class="view">
+  <div style="max-width:780px;margin:0 auto;padding:2rem 1.5rem;">
+    <span class="rp-back-link" onclick="history.back()">← Back</span>
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.8rem;color:var(--navy);margin-bottom:.5rem;">Privacy Policy</h1>
+    <p style="font-size:.82rem;color:var(--gray-text);margin-bottom:2rem;">Last updated: May 2026 · NEXUS Match, a product of Citizens Financial (NMLS #2503947)</p>
+
+    <div style="font-size:.92rem;color:#374151;line-height:1.8;">
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">1. Information We Collect</h3>
+      <p><strong>Account information:</strong> Name, email address, phone number, password (encrypted).</p>
+      <p><strong>Profile information:</strong> Age range, current city, target cities, employment status, income range, credit score range, housing situation, timeline, personal story, interests, household setup, co-borrower details (if applicable), and home type preferences.</p>
+      <p><strong>Usage data:</strong> Pages visited, features used, discovery interactions (likes, passes, matches), subscription history, and device/browser information.</p>
+      <p><strong>Financial information:</strong> Payment details are processed by Stripe and are never stored on our servers. We retain subscription status and billing history only.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">2. How We Use Your Information</h3>
+      <p>We use your information to: operate the co-borrower matching algorithm, calculate NEXUS Scores, facilitate group formation, connect groups with certified realtors, process payments, send service notifications, and improve the Platform. We do not sell your personal information to third parties.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">3. Information Sharing</h3>
+      <p><strong>With other users:</strong> Your profile information (name, city, age range, price range, story) is visible to other users in the discovery stack. Financial details (income, credit score) are never shown to other users. Contact information (email, phone) is only shared after a complete co-buyer group confirms a realtor.</p>
+      <p><strong>With realtors:</strong> When your group selects and confirms a realtor, your name, email, and phone are shared with that realtor only.</p>
+      <p><strong>With service providers:</strong> We use Supabase (database), Vercel (hosting), Stripe (payments), and Resend (email) to operate the Platform. Each provider processes data under their own privacy policies.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">4. Data Security</h3>
+      <p>We use industry-standard encryption, row-level security policies, and secure authentication to protect your data. Passwords are hashed using bcrypt. Database access is restricted by role-based policies.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">5. Your Rights</h3>
+      <p>You may: access your personal data through your account settings, update your information at any time, request deletion of your account and associated data, and opt out of marketing communications. To exercise these rights, contact support@nexushomesca.com.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">6. California Privacy Rights (CCPA)</h3>
+      <p>California residents have the right to: know what personal information is collected, request deletion of personal information, opt out of the sale of personal information (we do not sell your data), and not be discriminated against for exercising privacy rights.</p>
+
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;margin:1.5rem 0 .5rem;">7. Contact</h3>
+      <p>For privacy inquiries: support@nexushomesca.com · Citizens Financial, Vacaville, CA · NMLS #2503947</p>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════════ VIEW: ACCOUNT SETTINGS ══════════════════════ -->
 <div id="view-settings" class="view">
   <div style="max-width:680px;margin:0 auto;padding:1.5rem 1rem;">
@@ -12813,6 +13018,16 @@ showView = function(viewName) {
     <!-- Account Info -->
     <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.85rem;">Account Information</div>
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+        <div id="settings-avatar" style="width:72px;height:72px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:var(--navy);overflow:hidden;flex-shrink:0;border:2px solid var(--gray);">—</div>
+        <div>
+          <label style="display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .85rem;background:var(--blue);color:#fff;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;">
+            📷 Upload Photo
+            <input type="file" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none;">
+          </label>
+          <div style="font-size:.7rem;color:var(--gray-text);margin-top:.3rem;">JPG, PNG, or WebP · Max 5MB</div>
+        </div>
+      </div>
       <div style="display:grid;gap:.75rem;">
         <div>
           <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);display:block;margin-bottom:.25rem;">Full Name</label>
@@ -13116,10 +13331,16 @@ showView = function(viewName) {
       <label class="auth-label" for="login-password">Password</label>
       <input class="auth-input" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
       <button class="auth-btn" id="login-btn" onclick="handleLogin()">Log In</button>
+      <div style="text-align:right;margin-top:-.25rem;margin-bottom:.5rem;">
+        <a onclick="handleForgotPassword()" style="font-size:.8rem;color:var(--blue);cursor:pointer;font-weight:600;">Forgot password?</a>
+      </div>
       <div class="auth-divider">or</div>
       <button class="auth-magic-btn" onclick="handleMagicLink()">Send me a magic link</button>
       <div class="auth-secondary-link">
         Don't have an account? <a onclick="switchToSignup()">Sign up</a>
+      </div>
+      <div style="text-align:center;margin-top:.5rem;font-size:.7rem;color:var(--gray-text);">
+        <a onclick="showView('terms');closeAuthModal()" style="color:var(--gray-text);cursor:pointer;">Terms</a> · <a onclick="showView('privacy');closeAuthModal()" style="color:var(--gray-text);cursor:pointer;">Privacy</a>
       </div>
     </div>
 
@@ -13166,6 +13387,17 @@ showView = function(viewName) {
 
   </div>
 </div>
+
+<!-- ── Site Footer ── -->
+<footer style="background:var(--navy);color:rgba(255,255,255,.6);text-align:center;padding:1.5rem 1rem;font-size:.78rem;line-height:1.8;">
+  <div style="margin-bottom:.5rem;">
+    <a onclick="showView('terms')" style="color:rgba(255,255,255,.7);cursor:pointer;margin:0 .75rem;">Terms of Service</a>
+    <a onclick="showView('privacy')" style="color:rgba(255,255,255,.7);cursor:pointer;margin:0 .75rem;">Privacy Policy</a>
+    <a href="mailto:support@nexushomesca.com" style="color:rgba(255,255,255,.7);margin:0 .75rem;">Contact</a>
+  </div>
+  <div>NEXUS Match · Citizens Financial · NMLS #2503947 · Greg Ritchie, Broker/Owner</div>
+  <div style="opacity:.5;">© 2026 Citizens Financial. All rights reserved. Equal Housing Opportunity.</div>
+</footer>
 
 <!-- ── Support Widget ── -->
 <button class="support-fab" id="support-fab" onclick="toggleSupportPanel()" title="Need help?">💬</button>
