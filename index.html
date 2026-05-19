@@ -2944,6 +2944,7 @@ body.is-impersonating .view{padding-top:114px;}
       <div id="user-meta-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.25rem;">
         <!-- 4 small stat cards: looking in, price range, timeline, household -->
       </div>
+      <div id="dash-likes-you-teaser" style="display:none;margin-bottom:1.25rem;"></div>
       <div id="user-interests-row" style="background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
         <!-- Interests + working style -->
       </div>
@@ -7496,23 +7497,6 @@ function updateNavForLoggedOut() {
 }
 
 // ═══ Role-based routing ═══
-function routeForRole() {
-  if (!currentAccount) {
-    showView('home');
-    return;
-  }
-  if (currentAccount.role === 'admin') {
-    showView('admin');
-  } else if (currentAccount.role === 'realtor') {
-    // Realtor flow not built yet — show home with placeholder
-    showToast('Realtor portal coming soon. Welcome aboard!', 'success');
-    showView('home');
-  } else {
-    // User: if they've completed their profile, dashboard. Otherwise registration.
-    showView('dashboard');
-  }
-}
-
 // ═══ Find My Co-Owner button: signup gate ═══
 function handleFindCoOwnerClick() {
   if (!currentAccount) {
@@ -12274,7 +12258,9 @@ async function loadGroupDashboard() {
     const ul = m.unit_size===2?' · 👫 With co-borrower':'';
     const isMe = m.account_id===currentUser.id;
     const ci = group.status==='realtor_confirmed'&&!isMe?`<div style="font-size:.75rem;color:var(--blue);margin-top:.15rem;">📧 ${escapeHtml(a.email||'')}</div>`:'';
-    return `<div class="grp-member-row"><div class="grp-member-avatar">${escapeHtml(ini)}</div><div style="flex:1;"><div class="grp-member-name">${escapeHtml(a.full_name||'Unknown')}${isMe?' (you)':''}</div><div class="grp-member-sub">📍 ${escapeHtml(p.current_city||'—')} · ${escapeHtml(p.price_range||'—')}${ul}</div>${ci}</div>${rb}</div>`;
+    const clickAttrs = isMe ? '' : `onclick="openGroupMemberProfile('${m.account_id}')" style="cursor:pointer;border-radius:8px;padding:.65rem .75rem;margin:-.65rem -.75rem;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'" title="View profile"`;
+    const viewHint = isMe ? '' : '<span style="font-size:.7rem;color:var(--blue);font-weight:700;margin-left:.5rem;">View →</span>';
+    return `<div class="grp-member-row" ${clickAttrs}><div class="grp-member-avatar">${escapeHtml(ini)}</div><div style="flex:1;"><div class="grp-member-name">${escapeHtml(a.full_name||'Unknown')}${isMe?' (you)':''}${viewHint}</div><div class="grp-member-sub">📍 ${escapeHtml(p.current_city||'—')} · ${escapeHtml(p.price_range||'—')}${ul}</div>${ci}</div>${rb}</div>`;
   }).join('');
   const act = document.getElementById('grp-actions-area');
   if (group.status==='forming') {
@@ -12722,6 +12708,138 @@ async function loadDashboardMatchesAndGroups() {
   } catch (e) { console.warn('Group loading failed:', e); }
 }
 
+// ═══ Group Member Profile Modal (F7) ═══
+async function openGroupMemberProfile(memberId) {
+  const overlay = document.getElementById('group-member-profile-overlay');
+  const content = document.getElementById('gmp-content');
+  if (!overlay || !content) return;
+  overlay.style.display = 'flex';
+  content.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:2rem;">Loading profile…</div>';
+  try {
+    const [{ data: acct }, { data: prof }] = await Promise.all([
+      sb.from('accounts').select('full_name').eq('id', memberId).maybeSingle(),
+      sb.from('user_profiles').select('*').eq('account_id', memberId).maybeSingle()
+    ]);
+    if (!prof) {
+      content.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:2rem;">Profile not available.</div>';
+      return;
+    }
+    const fullName = (acct && acct.full_name) || 'Group Member';
+    const initials = fullName.split(' ').map(s=>s[0]).filter(Boolean).slice(0,2).join('').toUpperCase() || '?';
+    const photoHtml = prof.photo_url
+      ? `<div style="width:96px;height:96px;border-radius:14px;background-image:url('${escapeHtml(prof.photo_url)}');background-size:cover;background-position:center;flex-shrink:0;border:2px solid var(--gray);"></div>`
+      : `<div style="width:96px;height:96px;border-radius:14px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-size:2rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${escapeHtml(initials)}</div>`;
+    const householdLabel = (typeof HOUSEHOLD_LABELS !== 'undefined' && HOUSEHOLD_LABELS[prof.household_setup]) || prof.household_setup || '—';
+    const targetCities = (prof.target_cities || []).join(', ') || '—';
+    const homeTypes = (prof.home_type_preference || []).join(', ') || 'Any';
+    const interests = (prof.interests || []);
+    const interestsHtml = interests.length > 0
+      ? interests.map(i => `<span style="display:inline-block;background:rgba(37,99,235,.08);color:var(--blue);padding:.3rem .7rem;border-radius:14px;font-size:.78rem;font-weight:600;margin:.15rem;">${escapeHtml(i)}</span>`).join('')
+      : '<span style="color:var(--gray-text);font-size:.85rem;">No interests listed.</span>';
+    const ws = prof.working_style || {};
+    const wsLabels = { comm: 'Communication', dec: 'Decision-making', pace: 'Pace', edu: 'Learning style', neg: 'Negotiation' };
+    const wsHtml = Object.keys(wsLabels).map(k => {
+      const v = ws[k] || 3;
+      return `<div style="margin-bottom:.55rem;">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--gray-text);margin-bottom:.2rem;"><span>${wsLabels[k]}</span><span style="font-weight:700;color:var(--navy);">${v}/5</span></div>
+        <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden;"><div style="height:100%;background:linear-gradient(90deg,var(--blue),#10b981);width:${(v/5)*100}%;"></div></div>
+      </div>`;
+    }).join('');
+    const coborrowerLine = prof.has_existing_coborrower
+      ? `👫 Already has a co-borrower · Group goal: ${prof.total_coborrowers_desired || 2} total`
+      : `👤 Solo · Group goal: ${prof.total_coborrowers_desired || 2} total`;
+    content.innerHTML = `
+      <div style="display:flex;gap:1.25rem;align-items:flex-start;margin-bottom:1.25rem;">
+        ${photoHtml}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.45rem;font-weight:800;color:var(--navy);line-height:1.1;margin-bottom:.25rem;">${escapeHtml(fullName)}</div>
+          <div style="font-size:.88rem;color:var(--gray-text);margin-bottom:.5rem;">${escapeHtml(prof.age_range||'')} · ${escapeHtml(householdLabel)} · 📍 ${escapeHtml(prof.current_city||'—')}</div>
+          <div style="font-size:.85rem;color:var(--blue);font-weight:600;">${escapeHtml(coborrowerLine)}</div>
+        </div>
+      </div>
+      ${prof.story ? `<div style="background:var(--bg);border-left:3px solid var(--blue);padding:.85rem 1.1rem;border-radius:0 8px 8px 0;font-size:.9rem;line-height:1.55;color:#374151;font-style:italic;margin-bottom:1.25rem;">"${escapeHtml(prof.story)}"</div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.85rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border-radius:9px;padding:.75rem 1rem;"><div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);font-weight:700;margin-bottom:.15rem;">Looking in</div><div style="font-size:.92rem;color:var(--navy);font-weight:700;">${escapeHtml(targetCities)}</div></div>
+        <div style="background:var(--bg);border-radius:9px;padding:.75rem 1rem;"><div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);font-weight:700;margin-bottom:.15rem;">Budget · Timeline</div><div style="font-size:.92rem;color:var(--navy);font-weight:700;">${escapeHtml(prof.price_range||'—')} · ${escapeHtml(prof.timeline||'—')}</div></div>
+        <div style="background:var(--bg);border-radius:9px;padding:.75rem 1rem;"><div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);font-weight:700;margin-bottom:.15rem;">Home types</div><div style="font-size:.92rem;color:var(--navy);font-weight:700;">${escapeHtml(homeTypes)}</div></div>
+        <div style="background:var(--bg);border-radius:9px;padding:.75rem 1rem;"><div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-text);font-weight:700;margin-bottom:.15rem;">Credit · Income</div><div style="font-size:.92rem;color:var(--navy);font-weight:700;">${escapeHtml(prof.credit_range||'—')} · ${escapeHtml(prof.income_range||'—')}</div></div>
+      </div>
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);margin-bottom:.5rem;">Interests</div>
+        <div>${interestsHtml}</div>
+      </div>
+      <div>
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);margin-bottom:.5rem;">Working Style</div>
+        ${wsHtml}
+      </div>
+    `;
+  } catch (e) {
+    console.error('openGroupMemberProfile failed:', e);
+    content.innerHTML = '<div style="text-align:center;color:#b91c1c;padding:2rem;">Could not load profile.</div>';
+  }
+}
+window.openGroupMemberProfile = openGroupMemberProfile;
+
+function closeGroupMemberProfile() {
+  const overlay = document.getElementById('group-member-profile-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+window.closeGroupMemberProfile = closeGroupMemberProfile;
+
+// Close member profile modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const ov = document.getElementById('group-member-profile-overlay');
+    if (ov && ov.style.display === 'flex') closeGroupMemberProfile();
+  }
+});
+
+// ═══ Dashboard "X liked you" Teaser (D5) ═══
+async function loadDashboardLikesYouTeaser() {
+  if (!currentUser || currentAccount?.role === 'realtor') return;
+  const teaser = document.getElementById('dash-likes-you-teaser');
+  if (!teaser) return;
+  try {
+    const { data: incoming } = await sb.from('discovery_likes').select('liker_id').eq('liked_id', currentUser.id);
+    if (!incoming || incoming.length === 0) { teaser.style.display = 'none'; return; }
+    const { data: outgoing } = await sb.from('discovery_likes').select('liked_id').eq('liker_id', currentUser.id);
+    const mySet = new Set((outgoing || []).map(l => l.liked_id));
+    const pending = incoming.filter(l => !mySet.has(l.liker_id));
+    if (pending.length === 0) { teaser.style.display = 'none'; return; }
+
+    const n = pending.length;
+    const isPaid = currentAccount?.discovery_tier === 'paid' || currentAccount?.tier === 'paid';
+    const peopleWord = n === 1 ? 'person' : 'people';
+
+    if (isPaid) {
+      teaser.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.05));border:1.5px solid rgba(16,185,129,.25);border-radius:12px;padding:1.1rem 1.4rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'" onclick="showView('discovery');setTimeout(()=>{const el=document.getElementById('likes-you-section');if(el)el.scrollIntoView({behavior:'smooth'});},200);">
+          <div style="font-size:2rem;">💚</div>
+          <div style="flex:1;">
+            <div style="font-weight:800;color:var(--navy);font-size:1.05rem;font-family:'Plus Jakarta Sans',sans-serif;">${n} ${peopleWord} liked you</div>
+            <div style="font-size:.85rem;color:var(--gray-text);">Tap to see who and like them back to match.</div>
+          </div>
+          <div style="color:#10B981;font-weight:700;white-space:nowrap;">See who →</div>
+        </div>`;
+    } else {
+      teaser.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(245,158,11,.04));border:1.5px solid rgba(37,99,235,.2);border-radius:12px;padding:1.1rem 1.4rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'" onclick="openPaywall()">
+          <div style="font-size:2rem;">🔒</div>
+          <div style="flex:1;">
+            <div style="font-weight:800;color:var(--navy);font-size:1.05rem;font-family:'Plus Jakarta Sans',sans-serif;">${n} ${peopleWord} liked you</div>
+            <div style="font-size:.85rem;color:var(--gray-text);">Upgrade to NEXUS Home to see who and like them back.</div>
+          </div>
+          <div style="color:var(--blue);font-weight:700;white-space:nowrap;">Upgrade →</div>
+        </div>`;
+    }
+    teaser.style.display = 'block';
+  } catch (e) {
+    console.warn('loadDashboardLikesYouTeaser failed:', e);
+    teaser.style.display = 'none';
+  }
+}
+window.loadDashboardLikesYouTeaser = loadDashboardLikesYouTeaser;
+
 // ═══ POST-SIGNUP ROUTING FIX ═══
 // Override routeForRole to redirect new users without profiles to registration
 const _routeForRoleBeforeSignupFix = routeForRole;
@@ -12745,6 +12863,7 @@ routeForRole = async function() {
   if (currentAccount?.role === 'user' || currentAccount?.role === 'admin') {
     setTimeout(() => {
       loadDashboardMatchesAndGroups();
+      loadDashboardLikesYouTeaser();
       loadNotifications();
     }, 300);
   }
@@ -13980,6 +14099,15 @@ showView = function(viewName) {
       <button class="auth-btn" style="margin-top:1rem;" onclick="closeAuthModal()">Got it</button>
     </div>
 
+  </div>
+</div>
+
+
+<!-- ── Group Member Profile Modal (F7) ── -->
+<div id="group-member-profile-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:9999;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;" onclick="if(event.target===this)closeGroupMemberProfile()">
+  <div style="background:#fff;border-radius:14px;max-width:680px;width:100%;padding:1.75rem 2rem;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;margin:1rem 0;">
+    <button onclick="closeGroupMemberProfile()" style="position:absolute;top:.85rem;right:1rem;background:none;border:none;font-size:1.5rem;color:var(--gray-text);cursor:pointer;line-height:1;padding:0 .5rem;" title="Close" aria-label="Close">×</button>
+    <div id="gmp-content"><div style="text-align:center;color:var(--gray-text);padding:2rem;">Loading…</div></div>
   </div>
 </div>
 
