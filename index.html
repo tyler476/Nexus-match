@@ -11229,8 +11229,7 @@ async function selectThisRealtor() {
 }
 
 // ─────────────────── ROUTING UPDATES ───────────────────
-const _origRouteForRole = routeForRole;
-routeForRole = async function() {
+window.routeForRole = async function() {
   if (!currentAccount) {
     showView('home');
     return;
@@ -12843,7 +12842,7 @@ window.loadDashboardLikesYouTeaser = loadDashboardLikesYouTeaser;
 // ═══ POST-SIGNUP ROUTING FIX ═══
 // Override routeForRole to redirect new users without profiles to registration
 const _routeForRoleBeforeSignupFix = routeForRole;
-routeForRole = async function() {
+window.routeForRole = async function() {
   if (currentAccount?.role === 'user') {
     // Check if profile is completed
     const { data: profile } = await sb.from('user_profiles')
