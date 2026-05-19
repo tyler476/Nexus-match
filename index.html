@@ -18,6 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -572,6 +573,17 @@ body.is-impersonating .view{padding-top:114px;}
 .disc-action-btn.like:hover{background:#D1FAE5;border-color:#10B981;transform:scale(1.1);}
 .disc-empty{text-align:center;padding:4rem 1.5rem;color:var(--gray-text);}
 .disc-empty-icon{font-size:3rem;margin-bottom:1rem;}
+.ep-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.95rem;margin:1.35rem 0 .6rem;padding-bottom:.3rem;border-bottom:1.5px solid var(--gray);}
+.ep-section-title:first-of-type{margin-top:0;}
+.ep-chip{display:inline-flex;align-items:center;padding:.4rem .8rem;border-radius:18px;font-size:.8rem;font-weight:600;border:1.5px solid var(--gray);background:#fff;color:var(--navy);cursor:pointer;transition:all .12s;user-select:none;}
+.ep-chip:hover{border-color:var(--blue);}
+.ep-chip-on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.ep-city-tag{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .7rem;border-radius:16px;font-size:.78rem;font-weight:600;background:rgba(37,99,235,.08);color:var(--navy);border:1.5px solid rgba(37,99,235,.2);}
+.ep-city-tag button{background:none;border:none;color:var(--gray-text);cursor:pointer;font-size:.95rem;line-height:1;padding:0;}
+.ep-slider-row{display:flex;align-items:center;gap:.85rem;}
+.ep-slider-row .field-label{flex:0 0 130px;margin:0;}
+.ep-slider-row input[type=range]{flex:1;accent-color:var(--blue);}
+.ep-slider-val{flex:0 0 1.4rem;text-align:center;font-weight:800;color:var(--navy);font-size:.95rem;}
 .disc-score-breakdown{margin-top:.75rem;padding:.75rem;background:rgba(37,99,235,.04);border-radius:8px;border:1px solid rgba(37,99,235,.1);}
 .disc-score-row{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:.2rem 0;}
 .disc-score-row .score-label{color:var(--gray-text);}
@@ -1172,7 +1184,7 @@ body.is-impersonating .view{padding-top:114px;}
       <div class="section-header reveal">
         <div class="section-label">The Process</div>
         <h2>From Profile to Keys in Four Steps</h2>
-        <p>We find your co-buyer, run an automated approval in under 60 seconds, and close in 30 days. Same mortgage. Exponentially more buying power.</p>
+        <p>We find your co-buyers, run an automated approval in under 60 seconds, and close in 30 days. Same mortgage. Exponentially more buying power.</p>
         <p style="margin-top:.75rem;font-size:.88rem;"><a href="https://www.nexushomesca.com/#learn-section" target="_blank" style="color:var(--blue);font-weight:600;text-decoration:none;">New to co-ownership? Learn how it works at nexushomesca.com →</a></p>
       </div>
       <div class="steps-grid" style="grid-template-columns:1fr;">
@@ -1191,7 +1203,7 @@ body.is-impersonating .view{padding-top:114px;}
             <div style="position:absolute;top:-12px;left:1.5rem;background:var(--gold);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:.25rem .75rem;border-radius:12px;">New — Exclusive to NEXUS.</div>
             <div class="step-num" style="background:var(--gold);">3</div>
             <h3>Automated Co-Buyer Approval — &lt;60 Seconds</h3>
-            <p>The moment a match is confirmed, our automated approval engine evaluates both co-buyers together and generates an initial approval decision in <strong>under 60 seconds</strong>. You know if you qualify — as a pair — before you ever pick up the phone. No waiting days for a callback. No uncertainty. Just a fast, clear answer.</p>
+            <p>The moment a match is confirmed, our automated approval engine evaluates your co-buyer group together and generates an initial approval decision in <strong>under 60 seconds</strong>. You know if you qualify — as a group — before you ever pick up the phone. No waiting days for a callback. No uncertainty. Just a fast, clear answer.</p>
             <div style="display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem;">
               <span style="background:rgba(22,163,74,.12);color:#15803d;font-size:.78rem;font-weight:700;padding:.3rem .75rem;border-radius:12px;">⚡ Sub-60-second decision</span>
               <span style="background:rgba(22,163,74,.12);color:#15803d;font-size:.78rem;font-weight:700;padding:.3rem .75rem;border-radius:12px;">✅ Both buyers evaluated together</span>
@@ -1201,7 +1213,7 @@ body.is-impersonating .view{padding-top:114px;}
           <div class="step-card">
             <div class="step-num">4</div>
             <h3>Close in ~30 Days</h3>
-            <p>With your initial approval already in hand, Citizens Financial moves both co-buyers through the standard 30-day mortgage process — application, processing, underwriting, and closing — at exactly the pace of any traditional purchase loan.</p>
+            <p>With your initial approval already in hand, Citizens Financial moves your co-buyer group through the standard 30-day mortgage process — application, processing, underwriting, and closing — at exactly the pace of any traditional purchase loan.</p>
           </div>
         </div>
       </div>
@@ -1240,7 +1252,7 @@ body.is-impersonating .view{padding-top:114px;}
         <div class="why-card reveal reveal-delay-1"><div class="why-icon">💰</div><div><h4>Costs Drop Exponentially as Co-Owners Scale</h4><p>Two co-owners cuts every fixed cost in half. Three reduces it by 67%. Four by 75%. Down payment, mortgage, taxes, and maintenance all shrink with every additional co-owner — economies of scale applied to the biggest purchase of your life.</p></div></div>
         <div class="why-card reveal reveal-delay-2"><div class="why-icon">🔒</div><div><h4>Legal Framework Included</h4><p>Co-ownership agreements, title structure, and exit provisions are handled through our legal partner network.</p></div></div>
         <div class="why-card reveal reveal-delay-3"><div class="why-icon">🤝</div><div><h4>Matched on Values, Not Just Numbers</h4><p>We look at lifestyle, schedule, goals, and neighborhood preferences — not just credit scores — to build lasting partnerships.</p></div></div>
-        <div class="why-card reveal reveal-delay-4"><div class="why-icon">🏡</div><div><h4>Your Name on the Deed</h4><p>Both co-buyers are on title. Both build equity. Both benefit from appreciation. This is real ownership — not renting from each other.</p></div></div>
+        <div class="why-card reveal reveal-delay-4"><div class="why-icon">🏡</div><div><h4>Your Name on the Deed</h4><p>Every co-buyer is on title. Everyone builds equity. Everyone benefits from appreciation. This is real ownership — not renting from each other.</p></div></div>
       </div>
     </div>
   </section>
@@ -1290,7 +1302,7 @@ body.is-impersonating .view{padding-top:114px;}
         <!-- Existing Core FAQs -->
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">What is co-ownership, exactly? <span class="faq-chevron">▾</span></div>
-          <div class="faq-answer">Co-ownership means two unrelated people purchase a home together, each holding a legal share of the title. Both parties are on the mortgage and both build equity as the home appreciates. A co-ownership agreement defines each person's responsibilities, rights, and exit options.</div>
+          <div class="faq-answer">Co-ownership means two or more people purchase a home together, each holding a legal share of the title. Every co-owner is on the mortgage and each builds equity as the home appreciates. A co-ownership agreement defines each person's responsibilities, rights, and exit options. Groups can range from two co-buyers up to four or more, depending on the property and the lending structure.</div>
         </div>
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">Who does Nexus Match connect me with? <span class="faq-chevron">▾</span></div>
@@ -1369,7 +1381,7 @@ body.is-impersonating .view{padding-top:114px;}
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">How are expenses managed? <span class="faq-chevron">▾</span></div>
           <div class="faq-answer">
-            <p style="margin-bottom:.75rem;">All costs are structured and tracked: mortgage, taxes, insurance, and maintenance. Typically managed through a shared system that ensures transparency and accountability for both co-owners.</p>
+            <p style="margin-bottom:.75rem;">All costs are structured and tracked: mortgage, taxes, insurance, and maintenance. Typically managed through a shared system that ensures transparency and accountability for every co-owner.</p>
           </div>
         </div>
 
@@ -1414,12 +1426,12 @@ body.is-impersonating .view{padding-top:114px;}
 
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">What is the automated co-buyer approval? <span class="faq-chevron">▾</span></div>
-          <div class="faq-answer">When Nexus Match identifies a compatible co-buyer for you, our automated approval engine immediately evaluates both of your financial profiles together — income, credit range, debt load, and purchase target — and generates an initial approval decision in <strong>under 60 seconds</strong>. This isn't a full underwrite; it's a fast, data-driven signal that tells both co-buyers whether they're likely to qualify for the target purchase price as a pair. Your Citizens Financial loan officer will confirm the full pre-qualification on the joint call.</div>
+          <div class="faq-answer">When Nexus Match identifies a compatible co-buyer for you, our automated approval engine immediately evaluates all of your financial profiles together — income, credit range, debt load, and purchase target — and generates an initial approval decision in <strong>under 60 seconds</strong>. This isn't a full underwrite; it's a fast, data-driven signal that tells every co-buyer whether they're likely to qualify for the target purchase price as a group. Your Citizens Financial loan officer will confirm the full pre-qualification on the joint call.</div>
         </div>
 
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">How long does the process take? <span class="faq-chevron">▾</span></div>
-          <div class="faq-answer">The Nexus Match process is built around four milestones. First, your match can surface in <strong>minutes to a few days</strong> depending on your market and criteria. The moment a match is confirmed, our automated approval engine evaluates both co-buyers together and returns an initial approval decision in <strong>under 60 seconds</strong>. From there, Citizens Financial runs the standard 30-day mortgage process: LO introduction and pre-qualification Days 1–5, application by Day 7, processing and appraisal through Day 20, underwriting through Day 27, and closing on Day 30. Same timeline as any traditional purchase — no surprises.</div>
+          <div class="faq-answer">The Nexus Match process is built around four milestones. First, your match can surface in <strong>minutes to a few days</strong> depending on your market and criteria. The moment a match is confirmed, our automated approval engine evaluates your co-buyer group together and returns an initial approval decision in <strong>under 60 seconds</strong>. From there, Citizens Financial runs the standard 30-day mortgage process: LO introduction and pre-qualification Days 1–5, application by Day 7, processing and appraisal through Day 20, underwriting through Day 27, and closing on Day 30. Same timeline as any traditional purchase — no surprises.</div>
         </div>
 
       </div>
@@ -1821,7 +1833,7 @@ body.is-impersonating .view{padding-top:114px;}
     <div class="learn-section-inner">
       <div class="learn-eyebrow">The Algorithm</div>
       <h2 class="learn-h2">5 Dimensions of Compatibility</h2>
-      <p class="learn-sub">Finding a co-owner isn't a checklist — it's a relationship. Every pair is scored across 5 weighted dimensions that measure whether two people can actually share a roof, split costs equitably, and build wealth together. The number on the match card is the total. This is what separates a smart algorithm from a simple search.</p>
+      <p class="learn-sub">Finding a co-owner isn't a checklist — it's a relationship. Every match is scored across 5 weighted dimensions that measure whether co-buyers can actually share a roof, split costs equitably, and build wealth together. The number on the match card is the total. This is what separates a smart algorithm from a simple search.</p>
       <div class="dim-grid">
         <div class="dim-card">
           <div class="dim-weight">40%</div>
@@ -1836,7 +1848,7 @@ body.is-impersonating .view{padding-top:114px;}
         <div class="dim-card">
           <div class="dim-weight">20%</div>
           <h4>Credit Tier</h4>
-          <p>Matched within one credit tier to ensure both co-buyers can qualify together.</p>
+          <p>Matched within one credit tier to ensure all co-buyers can qualify together.</p>
         </div>
         <div class="dim-card">
           <div class="dim-weight">10%</div>
@@ -1917,7 +1929,7 @@ body.is-impersonating .view{padding-top:114px;}
     <div class="learn-section-inner">
       <div class="learn-eyebrow">The Process</div>
       <h2 class="learn-h2">From Profile to Front Door — in Four Steps</h2>
-      <p class="learn-sub">We find your co-buyer, run an automated approval in under 60 seconds, and close in 30 days. Same mortgage. Exponentially more buying power.</p>
+      <p class="learn-sub">We find your co-buyers, run an automated approval in under 60 seconds, and close in 30 days. Same mortgage. Exponentially more buying power.</p>
       <div class="learn-process-steps">
         <div class="learn-step">
           <div class="learn-step-num">1</div>
@@ -1933,12 +1945,12 @@ body.is-impersonating .view{padding-top:114px;}
           <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .75rem;border-radius:10px;white-space:nowrap;">Exclusive to NEXUS.</div>
           <div class="learn-step-num" style="background:var(--gold);">3</div>
           <h4>Automated Approval &lt;60s</h4>
-          <p>Both co-buyers evaluated together. Initial approval decision in under 60 seconds. You know if you qualify — as a pair — before you pick up the phone.</p>
+          <p>All co-buyers evaluated together. Initial approval decision in under 60 seconds. You know if you qualify — as a group — before you pick up the phone.</p>
         </div>
         <div class="learn-step">
           <div class="learn-step-num">4</div>
           <h4>Close in ~30 Days</h4>
-          <p>Citizens Financial moves both co-buyers through the standard 30-day mortgage process — same timeline as any traditional purchase loan.</p>
+          <p>Citizens Financial moves your co-buyer group through the standard 30-day mortgage process — same timeline as any traditional purchase loan.</p>
         </div>
       </div>
     </div>
@@ -1962,12 +1974,12 @@ body.is-impersonating .view{padding-top:114px;}
           <div class="lcs-badge">Exclusive to NEXUS.</div>
           <div class="lcs-num" style="background:var(--gold);">2</div>
           <h4>Get Matched + Approved in &lt;60s</h4>
-          <p>The moment a compatible co-buyer is found, both profiles are evaluated together. Automated initial approval — as a pair — in under 60 seconds.</p>
+          <p>The moment a compatible co-buyer is found, all profiles are evaluated together. Automated initial approval — as a group — in under 60 seconds.</p>
         </div>
         <div class="lcs-card">
           <div class="lcs-num" style="background:var(--blue);">3</div>
           <h4>Close in 30 Days</h4>
-          <p>Citizens Financial moves both co-buyers through the standard 30-day mortgage process. Same timeline as any traditional purchase.</p>
+          <p>Citizens Financial moves your co-buyer group through the standard 30-day mortgage process. Same timeline as any traditional purchase.</p>
         </div>
       </div>
       <div style="text-align:center;border-top:1px solid rgba(255,255,255,.1);padding-top:3rem;">
@@ -2345,7 +2357,7 @@ body.is-impersonating .view{padding-top:114px;}
     <div class="form-step" id="step-success">
       <div class="success-card">
         <div class="success-icon" style="font-size:2.5rem;">🎉</div>
-        <h2 style="font-size:1.4rem;">You're in! Let's find your co-buyer.</h2>
+        <h2 style="font-size:1.4rem;">You're in! Let's find your co-buyers.</h2>
         <p style="margin-bottom:1.25rem;">Your profile is live and the matching algorithm is already working. You'll see compatible co-buyers ranked by NEXUS Score — the higher the score, the better the fit.</p>
         
         <div style="background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;">
@@ -2400,7 +2412,7 @@ body.is-impersonating .view{padding-top:114px;}
     <div class="loan-step active" id="lstep-1">
       <div class="loan-card">
         <h3>Loan &amp; Property Details</h3>
-        <p class="loan-step-sub">Tell us about the property you and your co-owner plan to purchase together.</p>
+        <p class="loan-step-sub">Tell us about the property you and your co-owners plan to purchase together.</p>
         <div class="field-group">
           <label class="field-label">Property Type *</label>
           <select class="field-input" id="l-proptype">
@@ -3050,7 +3062,7 @@ body.is-impersonating .view{padding-top:114px;}
           </div>
           <div class="tl-item">
             <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
-            <div class="tl-content"><div class="tl-stage pending-text">Days 5–7 · Mortgage Application Submitted</div><div class="tl-date">Both co-buyers sign and submit joint application · Est. April 21, 2026</div></div>
+            <div class="tl-content"><div class="tl-stage pending-text">Days 5–7 · Mortgage Application Submitted</div><div class="tl-date">All co-buyers sign and submit the joint application · Est. April 21, 2026</div></div>
           </div>
           <div class="tl-item">
             <div class="tl-dot-wrap"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
@@ -6208,7 +6220,7 @@ async function confirmLO() {
     renderProfilesTable(filteredProfiles);
     updateAdminStats();
   }
-  showToast(`LO assigned. Pre-qual call scheduled. Both co-buyers notified.`, 'success');
+  showToast(`LO assigned. Pre-qual call scheduled. All co-buyers notified.`, 'success');
 }
 
 async function exportAll() {
@@ -7779,8 +7791,8 @@ async function submitProfile() {
 
   // 2. Upsert user_profiles row
   const hasCoborrower = document.getElementById('cb-yes-btn')?.classList.contains('active') || false;
-  const coborrowerCountStr = state.radioValues.coborrower_count || '2 total (you + 1 co-borrower)';
-  const totalDesired = parseInt(coborrowerCountStr) || 2;
+  // Default to a 2-person group (the minimum) when unspecified; users pick 2, 3, or 4 in the form
+  const totalDesired = parseInt(state.radioValues.coborrower_count) || 2;
 
   const profileData = {
     account_id: currentUser.id,
@@ -8484,7 +8496,7 @@ const CERT_MODULES = [
 
       <h3>What you need to know as their realtor</h3>
       <ul>
-        <li>You're advising buyers who are entering a multi-year financial partnership with someone else, often a stranger they've matched through NEXUS. Property choice affects them differently than a single buyer or married couple.</li>
+        <li>You're advising buyers who are entering a multi-year financial partnership with one or more co-buyers, often people they've matched through NEXUS. Property choice affects them differently than a single buyer or married couple.</li>
         <li>Privacy and personal-space layout matter more here. A 3BR/2BA with two equal primary suites is often a better fit than a 4BR with one master and three small bedrooms.</li>
         <li>You don't draft or interpret the legal agreements. NEXUS counsel does that. Your role is to make sure your buyers understand the structure they're entering and that the property fits.</li>
       </ul>
@@ -8522,7 +8534,7 @@ const CERT_MODULES = [
       <p>That changes what they need from you. They've solved the hardest emotional problem already (finding a compatible co-owner). What they need from you is execution: property fit, market knowledge, and a steady hand through a transaction with two or more people in the loop.</p>
 
       <h3>The NexusLock badge</h3>
-      <p>When you see a <strong>NexusLock 🔒</strong> badge on a buyer match, it means the two co-buyers achieved 88%+ compatibility across all five matching dimensions: financial alignment, lifestyle, household setup, communication style, and co-ownership goals. NexusLock buyers are pre-screened more rigorously and have explicitly committed to formalizing co-ownership through NEXUS's document framework.</p>
+      <p>When you see a <strong>NexusLock 🔒</strong> badge on a buyer match, it means the matched co-buyers achieved 88%+ compatibility across all five matching dimensions: financial alignment, lifestyle, household setup, communication style, and co-ownership goals. NexusLock buyers are pre-screened more rigorously and have explicitly committed to formalizing co-ownership through NEXUS's document framework.</p>
 
       <div class="cc-callout">
         <strong>What this means for you</strong>
@@ -8567,7 +8579,7 @@ const CERT_MODULES = [
         options: [
           { t: 'Encourage co-buyer B to "see what A sees" since A is more decisive', correct: false, why: 'Pressuring a hesitant co-owner creates deadlock risk in 2-3 years. NEXUS co-ownership requires both to commit.' },
           { t: 'Surface the specific concern, address it if possible, and otherwise move on to the next property', correct: true, why: 'A reluctant co-owner today is a deadlock risk in two years. Either address the specific concern or move on.' },
-          { t: 'Submit an offer immediately while A is enthusiastic', correct: false, why: 'Offers require both co-buyers to commit. Submitting based on one buyer\'s enthusiasm violates the structure.' },
+          { t: 'Submit an offer immediately while A is enthusiastic', correct: false, why: 'Offers require all co-buyers to commit. Submitting based on one buyer\'s enthusiasm violates the structure.' },
           { t: 'Tell co-buyer B to defer to A on this one and they can choose the next one', correct: false, why: 'Equity is permanent; "letting one win" creates resentment that surfaces in major decisions later.' }
         ]
       },
@@ -8698,7 +8710,7 @@ const CERT_MODULES = [
     `,
     quiz: [
       {
-        q: 'A NEXUS-matched co-buyer pair asks you to "skip the Shared Reserve Account agreement to speed things up." The correct response is:',
+        q: 'A NEXUS-matched co-buyer group asks you to "skip the Shared Reserve Account agreement to speed things up." The correct response is:',
         options: [
           { t: 'Sure, you can fund a reserve later if it becomes necessary', correct: false, why: 'The Shared Reserve Account must be opened and funded before COE — it\'s a closing prerequisite, not a post-close item.' },
           { t: 'It\'s not optional. Connect them with NEXUS\'s banking partners now to open the account before COE', correct: true, why: 'Opening and funding the account before close is one of the few hard prerequisites NEXUS enforces on the buyer side. Skipping it blocks closing.' },
@@ -8858,7 +8870,7 @@ const CERT_MODULES = [
       <p>If a NEXUS buyer chooses Citizens Financial as their lender, you'll be working with a Citizens loan officer. Some practical notes:</p>
       <ul>
         <li>Loan officers don't see your NEXUS profile or commission obligation. Your relationship with them is purely transactional.</li>
-        <li>They have access to the joint application from both co-buyers via the matched-buyer infrastructure.</li>
+        <li>They have access to the joint application from all co-buyers via the matched-buyer infrastructure.</li>
         <li>Pre-qualification is generated automatically within 60 seconds of match confirmation. Final pre-approval still requires their underwriting review.</li>
         <li>If the buyer chooses a different lender, you'll work with that lender as you would with any non-NEXUS deal. Citizens has no role.</li>
       </ul>
@@ -9064,7 +9076,7 @@ async function renderCertTabPanel(profile) {
         </div>
       `;
     }).join('');
-    if (summaryEl) summaryEl.textContent = '';
+    if (summaryEl) summaryEl.innerHTML = '<button class="rp-btn" style="margin-top:.6rem;" onclick="downloadMyCertificate()">⬇ Download Certificate (PDF)</button>';
     return;
   }
 
@@ -9486,6 +9498,156 @@ async function submitFinalExam() {
 }
 window.submitFinalExam = submitFinalExam;
 
+// ═══════════ CERTIFICATE OF COMPLETION — PDF (realtors) ═══════════
+function _certHash(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return Math.abs(h);
+}
+
+function generateCertificatePDF(opts) {
+  opts = opts || {};
+  const name = opts.name || (currentAccount && currentAccount.full_name) || 'NEXUS Certified Realtor';
+  const dateStr = opts.date || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const version = opts.version || (typeof CERT_COURSE_VERSION !== 'undefined' ? CERT_COURSE_VERSION : 'v1.0');
+  const certId = opts.certId || ('NX-' + String(_certHash(name + dateStr)).padStart(8, '0').slice(0, 8));
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    showToast('Certificate generator is still loading — please try again in a moment.', 'error');
+    return;
+  }
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const W = 297, H = 210, cx = W / 2;
+    const navy = [11, 29, 62], blue = [37, 99, 235], green = [16, 185, 129], gray = [120, 130, 145], cream = [252, 251, 248];
+
+    // Background
+    doc.setFillColor(cream[0], cream[1], cream[2]);
+    doc.rect(0, 0, W, H, 'F');
+
+    // Decorative double border
+    doc.setDrawColor(navy[0], navy[1], navy[2]);
+    doc.setLineWidth(1.4); doc.rect(10, 10, W - 20, H - 20);
+    doc.setLineWidth(0.4); doc.rect(14, 14, W - 28, H - 28);
+
+    // Accent rule
+    doc.setDrawColor(green[0], green[1], green[2]);
+    doc.setLineWidth(0.9); doc.line(cx - 28, 30, cx + 28, 30);
+
+    // Wordmark
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(30);
+    doc.setTextColor(navy[0], navy[1], navy[2]);
+    doc.text('NEXUS', cx, 44, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+    doc.setTextColor(gray[0], gray[1], gray[2]);
+    doc.text('R E A L T O R   C E R T I F I C A T I O N   P R O G R A M', cx, 51, { align: 'center' });
+
+    // Title
+    doc.setFont('times', 'bold'); doc.setFontSize(33);
+    doc.setTextColor(navy[0], navy[1], navy[2]);
+    doc.text('Certificate of Completion', cx, 77, { align: 'center' });
+
+    // "This certifies that"
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11.5);
+    doc.setTextColor(gray[0], gray[1], gray[2]);
+    doc.text('This certifies that', cx, 92, { align: 'center' });
+
+    // Recipient name
+    doc.setFont('times', 'italic'); doc.setFontSize(38);
+    doc.setTextColor(blue[0], blue[1], blue[2]);
+    doc.text(name, cx, 110, { align: 'center' });
+    const underlineW = Math.min(190, doc.getTextWidth(name) + 36);
+    doc.setDrawColor(214, 219, 226); doc.setLineWidth(0.5);
+    doc.line(cx - underlineW / 2, 115, cx + underlineW / 2, 115);
+
+    // Body
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11.5);
+    doc.setTextColor(58, 64, 76);
+    doc.text('has successfully completed the NEXUS Realtor Certification Program, demonstrating', cx, 129, { align: 'center' });
+    doc.text('proficiency across all five training modules and the certification final exam, and is', cx, 136, { align: 'center' });
+    doc.text('recognized as a NEXUS Certified Realtor for co-ownership homebuyers in California.', cx, 143, { align: 'center' });
+
+    // Seal (lower center)
+    const sy = 168;
+    doc.setDrawColor(green[0], green[1], green[2]);
+    doc.setLineWidth(1.1); doc.circle(cx, sy, 15);
+    doc.setLineWidth(0.4); doc.circle(cx, sy, 11.8);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+    doc.setTextColor(green[0], green[1], green[2]);
+    doc.text('NEXUS', cx, sy - 2.5, { align: 'center' });
+    doc.setFontSize(5.5);
+    doc.text('CERTIFIED', cx, sy + 1.8, { align: 'center' });
+    doc.setFontSize(8.5);
+    doc.text(new Date().getFullYear().toString(), cx, sy + 8, { align: 'center' });
+
+    // Signature blocks
+    doc.setDrawColor(navy[0], navy[1], navy[2]); doc.setLineWidth(0.5);
+    doc.line(45, 174, 108, 174);
+    doc.line(189, 174, 252, 174);
+
+    // Completion date (left)
+    doc.setFont('times', 'italic'); doc.setFontSize(14);
+    doc.setTextColor(navy[0], navy[1], navy[2]);
+    doc.text(dateStr, 76.5, 171, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.setTextColor(gray[0], gray[1], gray[2]);
+    doc.text('DATE OF COMPLETION', 76.5, 180, { align: 'center' });
+
+    // Issuing authority (right)
+    doc.setFont('times', 'italic'); doc.setFontSize(15);
+    doc.setTextColor(navy[0], navy[1], navy[2]);
+    doc.text('Greg Ritchie', 220.5, 171, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.setTextColor(gray[0], gray[1], gray[2]);
+    doc.text('BROKER / OWNER, CITIZENS FINANCIAL GROUP, INC.', 220.5, 180, { align: 'center' });
+
+    // Footer
+    doc.setFontSize(7.5);
+    doc.setTextColor(gray[0], gray[1], gray[2]);
+    doc.text('Verification ID: ' + certId + '   \u00b7   Course version ' + version
+      + '   \u00b7   Citizens Financial Group, Inc.  NMLS #2503947   \u00b7   nexushomesca.com',
+      cx, 193, { align: 'center' });
+
+    doc.save('NEXUS-Realtor-Certificate-' + name.replace(/[^a-z0-9]+/gi, '-') + '.pdf');
+    showToast('Certificate downloaded \uD83C\uDF93', 'success');
+  } catch (e) {
+    console.error('Certificate generation failed:', e);
+    showToast('Could not generate certificate: ' + (e.message || e), 'error');
+  }
+}
+window.generateCertificatePDF = generateCertificatePDF;
+
+async function downloadMyCertificate() {
+  if (!currentUser || !currentAccount) { showToast('Please sign in first.', 'error'); return; }
+  showSpinner();
+  try {
+    const { data: prof } = await sb.from('realtor_profiles')
+      .select('cert_status, cert_completed_at, cert_version')
+      .eq('account_id', currentUser.id).maybeSingle();
+    hideSpinner();
+    if (!prof || prof.cert_status !== 'certified') {
+      showToast('Complete the certification course to unlock your certificate.', 'error');
+      return;
+    }
+    const dateStr = prof.cert_completed_at
+      ? new Date(prof.cert_completed_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    generateCertificatePDF({
+      name: currentAccount.full_name || 'NEXUS Certified Realtor',
+      date: dateStr,
+      version: prof.cert_version || (typeof CERT_COURSE_VERSION !== 'undefined' ? CERT_COURSE_VERSION : 'v1.0'),
+      certId: 'NX-' + String(_certHash((currentAccount.full_name || '') + dateStr)).padStart(8, '0').slice(0, 8)
+    });
+  } catch (e) {
+    hideSpinner();
+    console.error('downloadMyCertificate failed:', e);
+    showToast('Could not load certificate data: ' + (e.message || e), 'error');
+  }
+}
+window.downloadMyCertificate = downloadMyCertificate;
+
 function renderCertCertified(result) {
   const container = document.getElementById('cc-module-container');
   if (!container) return;
@@ -9500,7 +9662,8 @@ function renderCertCertified(result) {
         <p style="font-size:1.05rem;color:#065f46;font-weight:600;">Congratulations, ${escapeHtml((currentAccount?.full_name || '').split(' ')[0] || 'Realtor')}.</p>
         <p style="font-size:.95rem;color:#065f46;">You've completed the NEXUS Realtor Certification course (${CERT_COURSE_VERSION}). You'll now appear in user searches once your subscription is active and your profile is complete.</p>
         <p style="font-size:.85rem;color:#065f46;margin-top:.75rem;">Completed: ${completedAt}</p>
-        <div style="margin-top:1.5rem;">
+        <div style="margin-top:1.5rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;">
+          <button class="cc-btn primary" onclick="downloadMyCertificate()">⬇ Download Certificate (PDF)</button>
           <button class="cc-btn success" onclick="exitCertCourse()">Return to dashboard →</button>
         </div>
       </div>
@@ -11456,7 +11619,7 @@ async function loadDiscoveryStack() {
       <div style="background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(37,99,235,.04));border:1.5px solid rgba(139,92,246,.2);border-radius:12px;padding:.85rem 1.15rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;">
         <div style="font-size:1.5rem;">👥</div>
         <div style="flex:1;">
-          <div style="font-weight:700;color:var(--navy);font-size:.9rem;">Browsing as a duo with ${escapeHtml(partnerNames)}</div>
+          <div style="font-weight:700;color:var(--navy);font-size:.9rem;">Browsing as a group with ${escapeHtml(partnerNames)}</div>
           <div style="font-size:.78rem;color:var(--gray-text);">Looking for ${needed} more co-buyer${needed > 1 ? 's' : ''} to complete your group of ${_activeFormingGroup.desired_total}.</div>
         </div>
         <button class="rp-btn rp-btn-secondary" style="padding:.35rem .7rem;font-size:.75rem;" onclick="_activeGroupId='${_activeFormingGroup.id}';showView('group-dashboard')">View Group</button>
@@ -11483,7 +11646,7 @@ async function loadDiscoveryStack() {
     const { data: candidates, error } = await sb.rpc('get_discovery_candidates', { p_user_id: currentUser.id, p_limit: 30 });
     if (error) throw error;
     if (!candidates || candidates.length === 0) {
-      cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">✨</div><div>No more profiles to show right now.</div><div style="font-size:.85rem;margin-top:.4rem;">Check back later as new co-buyers join NEXUS.</div></div>';
+      cardArea.innerHTML = discoveryEmptyStateHTML();
       await loadLikesYou(); await loadMyMatches(); return;
     }
     _discoveryStack = candidates.map(c => {
@@ -11518,10 +11681,13 @@ window.setDiscFilter = setDiscFilter;
 
 function renderDiscoveryCard() {
   const cardArea = document.getElementById('disc-card-area');
+  const kbdHint = document.getElementById('disc-kbd-hint');
   if (_discoveryIndex >= _discoveryStack.length) {
-    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">✨</div><div style="font-weight:700;color:var(--navy);font-size:1.05rem;">You\'ve seen everyone for now</div><div style="font-size:.85rem;margin-top:.4rem;color:var(--gray-text);">New co-buyers join every day. Check back soon.</div></div>';
+    if (kbdHint) kbdHint.style.display = 'none';
+    cardArea.innerHTML = discoveryEmptyStateHTML();
     return;
   }
+  if (kbdHint) kbdHint.style.display = 'block';
   const c = _discoveryStack[_discoveryIndex];
   const isPaid = currentAccount?.discovery_tier === 'paid';
   const initials = (c.full_name||'?').split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
@@ -11717,13 +11883,72 @@ async function likeCandidate(candidateId, nexusScore) {
 }
 window.likeCandidate = likeCandidate;
 
+let _lastPass = null;
 async function passCandidate(candidateId) {
   const card = document.getElementById('disc-current-card');
   if (card) card.classList.add('swipe-left');
+  _lastPass = { candidateId, index: _discoveryIndex };
   await sb.from('discovery_passes').insert({ passer_id: currentUser.id, passed_id: candidateId });
-  setTimeout(() => { _discoveryIndex++; renderDiscoveryCard(); }, 350);
+  setTimeout(() => { _discoveryIndex++; renderDiscoveryCard(); updateUndoButton(); }, 350);
 }
 window.passCandidate = passCandidate;
+
+function updateUndoButton() {
+  const row = document.getElementById('disc-undo-row');
+  if (row) row.style.display = _lastPass ? 'block' : 'none';
+}
+
+async function undoLastPass() {
+  if (!_lastPass) return;
+  const { candidateId, index } = _lastPass;
+  await sb.from('discovery_passes').delete().eq('passer_id', currentUser.id).eq('passed_id', candidateId);
+  _discoveryIndex = index;
+  _lastPass = null;
+  updateUndoButton();
+  renderDiscoveryCard();
+  if (typeof showToast === 'function') showToast('Pass undone — they\u2019re back in your stack', 'success');
+}
+window.undoLastPass = undoLastPass;
+
+// E9 — empty-state with an "invite friends" call to action
+function discoveryEmptyStateHTML() {
+  return '<div class="disc-empty">'
+    + '<div class="disc-empty-icon">✨</div>'
+    + '<div style="font-weight:700;color:var(--navy);font-size:1.05rem;">You\u2019ve seen everyone for now</div>'
+    + '<div style="font-size:.85rem;margin-top:.4rem;color:var(--gray-text);max-width:340px;margin-left:auto;margin-right:auto;">More co-buyers join NEXUS every day. Want a better match faster? Invite someone who\u2019s also trying to buy \u2014 the more people on NEXUS, the stronger everyone\u2019s matches.</div>'
+    + '<button class="btn-primary" style="margin-top:1.1rem;" onclick="inviteFriends()">\uD83D\uDCE4 Invite a friend to NEXUS</button>'
+    + '</div>';
+}
+
+async function inviteFriends() {
+  const url = window.location.origin;
+  const shareText = 'I\u2019m using NEXUS to find a co-buyer and actually afford a home in California. You should check it out:';
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: 'NEXUS \u2014 Co-Ownership Matching', text: shareText, url });
+      return;
+    }
+  } catch (e) { /* user cancelled share — fall through to copy */ }
+  try {
+    await navigator.clipboard.writeText(shareText + ' ' + url);
+    if (typeof showToast === 'function') showToast('Invite link copied to clipboard', 'success');
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('Share this link: ' + url, 'info');
+  }
+}
+window.inviteFriends = inviteFriends;
+
+// E7 — keyboard shortcuts for the discovery stack (← pass, → like)
+document.addEventListener('keydown', function(e) {
+  const dv = document.getElementById('view-discovery');
+  if (!dv || !dv.classList.contains('active')) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const c = _discoveryStack[_discoveryIndex];
+  if (!c) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); passCandidate(c.account_id); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); likeCandidate(c.account_id, c.nexus_score); }
+});
 
 function updateLikesCounter() {
   const isPaid = currentAccount?.discovery_tier === 'paid';
@@ -12816,6 +13041,10 @@ async function loadSettings() {
   document.getElementById('settings-email').value = currentAccount.email || currentUser.email || '';
   document.getElementById('settings-phone').value = currentAccount.phone || '';
 
+  // D3 — Matching Profile card is for homebuyer accounts only
+  const matchCard = document.getElementById('settings-matching-card');
+  if (matchCard) matchCard.style.display = currentAccount.role === 'user' ? 'block' : 'none';
+
   // Load avatar
   const avatarEl = document.getElementById('settings-avatar');
   if (avatarEl) {
@@ -12852,6 +13081,174 @@ async function loadSettings() {
       : '<button class="rp-btn" style="font-size:.82rem;background:#10B981;border-color:#10B981;" onclick="openPaywall()">Upgrade to NEXUS Home →</button>';
   }
 }
+
+// ═══════════ EDIT MATCHING PROFILE (D3) ═══════════
+let _epCities = [];
+
+function renderEpCityTags() {
+  const wrap = document.getElementById('ep-city-tags');
+  if (!wrap) return;
+  if (_epCities.length === 0) {
+    wrap.innerHTML = '<span style="font-size:.78rem;color:var(--gray-text);">No target cities yet.</span>';
+    return;
+  }
+  wrap.innerHTML = _epCities.map(c =>
+    `<span class="ep-city-tag">${escapeHtml(c)}<button type="button" onclick="removeEditCity('${escapeHtml(c).replace(/'/g,"\\'")}')">×</button></span>`
+  ).join('');
+}
+
+function addEditCity() {
+  const input = document.getElementById('ep-city-input');
+  const v = (input.value || '').trim();
+  if (!v) return;
+  if (!_epCities.some(c => c.toLowerCase() === v.toLowerCase())) _epCities.push(v);
+  input.value = '';
+  renderEpCityTags();
+}
+window.addEditCity = addEditCity;
+
+function removeEditCity(city) {
+  _epCities = _epCities.filter(c => c !== city);
+  renderEpCityTags();
+}
+window.removeEditCity = removeEditCity;
+
+function setEditCoborrower(hasIt) {
+  document.getElementById('ep-cb-yes').classList.toggle('active', hasIt);
+  document.getElementById('ep-cb-no').classList.toggle('active', !hasIt);
+  document.getElementById('ep-cb-section').style.display = hasIt ? 'block' : 'none';
+}
+window.setEditCoborrower = setEditCoborrower;
+
+function closeEditProfile() {
+  document.getElementById('edit-profile-modal').style.display = 'none';
+}
+window.closeEditProfile = closeEditProfile;
+
+async function openEditProfile() {
+  if (!currentUser || !currentAccount) { showToast('Please sign in first.', 'error'); return; }
+  const errEl = document.getElementById('ep-error');
+  if (errEl) errEl.style.display = 'none';
+
+  const { data: p, error } = await sb.from('user_profiles').select('*').eq('account_id', currentUser.id).maybeSingle();
+  if (error) { showToast('Could not load your profile: ' + error.message, 'error'); return; }
+  const prof = p || {};
+
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  setVal('ep-age', prof.age_range);
+  setVal('ep-household', prof.household_setup || 'single');
+  setVal('ep-employment', prof.employment_status);
+  setVal('ep-housing', prof.housing_situation);
+  setVal('ep-current-city', prof.current_city);
+  setVal('ep-income', prof.income_range);
+  setVal('ep-credit', prof.credit_range);
+  setVal('ep-price', prof.price_range);
+  setVal('ep-timeline', prof.timeline);
+  setVal('ep-total', String(prof.total_coborrowers_desired || 2));
+  setVal('ep-story', prof.story);
+  document.getElementById('ep-story-count').textContent = (prof.story || '').length;
+
+  // target cities
+  _epCities = Array.isArray(prof.target_cities) ? prof.target_cities.slice() : [];
+  renderEpCityTags();
+
+  // chips — home types + interests
+  const homeTypes = Array.isArray(prof.home_type_preference) ? prof.home_type_preference : [];
+  document.querySelectorAll('#ep-hometypes .ep-chip').forEach(ch => {
+    ch.classList.toggle('ep-chip-on', homeTypes.includes(ch.dataset.val));
+  });
+  const interests = Array.isArray(prof.interests) ? prof.interests : [];
+  document.querySelectorAll('#ep-interests .ep-chip').forEach(ch => {
+    ch.classList.toggle('ep-chip-on', interests.includes(ch.dataset.val));
+  });
+
+  // working-style sliders
+  [['ep-style-communication', prof.style_communication],
+   ['ep-style-decision', prof.style_decision],
+   ['ep-style-pace', prof.style_pace],
+   ['ep-style-education', prof.style_education],
+   ['ep-style-negotiation', prof.style_negotiation]].forEach(([id, v]) => {
+    const el = document.getElementById(id);
+    if (el) { el.value = v || 3; if (el.nextElementSibling) el.nextElementSibling.textContent = el.value; }
+  });
+
+  // co-borrower
+  const hasCb = !!prof.has_existing_coborrower;
+  setEditCoborrower(hasCb);
+  setVal('ep-cb-name', prof.coborrower_name);
+  setVal('ep-cb-email', prof.coborrower_email);
+  setVal('ep-cb-phone', prof.coborrower_phone);
+  setVal('ep-cb-relationship', prof.coborrower_relationship);
+  setVal('ep-cb-income', prof.coborrower_income_range);
+  setVal('ep-cb-credit', prof.coborrower_credit_range);
+
+  document.getElementById('edit-profile-modal').style.display = 'flex';
+}
+window.openEditProfile = openEditProfile;
+
+async function saveEditProfile() {
+  if (!currentUser) return;
+  const errEl = document.getElementById('ep-error');
+  const showErr = (m) => { if (errEl) { errEl.textContent = m; errEl.style.display = 'block'; errEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } };
+  if (errEl) errEl.style.display = 'none';
+
+  const gv = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const story = gv('ep-story').trim();
+
+  // Light validation — only block on clearly-incomplete matching essentials
+  if (_epCities.length === 0) { showErr('Add at least one target city so we can match you.'); return; }
+  if (!gv('ep-price')) { showErr('Please select a target home price range.'); return; }
+
+  const hasCb = document.getElementById('ep-cb-yes').classList.contains('active');
+  const homeTypes = [...document.querySelectorAll('#ep-hometypes .ep-chip.ep-chip-on')].map(c => c.dataset.val);
+  const interests = [...document.querySelectorAll('#ep-interests .ep-chip.ep-chip-on')].map(c => c.dataset.val);
+
+  const profileData = {
+    account_id: currentUser.id,
+    age_range: gv('ep-age') || null,
+    household_setup: gv('ep-household') || 'single',
+    employment_status: gv('ep-employment') || null,
+    housing_situation: gv('ep-housing') || null,
+    current_city: gv('ep-current-city').trim() || null,
+    target_cities: _epCities,
+    income_range: gv('ep-income') || null,
+    credit_range: gv('ep-credit') || null,
+    price_range: gv('ep-price') || null,
+    timeline: gv('ep-timeline') || null,
+    total_coborrowers_desired: parseInt(gv('ep-total')) || 2,
+    home_type_preference: homeTypes,
+    interests: interests,
+    story: story || null,
+    style_communication: parseInt(gv('ep-style-communication')) || 3,
+    style_decision: parseInt(gv('ep-style-decision')) || 3,
+    style_pace: parseInt(gv('ep-style-pace')) || 3,
+    style_education: parseInt(gv('ep-style-education')) || 3,
+    style_negotiation: parseInt(gv('ep-style-negotiation')) || 3,
+    has_existing_coborrower: hasCb,
+    coborrower_name: hasCb ? (gv('ep-cb-name').trim() || null) : null,
+    coborrower_email: hasCb ? (gv('ep-cb-email').trim() || null) : null,
+    coborrower_phone: hasCb ? (gv('ep-cb-phone').trim() || null) : null,
+    coborrower_relationship: hasCb ? (gv('ep-cb-relationship') || null) : null,
+    coborrower_income_range: hasCb ? (gv('ep-cb-income') || null) : null,
+    coborrower_credit_range: hasCb ? (gv('ep-cb-credit') || null) : null,
+    profile_completed: true
+  };
+
+  const btn = document.getElementById('ep-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const { error } = await sb.from('user_profiles').upsert(profileData, { onConflict: 'account_id' });
+
+  btn.disabled = false; btn.textContent = 'Save Changes';
+
+  if (error) { showErr('Could not save: ' + error.message); return; }
+
+  closeEditProfile();
+  showToast('Matching profile updated 🎉', 'success');
+  // refresh discovery data if it's loaded so new criteria take effect
+  if (typeof _myProfile !== 'undefined') { try { _myProfile = { ..._myProfile, ...profileData }; } catch (e) {} }
+}
+window.saveEditProfile = saveEditProfile;
 
 async function saveAccountSettings() {
   const name = document.getElementById('settings-name').value.trim();
@@ -13046,6 +13443,13 @@ showView = function(viewName) {
       </div>
     </div>
 
+    <!-- Edit Matching Profile (D3 — user accounts only) -->
+    <div id="settings-matching-card" style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;display:none;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.4rem;">Matching Profile</div>
+      <div style="font-size:.85rem;color:var(--gray-text);margin-bottom:.85rem;line-height:1.5;">Moved, changed your budget, found a co-borrower, or want to refresh your story? Keep your profile current so NEXUS matches you accurately.</div>
+      <button class="rp-btn" style="justify-self:start;" onclick="openEditProfile()">✎ Edit Matching Profile</button>
+    </div>
+
     <!-- Password -->
     <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.85rem;">Change Password</div>
@@ -13119,6 +13523,16 @@ showView = function(viewName) {
     </div>
 
     <div class="disc-likes-counter" id="disc-likes-counter"></div>
+
+    <!-- Undo last pass (E8) -->
+    <div id="disc-undo-row" style="text-align:center;margin-bottom:.55rem;display:none;">
+      <button id="disc-undo-btn" onclick="undoLastPass()" style="padding:.4rem .9rem;border-radius:16px;font-size:.76rem;font-weight:700;background:#fff;border:1.5px solid var(--gray);color:var(--navy);cursor:pointer;">↩ Undo last pass</button>
+    </div>
+
+    <!-- Keyboard hint (E7) -->
+    <div id="disc-kbd-hint" style="text-align:center;font-size:.68rem;color:var(--gray-text);margin-bottom:.65rem;display:none;">
+      <kbd style="background:var(--bg);border:1px solid var(--gray);border-radius:4px;padding:.05rem .35rem;">←</kbd> pass &nbsp;·&nbsp; <kbd style="background:var(--bg);border:1px solid var(--gray);border-radius:4px;padding:.05rem .35rem;">→</kbd> like
+    </div>
 
     <!-- Card stack area -->
     <div id="disc-card-area">
@@ -13208,6 +13622,195 @@ showView = function(viewName) {
     <div style="font-size:.82rem;color:var(--gray-text);margin-bottom:1.5rem;">NEXUS Compatibility Score</div>
     <button class="btn-primary" style="width:100%;margin-bottom:.75rem;" onclick="goToGroupDashboard()">View Your Group →</button>
     <button class="btn-outline" style="width:100%;" onclick="closeMatchOverlay();loadDiscoveryStack()">Keep Browsing</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ EDIT MATCHING PROFILE MODAL (D3) ══════════════════════ -->
+<div id="edit-profile-modal" style="display:none;position:fixed;inset:0;background:rgba(11,29,62,.7);z-index:10000;align-items:flex-start;justify-content:center;padding:1.25rem 1rem;backdrop-filter:blur(4px);overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:620px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.3);margin:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.4rem;border-bottom:1.5px solid var(--gray);position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0;z-index:2;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;color:var(--navy);font-size:1.15rem;">Edit Matching Profile</div>
+      <button onclick="closeEditProfile()" style="background:none;border:none;font-size:1.5rem;color:var(--gray-text);cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div style="padding:1.25rem 1.4rem;">
+      <div style="font-size:.82rem;color:var(--gray-text);margin-bottom:1.1rem;line-height:1.5;">Update anything below. Changes apply to your NEXUS Score and who you're matched with immediately.</div>
+
+      <!-- About -->
+      <div class="ep-section-title">About You</div>
+      <div class="field-group"><label class="field-label">Age Range</label>
+        <select class="field-input" id="ep-age">
+          <option value="">Select age range</option>
+          <option>21–25</option><option>26–30</option><option>31–35</option>
+          <option>36–40</option><option>41–45</option><option>46–50</option><option>50+</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label">Household Setup</label>
+        <select class="field-input" id="ep-household">
+          <option value="single">Single</option>
+          <option value="couple">Couple</option>
+          <option value="family">Family</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label">Employment Status</label>
+        <select class="field-input" id="ep-employment">
+          <option value="">Select status</option>
+          <option>W-2 Employee (Full-Time)</option><option>W-2 Employee (Part-Time)</option>
+          <option>Self-Employed / 1099</option><option>Government / Military</option>
+          <option>Healthcare / Nursing</option><option>Education / Teaching</option>
+          <option>Retired</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label">Current Housing Situation</label>
+        <select class="field-input" id="ep-housing">
+          <option value="">Select current situation</option>
+          <option>Renting an apartment or home</option>
+          <option>Living with family / parents</option>
+          <option>Living with roommates</option>
+          <option>Currently own, looking to co-buy additional property</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <!-- Location -->
+      <div class="ep-section-title">Location</div>
+      <div class="field-group"><label class="field-label">Current City or Community</label>
+        <input class="field-input" type="text" id="ep-current-city" placeholder="e.g. Sacramento">
+      </div>
+      <div class="field-group"><label class="field-label">Target Cities</label>
+        <div class="field-sub" style="margin-bottom:.4rem;">Type a city and press Enter to add it.</div>
+        <input class="field-input" type="text" id="ep-city-input" placeholder="Add a California city…" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditCity();}">
+        <div id="ep-city-tags" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem;"></div>
+      </div>
+
+      <!-- Finances -->
+      <div class="ep-section-title">Finances</div>
+      <div class="field-group"><label class="field-label">Gross Monthly Income</label>
+        <select class="field-input" id="ep-income">
+          <option value="">Select</option>
+          <option>Under $4,000/month</option><option>$4,000 – $6,000/month</option>
+          <option>$6,000 – $8,500/month</option><option>$8,500 – $12,000/month</option>
+          <option>Over $12,000/month</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label">Credit Score Range</label>
+        <select class="field-input" id="ep-credit">
+          <option value="">Select</option>
+          <option>Below 580</option><option>580 – 619</option><option>620 – 659</option>
+          <option>660 – 699</option><option>700 – 739</option><option>740+</option>
+        </select>
+      </div>
+
+      <!-- Home Goals -->
+      <div class="ep-section-title">Home Goals</div>
+      <div class="field-group"><label class="field-label">Target Home Price Range</label>
+        <select class="field-input" id="ep-price">
+          <option value="">Select</option>
+          <option>$400,000 – $600,000</option><option>$600,000 – $800,000</option>
+          <option>$800,000 – $1,000,000</option><option>$1,000,000 – $1,400,000</option>
+          <option>Over $1,400,000</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label">Timeline to Purchase</label>
+        <select class="field-input" id="ep-timeline">
+          <option value="">Select</option>
+          <option>0 – 6 months</option><option>6 – 12 months</option><option>12 – 24 months</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label">Total People on the Mortgage (including you)</label>
+        <select class="field-input" id="ep-total">
+          <option value="2">2 total (you + 1 co-borrower)</option>
+          <option value="3">3 total (you + 2 co-borrowers)</option>
+          <option value="4">4 total (you + 3 co-borrowers)</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label">Preferred Property Type</label>
+        <div id="ep-hometypes" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.35rem;">
+          <span class="ep-chip" data-val="Single Family" onclick="this.classList.toggle('ep-chip-on')">Single Family</span>
+          <span class="ep-chip" data-val="Condo" onclick="this.classList.toggle('ep-chip-on')">Condo</span>
+          <span class="ep-chip" data-val="Townhome" onclick="this.classList.toggle('ep-chip-on')">Townhome</span>
+          <span class="ep-chip" data-val="New Construction" onclick="this.classList.toggle('ep-chip-on')">New Construction</span>
+        </div>
+      </div>
+
+      <!-- Story & Interests -->
+      <div class="ep-section-title">Your Story</div>
+      <div class="field-group"><label class="field-label">Why Co-Ownership? (150 characters max)</label>
+        <textarea class="field-input" id="ep-story" maxlength="150" placeholder="Share a bit about yourself and why you're co-buying." oninput="document.getElementById('ep-story-count').textContent=this.value.length"></textarea>
+        <div class="char-count"><span id="ep-story-count">0</span>/150</div>
+      </div>
+      <div class="field-group"><label class="field-label">Lifestyle &amp; Interests</label>
+        <div id="ep-interests" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.35rem;">
+          <span class="ep-chip" data-val="🏃 Active &amp; Outdoors" onclick="this.classList.toggle('ep-chip-on')">🏃 Active &amp; Outdoors</span>
+          <span class="ep-chip" data-val="🍳 Home &amp; Social" onclick="this.classList.toggle('ep-chip-on')">🍳 Home &amp; Social</span>
+          <span class="ep-chip" data-val="🧘 Health &amp; Wellness" onclick="this.classList.toggle('ep-chip-on')">🧘 Health &amp; Wellness</span>
+          <span class="ep-chip" data-val="🎨 Creative &amp; Cultural" onclick="this.classList.toggle('ep-chip-on')">🎨 Creative &amp; Cultural</span>
+          <span class="ep-chip" data-val="💻 Tech &amp; Professional" onclick="this.classList.toggle('ep-chip-on')">💻 Tech &amp; Professional</span>
+          <span class="ep-chip" data-val="👨‍👩‍👧 Family-Oriented" onclick="this.classList.toggle('ep-chip-on')">👨‍👩‍👧 Family-Oriented</span>
+          <span class="ep-chip" data-val="📈 Finance-Savvy" onclick="this.classList.toggle('ep-chip-on')">📈 Finance-Savvy</span>
+          <span class="ep-chip" data-val="🎵 Music &amp; Arts" onclick="this.classList.toggle('ep-chip-on')">🎵 Music &amp; Arts</span>
+          <span class="ep-chip" data-val="🐾 Pet Owner" onclick="this.classList.toggle('ep-chip-on')">🐾 Pet Owner</span>
+          <span class="ep-chip" data-val="🚴 Cycling &amp; Biking" onclick="this.classList.toggle('ep-chip-on')">🚴 Cycling &amp; Biking</span>
+          <span class="ep-chip" data-val="🎣 Fishing &amp; Hunting" onclick="this.classList.toggle('ep-chip-on')">🎣 Fishing &amp; Hunting</span>
+          <span class="ep-chip" data-val="✈️ Travel &amp; Adventure" onclick="this.classList.toggle('ep-chip-on')">✈️ Travel &amp; Adventure</span>
+        </div>
+      </div>
+
+      <!-- Working Style -->
+      <div class="ep-section-title">Working Style <span style="font-weight:500;color:var(--gray-text);font-size:.78rem;">(1 = low · 5 = high)</span></div>
+      <div class="field-group ep-slider-row"><label class="field-label">Communication</label><input type="range" min="1" max="5" id="ep-style-communication" oninput="this.nextElementSibling.textContent=this.value"><span class="ep-slider-val">3</span></div>
+      <div class="field-group ep-slider-row"><label class="field-label">Decision-making</label><input type="range" min="1" max="5" id="ep-style-decision" oninput="this.nextElementSibling.textContent=this.value"><span class="ep-slider-val">3</span></div>
+      <div class="field-group ep-slider-row"><label class="field-label">Pace</label><input type="range" min="1" max="5" id="ep-style-pace" oninput="this.nextElementSibling.textContent=this.value"><span class="ep-slider-val">3</span></div>
+      <div class="field-group ep-slider-row"><label class="field-label">Education / research</label><input type="range" min="1" max="5" id="ep-style-education" oninput="this.nextElementSibling.textContent=this.value"><span class="ep-slider-val">3</span></div>
+      <div class="field-group ep-slider-row"><label class="field-label">Negotiation</label><input type="range" min="1" max="5" id="ep-style-negotiation" oninput="this.nextElementSibling.textContent=this.value"><span class="ep-slider-val">3</span></div>
+
+      <!-- Co-Borrower -->
+      <div class="ep-section-title">Existing Co-Borrower</div>
+      <div class="field-group">
+        <label class="field-label">Do you already have a co-borrower?</label>
+        <div class="cb-toggle-wrap">
+          <button type="button" class="cb-toggle-btn active" id="ep-cb-no" onclick="setEditCoborrower(false)">No — solo</button>
+          <button type="button" class="cb-toggle-btn" id="ep-cb-yes" onclick="setEditCoborrower(true)">Yes — I have one</button>
+        </div>
+      </div>
+      <div id="ep-cb-section" style="display:none;">
+        <div class="field-group"><label class="field-label">Co-Borrower's Full Name</label><input class="field-input" type="text" id="ep-cb-name" placeholder="Jamie Smith"></div>
+        <div class="field-row field-row-2">
+          <div class="field-group"><label class="field-label">Email</label><input class="field-input" type="email" id="ep-cb-email"></div>
+          <div class="field-group"><label class="field-label">Phone</label><input class="field-input" type="tel" id="ep-cb-phone"></div>
+        </div>
+        <div class="field-group"><label class="field-label">Relationship</label>
+          <select class="field-input" id="ep-cb-relationship">
+            <option value="">Select</option>
+            <option value="spouse">Spouse</option><option value="partner">Domestic partner</option>
+            <option value="friend">Friend</option><option value="family">Family member</option>
+          </select>
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field-group"><label class="field-label">Their income range</label>
+            <select class="field-input" id="ep-cb-income">
+              <option value="">Select</option>
+              <option>Under $4,000/month</option><option>$4,000 – $6,000/month</option>
+              <option>$6,000 – $8,500/month</option><option>$8,500 – $12,000/month</option>
+              <option>Over $12,000/month</option>
+            </select>
+          </div>
+          <div class="field-group"><label class="field-label">Their credit range</label>
+            <select class="field-input" id="ep-cb-credit">
+              <option value="">Select</option>
+              <option>Below 580</option><option>580 – 619</option><option>620 – 659</option>
+              <option>660 – 699</option><option>700 – 739</option><option>740+</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="ep-error" style="display:none;background:#FEE2E2;color:#B91C1C;border-radius:8px;padding:.6rem .85rem;font-size:.82rem;margin-top:.5rem;"></div>
+
+      <div style="display:flex;gap:.6rem;margin-top:1.25rem;">
+        <button class="btn-outline" style="flex:1;" onclick="closeEditProfile()">Cancel</button>
+        <button class="btn-primary" style="flex:2;" id="ep-save-btn" onclick="saveEditProfile()">Save Changes</button>
+      </div>
+    </div>
   </div>
 </div>
 
