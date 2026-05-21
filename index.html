@@ -253,6 +253,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);padding:2.5rem 1.5rem;f
 .rcc-milestone-status{font-size:.7rem;color:var(--gray-text);margin-top:.15rem;}
 .rcc-milestone.done{border-color:#10B981;background:#ECFDF5;}
 
+
+#user-demo-grid{display:none !important;}
 </style>
 <style id="part2-styles">
 /* ── FORM VIEW ── */
@@ -3023,7 +3025,7 @@ body.is-impersonating .view{padding-top:114px;}
     </div>
 
     <!-- ─── Static demo grid (shown when there's no profile_completed=true OR for marketing) ─── -->
-    <div class="dash-grid" id="user-demo-grid">
+    <div class="dash-grid" id="user-demo-grid" style="display:none !important;">
 
       <!-- Match Status Card -->
       <div class="dash-card match-status-card" id="match-card">
@@ -3149,8 +3151,7 @@ body.is-impersonating .view{padding-top:114px;}
           <div class="pf-item"><div class="pf-label">Comfort Level</div><div class="pf-value">4 / 5 — Committed</div></div>
         </div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;width:100%;margin-top:1.25rem;">
-          <button class="btn-primary" style="flex:1;font-size:.85rem;padding:.75rem 1rem;" onclick="showView('find-realtor')">Find a Realtor →</button>
-          <button class="btn-outline" style="flex:1;font-size:.85rem;padding:.75rem 1rem;" onclick="showView('documents')">View Documents</button>
+          <!-- removed: Find a Realtor + View Documents — these are realtor-driven flows -->
         </div>
       </div>
 
@@ -11126,9 +11127,7 @@ async function loadUserDashboard() {
           “${escapeHtml(profile.story || 'No story yet — head to your profile to add some context for your future co-buyer.')}”
         </div>
         <div style="margin-top:.85rem;display:flex;gap:.5rem;flex-wrap:wrap;">
-          <button class="rp-btn" onclick="showView('find-realtor')">Find a realtor →</button>
-          <button class="rp-btn rp-btn-secondary" onclick="showView('documents')">View documents</button>
-          <button class="rp-btn rp-btn-secondary" onclick="showView('settings')" style="font-size:.78rem;">⚙️ Settings</button>
+          <button class="rp-btn rp-btn-secondary" onclick="showView('settings')" style="font-size:.78rem;">⚙️ Edit Profile</button>
         </div>
       </div>
     `;
@@ -12839,10 +12838,13 @@ async function loadGroupChat() {
   const t = document.getElementById('grp-chat-thread');
   if (!t||!_activeGroupId) return;
   const { data: msgs } = await sb.from('group_messages').select('id,sender_id,body,is_system,created_at').eq('group_id',_activeGroupId).order('created_at',{ascending:true});
-  if (!msgs||msgs.length===0) { t.innerHTML='<div style="text-align:center;color:var(--gray-text);font-size:.85rem;padding:1.5rem;">No messages yet.</div>'; return; }
-  const sIds=[...new Set(msgs.map(m=>m.sender_id))];
-  const { data: sa } = await sb.from('accounts').select('id,full_name').in('id',sIds);
-  const nm={}; (sa||[]).forEach(a=>{nm[a.id]=a.full_name;});
+  if (!msgs||msgs.length===0) { t.innerHTML='<div style="text-align:center;color:var(--gray-text);font-size:.85rem;padding:1.5rem;">No messages yet.<br><span style="font-size:.75rem;">Be the first to say hi to the group.</span></div>'; return; }
+  // Build sender name lookup via SECURITY DEFINER helper (RLS-safe for group members)
+  const nm={};
+  try {
+    const { data: members } = await sb.rpc('get_group_members_display', { p_group_id: _activeGroupId });
+    (members||[]).forEach(m => { nm[m.account_id] = m.full_name; });
+  } catch (e) { console.warn('group member name lookup failed:', e); }
   t.innerHTML = msgs.map(m=>{
     const isMine=m.sender_id===currentUser.id;
     const ts=new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
