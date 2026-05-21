@@ -3132,8 +3132,8 @@ body.is-impersonating .view{padding-top:114px;}
       <!-- Tabs -->
       <nav class="admin-tabs" role="tablist">
         <button class="admin-tab active" data-admin-tab="mock-data" onclick="switchAdminTab('mock-data')">🎭 Mock Data</button>
-        <button class="admin-tab" disabled title="Coming soon">📊 Overview</button>
-        <button class="admin-tab" disabled title="Coming soon">👥 Realtor Verification</button>
+        <button class="admin-tab" data-admin-tab="inspector" onclick="switchAdminTab('inspector')">🔍 Inspector</button>
+        <button class="admin-tab" data-admin-tab="scenarios" onclick="switchAdminTab('scenarios')">🎬 Test Scenarios</button>
         <button class="admin-tab" disabled title="Coming soon">📋 Audit Log</button>
       </nav>
 
@@ -3189,6 +3189,40 @@ body.is-impersonating .view{padding-top:114px;}
         <div id="mock-accounts-list" class="mock-list">
           <div class="mock-empty">Loading mock accounts…</div>
         </div>
+      </section>
+
+      <!-- ─── TAB: Inspector ─── -->
+      <section id="admin-tab-inspector" class="admin-tab-pane">
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
+          <button class="btn-mock" onclick="refreshInspector()">↻ Refresh</button>
+          <button class="btn-mock" onclick="runValidator()" style="background:#0ea5e9;color:#fff;">🩺 Validate State</button>
+          <span style="font-size:.8rem;color:var(--gray-text);margin-left:auto;">Live view of all groups, one-sided likes, and state machine integrity.</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr;gap:1.25rem;">
+          <div>
+            <h3 style="font-size:.95rem;color:var(--navy);margin:0 0 .5rem;font-family:'Plus Jakarta Sans',sans-serif;">📦 Groups <span style="color:var(--gray-text);font-weight:500;font-size:.8rem;">(most recent 50)</span></h3>
+            <div id="insp-groups"><div class="mock-empty">Click Refresh.</div></div>
+          </div>
+          <div>
+            <h3 style="font-size:.95rem;color:var(--navy);margin:0 0 .5rem;font-family:'Plus Jakarta Sans',sans-serif;">💔 One-sided likes <span style="color:var(--gray-text);font-weight:500;font-size:.8rem;">(waiting for reciprocal)</span></h3>
+            <div id="insp-pending-likes"><div class="mock-empty">Click Refresh.</div></div>
+          </div>
+          <div>
+            <h3 style="font-size:.95rem;color:var(--navy);margin:0 0 .5rem;font-family:'Plus Jakarta Sans',sans-serif;">🩺 State machine validator</h3>
+            <div id="insp-validator"><div class="mock-empty">Click "Validate State" to run invariant checks.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TAB: Test Scenarios ─── -->
+      <section id="admin-tab-scenarios" class="admin-tab-pane">
+        <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:.85rem 1.1rem;border-radius:6px;margin-bottom:1.25rem;font-size:.86rem;color:#854d0e;">
+          ⚠️ <strong>Fresh state guaranteed.</strong> Each scenario wipes all <code>@nexus-test.local</code> accounts and their interactions (likes, matches, groups, messages, notifications) before seeding. Real users and standard mock data are untouched. All test accounts use password <code>NexusTest2026!</code>.
+        </div>
+        <div class="sc-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;">
+          <div class="mock-empty">Loading scenarios…</div>
+        </div>
+        <div id="sc-result" style="margin-top:1.5rem;"></div>
       </section>
 
     </div>
@@ -7901,6 +7935,8 @@ function switchAdminTab(tabId) {
   if (btn) btn.classList.add('active');
   if (pane) pane.classList.add('active');
   if (tabId === 'mock-data') refreshMockData();
+  if (tabId === 'inspector') refreshInspector();
+  if (tabId === 'scenarios') renderScenarios();
 }
 window.switchAdminTab = switchAdminTab;
 
@@ -8096,6 +8132,222 @@ async function impersonateMock(email, fullName, role, photoUrl) {
   window.location.href = window.location.pathname;
 }
 window.impersonateMock = impersonateMock;
+
+// ══════════════════════════════════════════════════════════════════════
+// TEST SUITE — Inspector
+// ══════════════════════════════════════════════════════════════════════
+async function loadInspectorGroups() {
+  const el = document.getElementById('insp-groups');
+  if (!el) return;
+  el.innerHTML = '<div class="mock-empty">Loading groups…</div>';
+  try {
+    const { data: groups, error } = await sb.from('coborrower_groups')
+      .select('id,status,desired_total,current_size,created_at,updated_at')
+      .order('updated_at', { ascending: false }).limit(50);
+    if (error) throw error;
+    if (!groups || groups.length === 0) {
+      el.innerHTML = '<div class="mock-empty">No groups exist.</div>';
+      return;
+    }
+    const groupIds = groups.map(g => g.id);
+    const { data: members } = await sb.from('coborrower_group_members')
+      .select('group_id,account_id,role,joined_at').in('group_id', groupIds);
+    const memberAccountIds = [...new Set((members || []).map(m => m.account_id))];
+    let acctMap = {};
+    if (memberAccountIds.length > 0) {
+      const { data: accts } = await sb.from('accounts')
+        .select('id,full_name,email').in('id', memberAccountIds);
+      (accts || []).forEach(a => { acctMap[a.id] = a; });
+    }
+    const grpMembers = {};
+    (members || []).forEach(m => {
+      if (!grpMembers[m.group_id]) grpMembers[m.group_id] = [];
+      grpMembers[m.group_id].push(m);
+    });
+    const statusColor = {
+      forming: '#f59e0b', complete: '#10b981',
+      seeking_realtor: '#2563eb', realtor_confirmed: '#16a34a',
+      closed: '#6b7280'
+    };
+    el.innerHTML = groups.map(g => {
+      const ms = grpMembers[g.id] || [];
+      const memberLines = ms.length === 0
+        ? '<li style="font-size:.78rem;color:var(--gray-text);font-style:italic;">No members</li>'
+        : ms.map(m => {
+            const a = acctMap[m.account_id];
+            const isTest = a && a.email && a.email.endsWith('@nexus-test.local');
+            return '<li style="font-size:.8rem;color:' + (isTest ? '#7c3aed' : '#374151') + ';">'
+              + escapeHtml((a && a.full_name) || '?')
+              + ' <span style="color:var(--gray-text);font-size:.72rem;">(' + escapeHtml((a && a.email) || '?') + ')</span>'
+              + (isTest ? ' <span style="color:#7c3aed;font-size:.7rem;font-weight:700;">TEST</span>' : '')
+              + '</li>';
+          }).join('');
+      const color = statusColor[g.status] || '#6b7280';
+      const ago = new Date(g.updated_at).toLocaleString();
+      return '<div style="border:1.5px solid var(--gray);border-radius:8px;padding:.85rem;margin-bottom:.65rem;background:#fff;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;gap:.5rem;flex-wrap:wrap;">'
+        + '<div style="font-family:monospace;font-size:.78rem;color:var(--gray-text);">' + escapeHtml(g.id.slice(0,8)) + '…</div>'
+        + '<div style="display:flex;gap:.5rem;align-items:center;">'
+        + '<span style="background:' + color + ';color:#fff;padding:.18rem .55rem;border-radius:4px;font-size:.72rem;font-weight:700;">' + escapeHtml(g.status) + '</span>'
+        + '<span style="font-size:.78rem;color:var(--gray-text);">' + g.current_size + '/' + g.desired_total + '</span>'
+        + '</div></div>'
+        + '<ul style="margin:.35rem 0 .25rem;padding-left:1.25rem;">' + memberLines + '</ul>'
+        + '<div style="font-size:.7rem;color:var(--gray-text);">Updated ' + ago + '</div>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="mock-empty" style="color:var(--danger);">Failed: ' + escapeHtml(e.message || String(e)) + '</div>';
+  }
+}
+
+async function loadInspectorPendingLikes() {
+  const el = document.getElementById('insp-pending-likes');
+  if (!el) return;
+  el.innerHTML = '<div class="mock-empty">Loading…</div>';
+  try {
+    const { data: likes, error } = await sb.from('discovery_likes')
+      .select('id,liker_id,liked_id,created_at')
+      .order('created_at', { ascending: false }).limit(200);
+    if (error) throw error;
+    if (!likes || likes.length === 0) {
+      el.innerHTML = '<div class="mock-empty">No likes recorded.</div>';
+      return;
+    }
+    const pairs = new Set();
+    likes.forEach(l => pairs.add(l.liker_id + '|' + l.liked_id));
+    const oneSided = likes.filter(l => !pairs.has(l.liked_id + '|' + l.liker_id));
+    if (oneSided.length === 0) {
+      el.innerHTML = '<div class="mock-empty" style="color:#065f46;">All likes are mutual. No pending one-sided likes.</div>';
+      return;
+    }
+    const accountIds = [...new Set(oneSided.flatMap(l => [l.liker_id, l.liked_id]))];
+    let acctMap = {};
+    if (accountIds.length > 0) {
+      const { data: accts } = await sb.from('accounts').select('id,full_name,email').in('id', accountIds);
+      (accts || []).forEach(a => { acctMap[a.id] = a; });
+    }
+    const visible = oneSided.slice(0, 50);
+    el.innerHTML = visible.map(l => {
+      const liker = acctMap[l.liker_id]; const liked = acctMap[l.liked_id];
+      const ago = new Date(l.created_at).toLocaleString();
+      const lt = liker && liker.email && liker.email.endsWith('@nexus-test.local');
+      const dt = liked && liked.email && liked.email.endsWith('@nexus-test.local');
+      return '<div style="border:1px solid var(--gray);border-radius:6px;padding:.55rem .75rem;margin-bottom:.4rem;background:#fff;font-size:.85rem;">'
+        + '<strong style="color:' + (lt ? '#7c3aed' : 'inherit') + ';">' + escapeHtml((liker && liker.full_name) || '?') + '</strong>'
+        + ' liked '
+        + '<strong style="color:' + (dt ? '#7c3aed' : 'inherit') + ';">' + escapeHtml((liked && liked.full_name) || '?') + '</strong>'
+        + ' — no reciprocal yet'
+        + ' <span style="color:var(--gray-text);font-size:.72rem;">· ' + ago + '</span>'
+        + '</div>';
+    }).join('') + (oneSided.length > 50 ? '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.5rem;">… and ' + (oneSided.length - 50) + ' more</div>' : '');
+  } catch (e) {
+    el.innerHTML = '<div class="mock-empty" style="color:var(--danger);">Failed: ' + escapeHtml(e.message || String(e)) + '</div>';
+  }
+}
+
+async function runValidator() {
+  const el = document.getElementById('insp-validator');
+  if (!el) return;
+  el.innerHTML = '<div class="mock-empty">Running validator…</div>';
+  try {
+    const { data, error } = await sb.rpc('admin_test_validate_state');
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      el.innerHTML = '<div style="background:#d1fae5;color:#065f46;padding:.85rem 1rem;border-radius:8px;font-size:.9rem;font-weight:600;">✓ No state machine violations detected.</div>';
+      return;
+    }
+    const byCategory = {};
+    data.forEach(row => {
+      if (!byCategory[row.category]) byCategory[row.category] = [];
+      byCategory[row.category].push(row);
+    });
+    el.innerHTML = Object.entries(byCategory).map(function([cat, rows]) {
+      const sev = rows[0].severity || 'medium';
+      const bg = sev === 'high' ? '#fee2e2' : '#fef3c7';
+      const fg = sev === 'high' ? '#991b1b' : '#854d0e';
+      return '<div style="background:' + bg + ';border-left:4px solid ' + fg + ';padding:.75rem 1rem;border-radius:6px;margin-bottom:.6rem;">'
+        + '<div style="font-weight:700;color:' + fg + ';font-size:.88rem;margin-bottom:.3rem;">⚠️ ' + escapeHtml(cat) + ' (' + rows.length + ')</div>'
+        + rows.map(function(r) {
+            return '<div style="font-size:.8rem;color:' + fg + ';opacity:.9;margin-bottom:.15rem;">• ' + escapeHtml(r.issue) + '</div>';
+          }).join('')
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="mock-empty" style="color:var(--danger);">Validator failed: ' + escapeHtml(e.message || String(e)) + '. Did you run the 027_test_suite.sql migration in Supabase?</div>';
+  }
+}
+
+async function refreshInspector() {
+  await Promise.all([loadInspectorGroups(), loadInspectorPendingLikes()]);
+}
+window.refreshInspector = refreshInspector;
+window.runValidator = runValidator;
+
+// ══════════════════════════════════════════════════════════════════════
+// TEST SUITE — Scenarios
+// ══════════════════════════════════════════════════════════════════════
+const TEST_SCENARIOS = [
+  { id:'primed_pair', icon:'🥚', title:'Primed pair (group of 2)',
+    desc:'Alice + Bob have both completed profiles and have each already liked the other. The next swipe by either completes the mutual match and creates a group of 2.',
+    next:'Impersonate Alice or Bob. Open Discovery. Swipe right on the other.' },
+  { id:'duo_third', icon:'👥', title:'Duo + 3rd primed (group of 3)',
+    desc:'Alice + Bob already mutually matched in a forming group of 3. Carol has already liked Alice and is in Alice\'s discovery stack.',
+    next:'Impersonate Alice. Open Discovery. Swipe right on Carol. Group completes to 3 members.' },
+  { id:'complete_group', icon:'✅', title:'Complete group (no pre-approval)',
+    desc:'Alice + Bob + Carol are all members of a complete group of 3. Status is "complete" — pre-approval not yet done.',
+    next:'Impersonate any member. Open group dashboard. Click "Start Pre-Approval".' },
+  { id:'pre_approved', icon:'📋', title:'Pre-approved, ready for realtor',
+    desc:'Complete group, pre-approval done (status=seeking_realtor). Ready to pick a realtor.',
+    next:'Impersonate any. Open group dashboard. Click "Select Your Realtor".' }
+];
+
+function renderScenarios() {
+  const grid = document.querySelector('#admin-tab-scenarios .sc-grid');
+  if (!grid) return;
+  grid.innerHTML = TEST_SCENARIOS.map(function(s) {
+    return '<div style="border:1.5px solid var(--gray);border-radius:10px;padding:1.1rem;background:#fff;display:flex;flex-direction:column;">'
+      + '<div style="font-size:1.6rem;margin-bottom:.35rem;">' + s.icon + '</div>'
+      + '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.4rem;">' + escapeHtml(s.title) + '</div>'
+      + '<div style="font-size:.82rem;color:#4b5563;line-height:1.45;margin-bottom:.65rem;flex:1;">' + escapeHtml(s.desc) + '</div>'
+      + '<div style="font-size:.74rem;color:var(--gray-text);font-style:italic;margin-bottom:.85rem;border-top:1px dashed var(--gray);padding-top:.6rem;">→ ' + escapeHtml(s.next) + '</div>'
+      + '<button class="btn-mock primary" onclick="runScenario(\'' + s.id + '\')" style="margin-top:auto;">Seed Scenario</button>'
+      + '</div>';
+  }).join('');
+}
+window.renderScenarios = renderScenarios;
+
+async function runScenario(scenarioId) {
+  const out = document.getElementById('sc-result');
+  out.innerHTML = '<div class="mock-empty">Seeding scenario (wiping prior @nexus-test.local data first)…</div>';
+  try {
+    const { data, error } = await sb.rpc('admin_test_seed_scenario', { p_scenario: scenarioId });
+    if (error) throw error;
+    const r = data || {};
+    const userRows = (r.users || []).map(function(u) {
+      const role = u.role ? '<span style="color:var(--gray-text);font-size:.78rem;"> — ' + escapeHtml(u.role) + '</span>' : '';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid #f3f4f6;font-size:.85rem;gap:.5rem;">'
+        + '<div style="min-width:0;flex:1;">'
+        + '<strong>' + escapeHtml(u.name) + '</strong>' + role
+        + '<div style="font-size:.72rem;color:var(--gray-text);font-family:monospace;">' + escapeHtml(u.email) + '</div>'
+        + '</div>'
+        + '<button class="impersonate-btn" onclick="impersonateMock(\'' + escapeHtml(u.email) + '\',\'' + escapeHtml(u.name) + '\',\'user\',\'\')">Impersonate →</button>'
+        + '</div>';
+    }).join('');
+    out.innerHTML = '<div style="background:#ecfdf5;border-left:4px solid #10b981;padding:1rem 1.25rem;border-radius:8px;">'
+      + '<div style="font-weight:700;color:#065f46;font-size:.95rem;margin-bottom:.4rem;">✓ Scenario "' + escapeHtml(r.scenario || scenarioId) + '" seeded</div>'
+      + '<div style="font-size:.85rem;color:#047857;margin-bottom:.85rem;">' + escapeHtml(r.description || '') + '</div>'
+      + '<div style="font-size:.85rem;color:#065f46;margin-bottom:.85rem;background:#fff;padding:.65rem .85rem;border-radius:6px;border:1px dashed #10b981;"><strong>Next step:</strong> ' + escapeHtml(r.next_step || '') + '</div>'
+      + '<div style="background:#fff;border-radius:6px;padding:.75rem 1rem;">'
+      + '<div style="font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">Test users (password: <code>NexusTest2026!</code>):</div>'
+      + userRows
+      + '</div>'
+      + '</div>';
+  } catch (e) {
+    out.innerHTML = '<div class="mock-empty" style="color:var(--danger);">Scenario seed failed: ' + escapeHtml(e.message || String(e)) + '. Did you run the 027_test_suite.sql migration in Supabase?</div>';
+  }
+}
+window.runScenario = runScenario;
+
 
 async function exitImpersonation() {
   // Clear localStorage flag, sign out, return to login modal
