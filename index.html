@@ -13286,38 +13286,40 @@ async function loadUnifiedRelationships() {
 
   try {
     const { data: groups } = await sb.rpc('get_my_groups_with_members');
+    // Map match_id by group_id for chat-button routing (every group has a corresponding match record)
     const { data: matches } = await sb.rpc('get_my_matches_with_others');
+    const matchByGroupId = {};
+    (matches || []).forEach(m => { if (m.group_id) matchByGroupId[m.group_id] = m; });
 
-    if ((!groups || groups.length === 0) && (!matches || matches.length === 0)) {
+    if (!groups || groups.length === 0) {
       wrap.innerHTML = '';
       return;
     }
 
-    // Build set of match_ids that are already represented by a group
-    // (in current schema, every match auto-creates a group, so all matches map to groups)
-    const groupedMatchIds = new Set();
-    (groups || []).forEach(g => {
-      (matches || []).forEach(m => { if (m.group_id === g.group_id) groupedMatchIds.add(m.match_id); });
-    });
-
-    // Stage→pill class+label map
-    function pillFor(status) {
+    // Stage→pill class+label map. Labels describe what's HAPPENING at each step
+    // so the user always knows what they need to do next.
+    function pillFor(g) {
+      if (g.status === 'forming') {
+        const need = g.desired_total - g.current_size;
+        return { c: 'rel-stage-talking', l: '💬 Forming · need ' + need + ' more' };
+      }
       const map = {
-        forming:           { c: 'rel-stage-group',       l: '👥 Group Forming' },
-        complete:          { c: 'rel-stage-preapproval', l: '✓ Group Complete · Pre-Approval Needed' },
-        seeking_realtor:   { c: 'rel-stage-realtor',     l: '✓ Pre-Approved · Choose Realtor' },
-        realtor_confirmed: { c: 'rel-stage-active',      l: '🤝 Realtor Confirmed' },
-        active:            { c: 'rel-stage-active',      l: '🏡 In Escrow' }
+        complete:          { c: 'rel-stage-preapproval', l: '✓ Complete · pre-approval needed' },
+        seeking_realtor:   { c: 'rel-stage-realtor',     l: '✓ Pre-approved · choose realtor' },
+        realtor_confirmed: { c: 'rel-stage-active',      l: '🤝 Realtor confirmed' },
+        active:            { c: 'rel-stage-active',      l: '🏡 In escrow' }
       };
-      return map[status] || { c: 'rel-stage-group', l: status };
+      return map[g.status] || { c: 'rel-stage-group', l: g.status };
     }
 
     let html = '<div style="background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">';
-    html += '<div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.85rem;">Your Co-Buyer Relationships</div>';
+    html += '<div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.5rem;">Your Co-Buyer Groups</div>';
+    html += '<div style="font-size:.78rem;color:var(--gray-text);margin-bottom:1rem;line-height:1.45;">Each card below is a co-buyer group you\'re part of. A group starts as a match (two of you), then grows or moves forward to pre-approval and a realtor together. You can be in multiple early-stage groups while you decide which to commit to.</div>';
 
-    // 1) GROUP CARDS first (committed relationships)
+    // Render ONLY groups (the schema makes every match a group, so this is the
+    // single source of truth for relationships)
     (groups || []).forEach(g => {
-      const pill = pillFor(g.status);
+      const pill = pillFor(g);
       const others = (g.members || []).filter(m => !m.is_me);
       const otherNames = others.map(m => (m.full_name || 'Unknown').split(' ')[0]).join(', ') || 'Solo';
 
@@ -13333,55 +13335,39 @@ async function loadUnifiedRelationships() {
       const sizeText = g.current_size + '/' + g.desired_total + ' members';
       const cities = (g.target_cities || []).join(', ') || '—';
 
-      // Action button — STAGE GATED
+      // Unread count on the group's underlying match thread
+      const matchForGroup = matchByGroupId[g.group_id];
+      const unread = matchForGroup && matchForGroup.unread_count > 0
+        ? '<span class="rel-unread-dot">' + matchForGroup.unread_count + '</span>' : '';
+
+      // Action buttons — primary action depends on stage, chat is always available
       let primaryBtn = '';
-      let secondaryBtn = '';
+      const chatBtn = matchForGroup
+        ? '<button class="btn-mini btn-mini-secondary" onclick="openUserConv(\'' + matchForGroup.match_id + '\')">💬 Chat</button>'
+        : '';
+
       if (g.status === 'forming') {
         const need = g.desired_total - g.current_size;
         primaryBtn = '<button class="btn-mini btn-mini-primary" onclick="showView(\'discovery\')">🔍 Find ' + need + ' More</button>';
-        secondaryBtn = '<button class="btn-mini btn-mini-secondary" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">View Group</button>';
       } else if (g.status === 'complete') {
         primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#8B5CF6;border-color:#8B5CF6;" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">📋 Start Pre-Approval</button>';
       } else if (g.status === 'seeking_realtor') {
         primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#10B981;border-color:#10B981;" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-realtors\')">🏘️ Select Realtor</button>';
-        secondaryBtn = '<button class="btn-mini btn-mini-secondary" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">View Group</button>';
       } else {
         primaryBtn = '<button class="btn-mini btn-mini-primary" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">View Group →</button>';
       }
+      const viewBtn = '<button class="btn-mini btn-mini-secondary" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">View</button>';
 
       html += '<div class="rel-card">'
         + '<div class="rel-card-head">'
         + '<div class="rel-avatars">' + avs + '</div>'
         + '<div style="flex:1;min-width:0;">'
-        + '<div style="font-weight:800;color:var(--navy);font-size:.95rem;">You + ' + escapeHtml(otherNames) + '</div>'
+        + '<div style="font-weight:800;color:var(--navy);font-size:.95rem;">You + ' + escapeHtml(otherNames) + unread + '</div>'
         + '<div style="font-size:.74rem;color:var(--gray-text);">' + escapeHtml(sizeText) + ' · 📍 ' + escapeHtml(cities) + '</div>'
         + '</div>'
         + '<span class="rel-stage-pill ' + pill.c + '">' + pill.l + '</span>'
         + '</div>'
-        + '<div class="rel-actions">' + primaryBtn + secondaryBtn + '</div>'
-        + '</div>';
-    });
-
-    // 2) MATCH CARDS — only show matches that aren't already represented by a group
-    // (In Phase 2 after we stop auto-creating groups, these will be the "Talking" stage)
-    (matches || []).filter(m => !groupedMatchIds.has(m.match_id)).forEach(m => {
-      const ini = (m.other_name || '?').split(' ').map(x => x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
-      const av = m.other_photo
-        ? '<div class="rel-avatar" style="background-image:url(\'' + escapeHtml(m.other_photo) + '\');"></div>'
-        : '<div class="rel-avatar">' + escapeHtml(ini) + '</div>';
-      const unread = m.unread_count > 0 ? '<span class="rel-unread-dot">' + m.unread_count + '</span>' : '';
-      html += '<div class="rel-card">'
-        + '<div class="rel-card-head">'
-        + '<div class="rel-avatars">' + av + '</div>'
-        + '<div style="flex:1;min-width:0;">'
-        + '<div style="font-weight:800;color:var(--navy);font-size:.95rem;">' + escapeHtml(m.other_name || 'Unknown') + unread + '</div>'
-        + '<div style="font-size:.74rem;color:var(--gray-text);">💬 1:1 conversation · NEXUS ' + m.nexus_score + '/100</div>'
-        + '</div>'
-        + '<span class="rel-stage-pill rel-stage-talking">💬 Talking</span>'
-        + '</div>'
-        + '<div class="rel-actions">'
-        + '<button class="btn-mini btn-mini-primary" onclick="openUserConv(\'' + m.match_id + '\')">💬 Open Chat</button>'
-        + '</div>'
+        + '<div class="rel-actions">' + primaryBtn + chatBtn + viewBtn + '</div>'
         + '</div>';
     });
 
