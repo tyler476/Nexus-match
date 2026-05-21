@@ -7553,9 +7553,14 @@ function handleFindCoOwnerClick() {
     routeForRole();
     return;
   }
-  // Regular user → matching form
-  showView('register');
-  setNavActive('nav-cta');
+  // Regular user → matching form (defensive: only true buyers should land here)
+  if (currentAccount?.role === 'user') {
+    showView('register');
+    setNavActive('nav-cta');
+  } else {
+    // Unknown role state — go home instead of forcing the register form
+    showView('home');
+  }
 }
 
 // ═══ Modal management ═══
@@ -12947,6 +12952,12 @@ window.confirmGroupRealtor = confirmGroupRealtor;
 // ═══ Wire showView for discovery views ═══
 const _showViewPreDisc = showView;
 showView = function(viewName) {
+  // HARD GUARD: admins should never land on the buyer register form.
+  // If anything tries to send them there, bounce to admin panel.
+  if (viewName === 'register' && currentAccount?.role === 'admin') {
+    _showViewPreDisc('admin');
+    return;
+  }
   _showViewPreDisc(viewName);
   if (viewName==='discovery') {
     if (!currentUser) { openLoginModal(); return; }
