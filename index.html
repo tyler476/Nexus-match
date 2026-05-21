@@ -188,6 +188,41 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);padding:2.5rem 1.5rem;f
 .footer-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin:1.5rem 0;}
 .footer-compliance{font-size:.78rem;line-height:1.7;opacity:.5;}
 @media(min-width:768px){.footer-top{flex-direction:row;justify-content:space-between;align-items:flex-start;}}
+
+/* ═══ STAGE PROGRESS BAR (Phase 1 unified UX) ═══ */
+.stage-bar{display:flex;align-items:center;gap:.4rem;background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;overflow-x:auto;}
+.stage-step{display:flex;flex-direction:column;align-items:center;flex:1;min-width:64px;position:relative;}
+.stage-step-dot{width:28px;height:28px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.75rem;border:2px solid #E5E7EB;transition:all .2s;flex-shrink:0;}
+.stage-step.done .stage-step-dot{background:#10B981;color:#fff;border-color:#10B981;}
+.stage-step.active .stage-step-dot{background:var(--blue);color:#fff;border-color:var(--navy);box-shadow:0 0 0 4px rgba(37,99,235,.18);}
+.stage-step-label{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#9CA3AF;margin-top:.4rem;text-align:center;line-height:1.2;}
+.stage-step.done .stage-step-label{color:#10B981;}
+.stage-step.active .stage-step-label{color:var(--navy);}
+.stage-connector{flex:0 0 auto;width:24px;height:2px;background:#E5E7EB;margin-bottom:1.1rem;}
+.stage-connector.done{background:#10B981;}
+@media (max-width:680px){.stage-step-label{font-size:.58rem;}.stage-connector{width:12px;}}
+
+/* ═══ UNIFIED RELATIONSHIP CARDS ═══ */
+.rel-card{background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1rem 1.15rem;margin-bottom:.7rem;transition:border-color .15s,box-shadow .15s;}
+.rel-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(37,99,235,.08);}
+.rel-card-head{display:flex;align-items:center;gap:.7rem;margin-bottom:.55rem;}
+.rel-avatars{display:flex;}
+.rel-avatars .rel-avatar{width:38px;height:38px;border-radius:50%;border:2px solid #fff;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center;}
+.rel-avatars .rel-avatar+.rel-avatar{margin-left:-12px;}
+.rel-stage-pill{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#fff;padding:.25rem .65rem;border-radius:14px;}
+.rel-stage-talking{background:#F59E0B;}
+.rel-stage-group{background:#3B82F6;}
+.rel-stage-preapproval{background:#8B5CF6;}
+.rel-stage-realtor{background:#10B981;}
+.rel-stage-active{background:#15803D;}
+.rel-actions{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap;}
+.rel-actions .btn-mini{font-size:.78rem;padding:.4rem .85rem;border-radius:8px;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .15s;font-family:inherit;}
+.rel-actions .btn-mini-primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+.rel-actions .btn-mini-primary:hover{background:var(--navy);border-color:var(--navy);}
+.rel-actions .btn-mini-secondary{background:#fff;border-color:var(--gray);color:var(--navy);}
+.rel-actions .btn-mini-secondary:hover{border-color:var(--blue);color:var(--blue);}
+.rel-unread-dot{display:inline-flex;align-items:center;justify-content:center;background:#EF4444;color:#fff;border-radius:10px;min-width:20px;height:20px;font-size:.66rem;font-weight:800;padding:0 .35rem;margin-left:.35rem;}
+
 </style>
 <style id="part2-styles">
 /* ── FORM VIEW ── */
@@ -2948,6 +2983,7 @@ body.is-impersonating .view{padding-top:114px;}
       <div id="user-interests-row" style="background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
         <!-- Interests + working style -->
       </div>
+      <div id="dash-stage-bar" style="display:none;"></div>
       <div id="dash-test-banner" style="display:none;margin-bottom:1.25rem;"></div>
       <div id="dash-my-matches-wrap" style="display:none;background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
         <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.85rem;">Your Matches</div>
@@ -12288,11 +12324,24 @@ async function loadUserConv() {
     ? '<div style="width:48px;height:48px;border-radius:50%;background-image:url(\''+escapeHtml(otherProf.photo_url)+'\');background-size:cover;background-position:center;flex-shrink:0;"></div>'
     : '<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+escapeHtml(ini)+'</div>';
   const city = (otherProf && otherProf.current_city) ? ' · 📍 ' + escapeHtml(otherProf.current_city) : '';
+  // Resolve group context if this match has progressed to a group
+  let groupContextLine = '';
+  if (match.group_id) {
+    try {
+      const { data: gr } = await sb.from('coborrower_groups').select('id,current_size,desired_total,status').eq('id', match.group_id).maybeSingle();
+      if (gr) {
+        const statusLabel = { forming:'forming', complete:'complete', seeking_realtor:'pre-approved', realtor_confirmed:'realtor confirmed', active:'active' }[gr.status] || gr.status;
+        groupContextLine = '<div style="font-size:.74rem;color:var(--blue);margin-top:.15rem;cursor:pointer;font-weight:700;" onclick="_activeGroupId=\'' + gr.id + '\';showView(\'group-dashboard\')">👥 Part of a ' + gr.current_size + '/' + gr.desired_total + ' group · ' + statusLabel + ' →</div>';
+      }
+    } catch (e) {}
+  }
   header.innerHTML =
     '<div style="display:flex;gap:.85rem;align-items:center;">'
     + photo
     + '<div style="flex:1;min-width:0;"><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">'+escapeHtml(otherName)+'</div>'
-    + '<div style="font-size:.8rem;color:var(--gray-text);">Match · '+match.nexus_score+'/100'+city+'</div></div>'
+    + '<div style="font-size:.8rem;color:var(--gray-text);">NEXUS '+match.nexus_score+'/100'+city+'</div>'
+    + groupContextLine
+    + '</div>'
     + '</div>';
 
   // Load messages
@@ -12945,9 +12994,32 @@ window.confirmGroupRealtor = confirmGroupRealtor;
 const _showViewPreDisc = showView;
 showView = function(viewName) {
   // HARD GUARD: admins should never land on the buyer register form.
-  // If anything tries to send them there, bounce to admin panel.
   if (viewName === 'register' && currentAccount?.role === 'admin') {
     _showViewPreDisc('admin');
+    return;
+  }
+  // GATE: find-realtor standalone is killed for users; only accessible via group context
+  if (viewName === 'find-realtor' && currentAccount?.role !== 'admin') {
+    showToast('Realtors are selected through your co-buyer group after pre-approval.', 'info');
+    _showViewPreDisc('dashboard');
+    return;
+  }
+  // GATE: documents only unlock after a group reaches realtor_confirmed
+  if (viewName === 'documents' && currentAccount?.role !== 'admin') {
+    (async () => {
+      try {
+        const { data: groups } = await sb.rpc('get_my_groups_with_members');
+        const unlocked = (groups || []).some(g => ['realtor_confirmed','active','closed'].includes(g.status));
+        if (!unlocked) {
+          showToast('Documents unlock after your group confirms a realtor.', 'info');
+          _showViewPreDisc('dashboard');
+        } else {
+          _showViewPreDisc('documents');
+        }
+      } catch (e) {
+        _showViewPreDisc('dashboard');
+      }
+    })();
     return;
   }
   _showViewPreDisc(viewName);
@@ -13146,6 +13218,182 @@ async function loadNotifications() {
 }
 
 // ═══ USER DASHBOARD ENHANCEMENTS — Show matches + groups ═══
+// ═══ STAGE PROGRESS BAR (Phase 1) ═══
+// Computes the furthest stage the user has reached across all their groups
+// and renders a 7-step horizontal progress indicator.
+async function loadStageProgressBar() {
+  if (!currentUser || currentAccount?.role !== 'user') return;
+  const el = document.getElementById('dash-stage-bar');
+  if (!el) return;
+
+  // Determine current stage from data
+  // Stages: 1=Profile, 2=Discovering, 3=Group, 4=Pre-Approval, 5=Realtor, 6=Active, 7=Closed
+  let stage = 1;
+  try {
+    const { data: prof } = await sb.from('user_profiles')
+      .select('profile_completed').eq('account_id', currentUser.id).maybeSingle();
+    if (prof?.profile_completed) stage = 2;
+  } catch (e) {}
+
+  try {
+    const { data: groups } = await sb.rpc('get_my_groups_with_members');
+    const statuses = (groups || []).map(g => g.status);
+    if (statuses.includes('closed')) stage = Math.max(stage, 7);
+    else if (statuses.includes('active') || statuses.includes('realtor_confirmed')) stage = Math.max(stage, 6);
+    else if (statuses.includes('seeking_realtor')) stage = Math.max(stage, 5);
+    else if (statuses.includes('complete')) stage = Math.max(stage, 4);
+    else if (statuses.includes('forming')) stage = Math.max(stage, 3);
+    else {
+      // No groups — check if has matches (DM-only relationships)
+      const { data: matches } = await sb.rpc('get_my_matches_with_others');
+      if (matches && matches.length > 0) stage = Math.max(stage, 3);
+    }
+  } catch (e) { console.warn('stage bar group fetch failed:', e); }
+
+  const STAGES = [
+    { n: 1, label: 'Profile' },
+    { n: 2, label: 'Discover' },
+    { n: 3, label: 'Group' },
+    { n: 4, label: 'Pre-Approval' },
+    { n: 5, label: 'Realtor' },
+    { n: 6, label: 'Active' },
+    { n: 7, label: 'Closed' }
+  ];
+  el.className = 'stage-bar';
+  el.style.display = 'flex';
+  el.innerHTML = STAGES.map(function(s, i) {
+    const done = s.n < stage;
+    const active = s.n === stage;
+    const cls = active ? 'active' : (done ? 'done' : '');
+    const connectorCls = (s.n < stage) ? 'done' : '';
+    const connector = i < STAGES.length - 1 ? '<div class="stage-connector ' + connectorCls + '"></div>' : '';
+    const icon = done ? '✓' : s.n;
+    return '<div class="stage-step ' + cls + '">'
+      + '<div class="stage-step-dot">' + icon + '</div>'
+      + '<div class="stage-step-label">' + s.label + '</div>'
+      + '</div>' + connector;
+  }).join('');
+}
+window.loadStageProgressBar = loadStageProgressBar;
+
+// ═══ UNIFIED RELATIONSHIPS (Phase 1) ═══
+// Replaces the separate "Matches" and "Co-Buyer Groups" sections with one
+// stage-aware list of co-buyer relationships, eliminating duplication.
+async function loadUnifiedRelationships() {
+  if (!currentUser || currentAccount?.role === 'realtor') return;
+  const wrap = document.getElementById('user-pending-selections');
+  if (!wrap) return;
+
+  try {
+    const { data: groups } = await sb.rpc('get_my_groups_with_members');
+    const { data: matches } = await sb.rpc('get_my_matches_with_others');
+
+    if ((!groups || groups.length === 0) && (!matches || matches.length === 0)) {
+      wrap.innerHTML = '';
+      return;
+    }
+
+    // Build set of match_ids that are already represented by a group
+    // (in current schema, every match auto-creates a group, so all matches map to groups)
+    const groupedMatchIds = new Set();
+    (groups || []).forEach(g => {
+      (matches || []).forEach(m => { if (m.group_id === g.group_id) groupedMatchIds.add(m.match_id); });
+    });
+
+    // Stage→pill class+label map
+    function pillFor(status) {
+      const map = {
+        forming:           { c: 'rel-stage-group',       l: '👥 Group Forming' },
+        complete:          { c: 'rel-stage-preapproval', l: '✓ Group Complete · Pre-Approval Needed' },
+        seeking_realtor:   { c: 'rel-stage-realtor',     l: '✓ Pre-Approved · Choose Realtor' },
+        realtor_confirmed: { c: 'rel-stage-active',      l: '🤝 Realtor Confirmed' },
+        active:            { c: 'rel-stage-active',      l: '🏡 In Escrow' }
+      };
+      return map[status] || { c: 'rel-stage-group', l: status };
+    }
+
+    let html = '<div style="background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">';
+    html += '<div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.85rem;">Your Co-Buyer Relationships</div>';
+
+    // 1) GROUP CARDS first (committed relationships)
+    (groups || []).forEach(g => {
+      const pill = pillFor(g.status);
+      const others = (g.members || []).filter(m => !m.is_me);
+      const otherNames = others.map(m => (m.full_name || 'Unknown').split(' ')[0]).join(', ') || 'Solo';
+
+      // Avatar stack
+      const avs = others.slice(0, 4).map(m => {
+        const ini = (m.full_name || '?').split(' ').map(x => x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+        if (m.photo_url) {
+          return '<div class="rel-avatar" style="background-image:url(\'' + escapeHtml(m.photo_url) + '\');"></div>';
+        }
+        return '<div class="rel-avatar">' + escapeHtml(ini) + '</div>';
+      }).join('');
+
+      const sizeText = g.current_size + '/' + g.desired_total + ' members';
+      const cities = (g.target_cities || []).join(', ') || '—';
+
+      // Action button — STAGE GATED
+      let primaryBtn = '';
+      let secondaryBtn = '';
+      if (g.status === 'forming') {
+        const need = g.desired_total - g.current_size;
+        primaryBtn = '<button class="btn-mini btn-mini-primary" onclick="showView(\'discovery\')">🔍 Find ' + need + ' More</button>';
+        secondaryBtn = '<button class="btn-mini btn-mini-secondary" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">View Group</button>';
+      } else if (g.status === 'complete') {
+        primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#8B5CF6;border-color:#8B5CF6;" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">📋 Start Pre-Approval</button>';
+      } else if (g.status === 'seeking_realtor') {
+        primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#10B981;border-color:#10B981;" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-realtors\')">🏘️ Select Realtor</button>';
+        secondaryBtn = '<button class="btn-mini btn-mini-secondary" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">View Group</button>';
+      } else {
+        primaryBtn = '<button class="btn-mini btn-mini-primary" onclick="_activeGroupId=\'' + g.group_id + '\';showView(\'group-dashboard\')">View Group →</button>';
+      }
+
+      html += '<div class="rel-card">'
+        + '<div class="rel-card-head">'
+        + '<div class="rel-avatars">' + avs + '</div>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-weight:800;color:var(--navy);font-size:.95rem;">You + ' + escapeHtml(otherNames) + '</div>'
+        + '<div style="font-size:.74rem;color:var(--gray-text);">' + escapeHtml(sizeText) + ' · 📍 ' + escapeHtml(cities) + '</div>'
+        + '</div>'
+        + '<span class="rel-stage-pill ' + pill.c + '">' + pill.l + '</span>'
+        + '</div>'
+        + '<div class="rel-actions">' + primaryBtn + secondaryBtn + '</div>'
+        + '</div>';
+    });
+
+    // 2) MATCH CARDS — only show matches that aren't already represented by a group
+    // (In Phase 2 after we stop auto-creating groups, these will be the "Talking" stage)
+    (matches || []).filter(m => !groupedMatchIds.has(m.match_id)).forEach(m => {
+      const ini = (m.other_name || '?').split(' ').map(x => x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+      const av = m.other_photo
+        ? '<div class="rel-avatar" style="background-image:url(\'' + escapeHtml(m.other_photo) + '\');"></div>'
+        : '<div class="rel-avatar">' + escapeHtml(ini) + '</div>';
+      const unread = m.unread_count > 0 ? '<span class="rel-unread-dot">' + m.unread_count + '</span>' : '';
+      html += '<div class="rel-card">'
+        + '<div class="rel-card-head">'
+        + '<div class="rel-avatars">' + av + '</div>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-weight:800;color:var(--navy);font-size:.95rem;">' + escapeHtml(m.other_name || 'Unknown') + unread + '</div>'
+        + '<div style="font-size:.74rem;color:var(--gray-text);">💬 1:1 conversation · NEXUS ' + m.nexus_score + '/100</div>'
+        + '</div>'
+        + '<span class="rel-stage-pill rel-stage-talking">💬 Talking</span>'
+        + '</div>'
+        + '<div class="rel-actions">'
+        + '<button class="btn-mini btn-mini-primary" onclick="openUserConv(\'' + m.match_id + '\')">💬 Open Chat</button>'
+        + '</div>'
+        + '</div>';
+    });
+
+    html += '</div>';
+    wrap.innerHTML = html;
+  } catch (e) {
+    console.warn('loadUnifiedRelationships failed:', e);
+    wrap.innerHTML = '';
+  }
+}
+window.loadUnifiedRelationships = loadUnifiedRelationships;
+
 async function loadDashboardMatchesAndGroups() {
   if (!currentUser || currentAccount?.role === 'realtor') return;
 
@@ -13217,6 +13465,12 @@ async function loadDashboardMatchesAndGroups() {
 
 // ═══ Dashboard MATCHES LIST — shows match cards on user dashboard ═══
 async function loadDashboardMatchesList() {
+  // Subsumed by loadUnifiedRelationships in Phase 1 UX. No-op here so old call sites are safe.
+  const wrap = document.getElementById('dash-my-matches-wrap');
+  if (wrap) wrap.style.display = 'none';
+  return;
+}
+async function _legacy_loadDashboardMatchesList_unused() {
   if (!currentUser) return;
   const wrap = document.getElementById('dash-my-matches-wrap');
   const list = document.getElementById('dash-my-matches-list');
@@ -13477,8 +13731,8 @@ window.routeForRole = async function() {
   // After dashboard loads, also load groups/matches
   if (currentAccount?.role === 'user' || currentAccount?.role === 'admin') {
     setTimeout(() => {
-      loadDashboardMatchesAndGroups();
-      loadDashboardMatchesList();
+      loadStageProgressBar();
+      loadUnifiedRelationships();
       loadDashTestBanner();
       loadDashboardLikesYouTeaser();
       loadNotifications();
