@@ -12106,7 +12106,7 @@ async function likeCandidate(candidateId, nexusScore) {
       const { data: result } = await sb.rpc('check_and_create_match', { p_liker_id: currentUser.id, p_liked_id: candidateId, p_nexus_score: nexusScore });
       if (result?.matched) {
         const cand = _discoveryStack.find(c => c.account_id === candidateId);
-        showMatchCelebration(cand?.full_name||'your match', result.nexus_score, result.group_id);
+        showMatchCelebration(cand?.full_name||'your match', result.nexus_score, result.group_id, result.match_id);
         updateLikesCounter(); return;
       }
     }
@@ -12192,8 +12192,10 @@ function updateLikesCounter() {
 }
 
 let _lastMatchGroupId = null;
-function showMatchCelebration(name, score, groupId) {
+let _lastMatchId = null;
+function showMatchCelebration(name, score, groupId, matchId) {
   _lastMatchGroupId = groupId;
+  _lastMatchId = matchId || null;
   document.getElementById('match-other-name').textContent = name;
   document.getElementById('match-score-ring').textContent = score;
   document.getElementById('match-overlay').style.display = 'flex';
@@ -12203,8 +12205,8 @@ window.closeMatchOverlay = closeMatchOverlay;
 function goToGroupDashboard() { closeMatchOverlay(); if (_lastMatchGroupId) { _activeGroupId = _lastMatchGroupId; showView('group-dashboard'); } }
 async function goToMatchConv() {
   closeMatchOverlay();
+  if (_lastMatchId) { openUserConv(_lastMatchId); return; }
   if (!_lastMatchGroupId) return;
-  // Find the match record for this group to get match_id
   try {
     const { data: m } = await sb.from('discovery_matches').select('id').eq('group_id', _lastMatchGroupId).maybeSingle();
     if (m && m.id) { openUserConv(m.id); return; }
@@ -12212,6 +12214,20 @@ async function goToMatchConv() {
   showToast('Could not open conversation.', 'error');
 }
 window.goToMatchConv = goToMatchConv;
+
+async function reopenGroupForMatching() {
+  if (!_activeGroupId) return;
+  if (!confirm('Reopen this group so you can keep finding more co-buyers? Your pre-approval status is preserved.')) return;
+  try {
+    const { error } = await sb.rpc('reopen_group_for_matching', { p_group_id: _activeGroupId });
+    if (error) throw error;
+    showToast('Group reopened — keep matching!', 'success');
+    await loadGroupDashboard();
+  } catch (e) {
+    showToast('Could not reopen: ' + (e.message || e), 'error');
+  }
+}
+window.reopenGroupForMatching = reopenGroupForMatching;
 
 // ══════════════════════════════════════════════════════════════════════
 // USER-TO-USER 1:1 CONVERSATIONS (DMs between matched users)
@@ -12644,6 +12660,21 @@ async function loadGroupDashboard() {
     _activeGroupId = null;
     routeForRole();
     return;
+  }
+  // Show explicit "needs more members" banner when group is past forming but undersized
+  const needsMore = group.current_size < group.desired_total;
+  if (needsMore && (group.status === 'complete' || group.status === 'seeking_realtor')) {
+    const actionsEl = document.getElementById('grp-actions-area');
+    if (actionsEl) {
+      actionsEl.innerHTML = '<div style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:.85rem 1.1rem;border-radius:8px;margin-bottom:1rem;">'
+        + '<div style="font-weight:700;color:#854D0E;font-size:.92rem;margin-bottom:.35rem;">⚠️ Needs ' + (group.desired_total - group.current_size) + ' more member' + (group.desired_total - group.current_size === 1 ? '' : 's')
+        + ' (currently ' + group.current_size + '/' + group.desired_total + ')</div>'
+        + '<div style="font-size:.82rem;color:#78350F;margin-bottom:.6rem;">A member of this group prefers a group of ' + group.desired_total + '. Find more co-buyers or reopen for matching.</div>'
+        + '<div style="display:flex;gap:.5rem;flex-wrap:wrap;">'
+        + '<button class="btn-primary" style="padding:.5rem 1rem;font-size:.85rem;" onclick="reopenGroupForMatching()">🔄 Reopen for Matching</button>'
+        + '<button class="btn-outline" style="padding:.5rem 1rem;font-size:.85rem;" onclick="showView(\'discovery\')">Find More →</button>'
+        + '</div></div>';
+    }
   }
   // Membership check — only members (or admin) can view a group dashboard
   if (currentAccount?.role !== 'admin') {
@@ -14336,8 +14367,9 @@ showView = function(viewName) {
     <div class="match-subtitle" id="match-subtitle">You and <strong id="match-other-name">—</strong> are co-borrower candidates.</div>
     <div class="match-score-ring" id="match-score-ring">—</div>
     <div style="font-size:.82rem;color:var(--gray-text);margin-bottom:1.5rem;">NEXUS Compatibility Score</div>
-    <button class="btn-primary" style="width:100%;margin-bottom:.75rem;" onclick="goToGroupDashboard()">View Your Group →</button>
-    <button class="btn-outline" style="width:100%;" onclick="closeMatchOverlay();loadDiscoveryStack()">Keep Browsing</button>
+    <button class="btn-primary" style="width:100%;margin-bottom:.6rem;background:#10B981;border-color:#10B981;" onclick="goToMatchConv()">💬 Start Chatting →</button>
+    <button class="btn-outline" style="width:100%;margin-bottom:.6rem;" onclick="goToGroupDashboard()">View Group</button>
+    <button class="btn-outline" style="width:100%;border-color:transparent;color:var(--gray-text);" onclick="closeMatchOverlay();loadDiscoveryStack()">Keep Browsing</button>
   </div>
 </div>
 
