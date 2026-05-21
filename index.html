@@ -1126,7 +1126,7 @@ body.is-impersonating .view{padding-top:114px;}
 
       <!-- CTAs -->
       <div class="hero-actions">
-        <button class="btn-primary" onclick="showView('register');setNavActive(null)" style="font-size:1.05rem;padding:1rem 2.5rem;">Find My Co-Owner →</button>
+        <button class="btn-primary" onclick="handleFindCoOwnerClick()" style="font-size:1.05rem;padding:1rem 2.5rem;">Find My Co-Owner →</button>
         <button class="btn-ghost" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">How It Works ↓</button>
         <button class="btn-ghost" onclick="showView('learn');setNavActive('nav-how');setTimeout(()=>{document.getElementById('nexus-calculator').scrollIntoView({behavior:'smooth'})},120)" style="background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.5);color:#16a34a;">Calculate My Share ↓</button>
       </div>
@@ -1442,7 +1442,7 @@ body.is-impersonating .view{padding-top:114px;}
         <p style="color:rgba(255,255,255,.85);margin-bottom:.75rem;">Nexus Match isn't changing the dream of homeownership.</p>
         <p style="color:#34d399;font-weight:600;font-size:1.05rem;margin-bottom:1.75rem;">It's changing the path to get there.</p>
         <p style="color:rgba(255,255,255,.8);margin-bottom:1.75rem;font-size:.95rem;">Explore your match. Understand your options. Step into the new lane of homeownership.</p>
-        <button class="btn-primary" onclick="showView('register');setNavActive(null)" style="font-size:1rem;padding:.9rem 2.25rem;background:#16a34a;">Find My Co-Owner →</button>
+        <button class="btn-primary" onclick="handleFindCoOwnerClick()" style="font-size:1rem;padding:.9rem 2.25rem;background:#16a34a;">Find My Co-Owner →</button>
       </div>
 
     </div>
@@ -1461,7 +1461,7 @@ body.is-impersonating .view{padding-top:114px;}
       <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;letter-spacing:-.3px;font-size:clamp(1.6rem,4vw,2.4rem);">You've been splitting rent.<br><span style="color:var(--gold);">Start splitting equity.</span></h2>
       <p>Join 1,200+ Californians who've already created their profile. Seven minutes to build it. Seconds to get your approval. Thirty days to get your keys.</p>
       <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-        <button class="btn-primary" style="background:var(--gold);color:#fff;font-size:1.05rem;padding:1rem 2.25rem;" onclick="showView('register')">Create Your Profile Now →</button>
+        <button class="btn-primary" style="background:var(--gold);color:#fff;font-size:1.05rem;padding:1rem 2.25rem;" onclick="handleFindCoOwnerClick()">Create Your Profile Now →</button>
         <button class="btn-ghost" onclick="showView('learn');setNavActive('nav-how');setTimeout(()=>{document.getElementById('nexus-calculator').scrollIntoView({behavior:'smooth'})},120)">Calculate My Share ↓</button>
       </div>
     </div>
@@ -1511,7 +1511,7 @@ body.is-impersonating .view{padding-top:114px;}
     <p style="font-size:1.15rem;color:rgba(255,255,255,.85);max-width:600px;margin:0 auto 1rem;line-height:1.7;">You were told to wait. Save more. Settle.<br><strong style="color:#fff;">We're proving that wrong — one co-buyer at a time.</strong></p>
     <p style="color:rgba(255,255,255,.75);max-width:620px;margin:0 auto 2rem;line-height:1.8;font-size:1.02rem;">The fastest path to equity in California was never cheaper homes. It was smarter ownership. The door to homeownership never closed. It was just too heavy for one person to open. You've been paying enough to own a home in California for years. You just haven't been building equity from it. Co-ownership changes that — your name on the deed, your equity growing from day one.</p>
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-      <button onclick="showView('register');setNavActive(null)" style="background:#16a34a;color:#fff;border:none;padding:.9rem 2.25rem;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:background .2s;">Find My Co-Owner →</button>
+      <button onclick="handleFindCoOwnerClick()" style="background:#16a34a;color:#fff;border:none;padding:.9rem 2.25rem;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:background .2s;">Find My Co-Owner →</button>
       <button onclick="document.getElementById('how-ownership-works').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.35);padding:.85rem 2rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;">See How It Works ↓</button>
     </div>
   </div>
@@ -1803,7 +1803,7 @@ body.is-impersonating .view{padding-top:114px;}
           <div class="calc-cta-val" id="calc-5yr-advantage">$247,423</div>
           <div class="calc-cta-sub">(equity gained + rent not paid)</div>
         </div>
-        <button class="btn-primary" onclick="showView('register');setNavActive('nav-cta')" style="font-size:1rem;padding:1rem 2.25rem;white-space:nowrap;letter-spacing:.5px;">GET PRE-QUALIFIED NOW →</button>
+        <button class="btn-primary" onclick="handleFindCoOwnerClick()" style="font-size:1rem;padding:1rem 2.25rem;white-space:nowrap;letter-spacing:.5px;">GET PRE-QUALIFIED NOW →</button>
       </div>
 
       <div class="calc-disclaimer">All calculations are estimates for illustrative purposes only. Actual mortgage payments, taxes, insurance, appreciation, and costs will vary. Property tax estimated at 1.1% annually (California average). Homeowner's insurance estimated at 0.5% annually. PMI applies when down payment is below 20%, estimated at 0.7% annually. Consult Citizens Financial NMLS# 2503947 for a personalized analysis.</div>
@@ -1967,7 +1967,7 @@ body.is-impersonating .view{padding-top:114px;}
       <div style="text-align:center;border-top:1px solid rgba(255,255,255,.1);padding-top:3rem;">
         <p style="font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(1.2rem,3vw,1.7rem);font-weight:800;color:#fff;margin-bottom:.5rem;">The roommate era ends here.</p>
         <p style="color:rgba(255,255,255,.6);margin-bottom:2rem;font-size:1rem;">You've been paying someone else's mortgage for long enough.</p>
-        <button onclick="showView('register');setNavActive(null);window.scrollTo(0,0)" style="background:#16a34a;color:#fff;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.05rem;padding:1rem 2.75rem;border-radius:8px;cursor:pointer;letter-spacing:.3px;transition:background .2s;">Create Your NEXUS. Profile — Free →</button>
+        <button onclick="handleFindCoOwnerClick();window.scrollTo(0,0)" style="background:#16a34a;color:#fff;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.05rem;padding:1rem 2.75rem;border-radius:8px;cursor:pointer;letter-spacing:.3px;transition:background .2s;">Create Your NEXUS. Profile — Free →</button>
         <p style="color:rgba(255,255,255,.4);font-size:.78rem;margin-top:1rem;letter-spacing:.5px;">No cost to register &nbsp;·&nbsp; No mortgage license required &nbsp;·&nbsp; NMLS #2503947</p>
       </div>
     </div>
@@ -5588,7 +5588,7 @@ function renderCountyBrowseGrid() {
   grid.innerHTML = CA_DATA.counties.map(county => {
     const cityCount = (CA_DATA.cities[county] || []).length;
     const isLaunch = LAUNCH_COUNTIES.has(county);
-    return `<div class="county-card${isLaunch?' launch':''}" onclick="showView('register')">
+    return `<div class="county-card${isLaunch?' launch':''}" onclick="handleFindCoOwnerClick()">
       <div class="county-name-sm">${isLaunch?'<span class="county-active-dot"></span>':''}${county}</div>
       <div class="county-city-count">${cityCount} cities &amp; communities</div>
     </div>`;
