@@ -11687,65 +11687,7 @@ showView = function(viewName) {
   }
 };
 
-// Add helper links (Find a Realtor + Documents) to user dashboard
-document.addEventListener('DOMContentLoaded', () => {
-  const userDash = document.getElementById('view-dashboard');
-  if (userDash && !document.getElementById('user-find-realtor-link')) {
-    const helperBlock = document.createElement('div');
-    helperBlock.id = 'user-find-realtor-link';
-    helperBlock.style.cssText = 'max-width:1080px;margin:1.5rem auto 0;padding:0 1.5rem;';
-    helperBlock.innerHTML =
-      // Journey progress tracker
-      '<div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">' +
-      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:.95rem;margin-bottom:.85rem;">Your Co-Buying Journey</div>' +
-      '<div style="display:flex;align-items:center;gap:0;" id="user-journey-tracker">' +
-      '<div style="flex:1;text-align:center;">' +
-      '<div style="width:36px;height:36px;border-radius:50%;background:#10B981;color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">✓</div>' +
-      '<div style="font-size:.68rem;font-weight:700;color:#10B981;margin-top:.3rem;">Profile</div></div>' +
-      '<div style="flex:1;height:3px;background:linear-gradient(90deg,#10B981,var(--blue));border-radius:2px;"></div>' +
-      '<div style="flex:1;text-align:center;">' +
-      '<div style="width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;animation:pulse 2s infinite;">2</div>' +
-      '<div style="font-size:.68rem;font-weight:700;color:var(--blue);margin-top:.3rem;">Discover</div></div>' +
-      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
-      '<div style="flex:1;text-align:center;">' +
-      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">3</div>' +
-      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Match</div></div>' +
-      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
-      '<div style="flex:1;text-align:center;">' +
-      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">4</div>' +
-      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Group</div></div>' +
-      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
-      '<div style="flex:1;text-align:center;">' +
-      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">5</div>' +
-      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Realtor</div></div>' +
-      '<div style="flex:1;height:3px;background:#E5E7EB;border-radius:2px;"></div>' +
-      '<div style="flex:1;text-align:center;">' +
-      '<div style="width:36px;height:36px;border-radius:50%;background:#E5E7EB;color:#9CA3AF;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto;">🏠</div>' +
-      '<div style="font-size:.68rem;font-weight:600;color:var(--gray-text);margin-top:.3rem;">Close</div></div>' +
-      '</div></div>' +
-      // Action cards
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">' +
-      '<div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.2);border-radius:12px;padding:1.25rem 1.4rem;">' +
-      '<div style="font-size:1.5rem;margin-bottom:.5rem;">🔍</div>' +
-      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Discover Co-Buyers</div>' +
-      '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Browse and match with compatible co-borrowers.</div>' +
-      '<button class="rp-btn" style="background:#10B981;border-color:#10B981;color:#fff;" onclick="showView(\'discovery\')">Start Discovering →</button>' +
-      '</div>' +
-      '<div style="background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(47,215,145,.04));border:1px solid var(--gray);border-radius:12px;padding:1.25rem 1.4rem;">' +
-      '<div style="font-size:1.5rem;margin-bottom:.5rem;">🏠</div>' +
-      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Find your NEXUS realtor</div>' +
-      '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Browse certified realtors in your target cities.</div>' +
-      '<button class="rp-btn" onclick="showView(\'find-realtor\')">Find a realtor →</button>' +
-      '</div>' +
-      '<div style="background:linear-gradient(135deg,rgba(139,92,246,.06),rgba(37,99,235,.04));border:1px solid var(--gray);border-radius:12px;padding:1.25rem 1.4rem;">' +
-      '<div style="font-size:1.5rem;margin-bottom:.5rem;">📄</div>' +
-      '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">Co-ownership documents</div>' +
-      '<div style="color:var(--gray-text);font-size:.86rem;margin:.25rem 0 .9rem;">Preview the 6 agreements that protect your equity.</div>' +
-      '<button class="rp-btn rp-btn-secondary" onclick="showView(\'documents\')">View documents →</button>' +
-      '</div></div>';
-    userDash.appendChild(helperBlock);
-  }
-});
+// REMOVED: hardcoded helper block (journey tracker + marketing cards). It contradicted the real stage bar and showed locked features users shouldn't see.
 
 // ═══════════════════════════════════════════════════════════════
 // DISCOVERY STACK — Co-Borrower Matching Engine
