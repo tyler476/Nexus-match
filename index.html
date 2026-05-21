@@ -11079,6 +11079,9 @@ async function loadUserDashboard() {
 
   const realDash = document.getElementById('user-real-dash');
   const demoGrid = document.getElementById('user-demo-grid');
+  // FORCE-HIDE demo grid for any authenticated user — it's marketing content
+  // meant for the homepage. Real dashboard handles all logged-in states.
+  if (demoGrid) demoGrid.style.display = 'none';
 
   // If profile isn't completed yet, show the marketing/demo content
   if (!profile || !profile.profile_completed) {
@@ -11611,7 +11614,21 @@ showView = function(viewName) {
 
   if (viewName === 'dashboard') {
     if (currentUser && currentAccount?.role === 'user') {
-      setTimeout(() => { if (typeof loadUserDashboard === 'function') loadUserDashboard(); }, 50);
+      setTimeout(() => {
+        if (typeof loadUserDashboard === 'function') loadUserDashboard();
+        if (typeof loadStageProgressBar === 'function') loadStageProgressBar();
+        if (typeof loadUnifiedRelationships === 'function') loadUnifiedRelationships();
+        if (typeof loadDashTestBanner === 'function') loadDashTestBanner();
+        if (typeof loadDashboardLikesYouTeaser === 'function') loadDashboardLikesYouTeaser();
+      }, 50);
+    }
+    if (currentUser && currentAccount?.role === 'admin') {
+      // Admin viewing dashboard (impersonating or testing) — also rehydrate
+      setTimeout(() => {
+        if (typeof loadStageProgressBar === 'function') loadStageProgressBar();
+        if (typeof loadUnifiedRelationships === 'function') loadUnifiedRelationships();
+        if (typeof loadDashTestBanner === 'function') loadDashTestBanner();
+      }, 50);
     }
   }
 
@@ -13475,8 +13492,13 @@ async function loadUnifiedRelationships() {
       } else {
         primaryBtn = '<button class="btn-mini btn-mini-primary" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">View Group →</button>';
       }
-      const chatBtn = matchForGroup
-        ? '<button class="btn-mini btn-mini-secondary" onclick="openUserConv(\''+ matchForGroup.match_id +'\')">💬 Chat</button>' : '';
+      // Chat routing: 2-person groups → 1:1 DM (it IS the group chat).
+      // 3+ person groups → open group-dashboard which has the multi-party group chat.
+      const chatBtn = (g.current_size >= 3)
+        ? '<button class="btn-mini btn-mini-secondary" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\');setTimeout(function(){var el=document.getElementById(\'grp-chat-thread\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'center\'});},250)">💬 Group Chat</button>'
+        : (matchForGroup
+          ? '<button class="btn-mini btn-mini-secondary" onclick="openUserConv(\''+ matchForGroup.match_id +'\')">💬 Chat</button>'
+          : '');
       const viewBtn = '<button class="btn-mini btn-mini-secondary" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">View</button>';
 
       // Leave action — only available in forming/complete (pre-commitment)
