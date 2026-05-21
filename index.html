@@ -8331,12 +8331,17 @@ async function runScenario(scenarioId) {
     const r = data || {};
     const userRows = (r.users || []).map(function(u) {
       const role = u.role ? '<span style="color:var(--gray-text);font-size:.78rem;"> — ' + escapeHtml(u.role) + '</span>' : '';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid #f3f4f6;font-size:.85rem;gap:.5rem;">'
+      const ini = (u.name || '?').split(' ').map(x => x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+      const photoHtml = u.photo
+        ? '<div style="width:42px;height:42px;border-radius:50%;background-image:url(\'' + escapeHtml(u.photo) + '\');background-size:cover;background-position:center;flex-shrink:0;"></div>'
+        : '<div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.78rem;flex-shrink:0;">' + escapeHtml(ini) + '</div>';
+      return '<div style="display:flex;align-items:center;padding:.55rem 0;border-bottom:1px solid #f3f4f6;font-size:.85rem;gap:.7rem;">'
+        + photoHtml
         + '<div style="min-width:0;flex:1;">'
         + '<strong>' + escapeHtml(u.name) + '</strong>' + role
         + '<div style="font-size:.72rem;color:var(--gray-text);font-family:monospace;">' + escapeHtml(u.email) + '</div>'
         + '</div>'
-        + '<button class="impersonate-btn" onclick="impersonateMock(\'' + escapeHtml(u.email) + '\',\'' + escapeHtml(u.name) + '\',\'user\',\'\')">Impersonate →</button>'
+        + '<button class="impersonate-btn" onclick="impersonateMock(\'' + escapeHtml(u.email) + '\',\'' + escapeHtml(u.name) + '\',\'user\',\'' + escapeHtml(u.photo || '') + '\')">Impersonate →</button>'
         + '</div>';
     }).join('');
     out.innerHTML = '<div style="background:#ecfdf5;border-left:4px solid #10b981;padding:1rem 1.25rem;border-radius:8px;">'
