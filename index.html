@@ -12195,6 +12195,154 @@ function showMatchCelebration(name, score, groupId) {
 function closeMatchOverlay() { document.getElementById('match-overlay').style.display = 'none'; _discoveryIndex++; }
 window.closeMatchOverlay = closeMatchOverlay;
 function goToGroupDashboard() { closeMatchOverlay(); if (_lastMatchGroupId) { _activeGroupId = _lastMatchGroupId; showView('group-dashboard'); } }
+async function goToMatchConv() {
+  closeMatchOverlay();
+  if (!_lastMatchGroupId) return;
+  // Find the match record for this group to get match_id
+  try {
+    const { data: m } = await sb.from('discovery_matches').select('id').eq('group_id', _lastMatchGroupId).maybeSingle();
+    if (m && m.id) { openUserConv(m.id); return; }
+  } catch (e) {}
+  showToast('Could not open conversation.', 'error');
+}
+window.goToMatchConv = goToMatchConv;
+
+// ══════════════════════════════════════════════════════════════════════
+// USER-TO-USER 1:1 CONVERSATIONS (DMs between matched users)
+// Free tier: read-only. Paid tier: send freely. Backed by user_messages.
+// ══════════════════════════════════════════════════════════════════════
+let _activeMatchId = null;
+
+async function openUserConv(matchId) {
+  _activeMatchId = matchId;
+  showView('user-conv');
+}
+window.openUserConv = openUserConv;
+
+async function loadUserConv() {
+  if (!_activeMatchId || !currentUser) return;
+  const header = document.getElementById('uc-header');
+  const thread = document.getElementById('uc-thread');
+  const inputContent = document.getElementById('uc-input-content');
+  if (!header || !thread || !inputContent) return;
+
+  header.innerHTML = '<div style="color:var(--gray-text);font-size:.9rem;">Loading…</div>';
+  thread.innerHTML = '<div style="text-align:center;color:var(--gray-text);font-size:.85rem;padding:2rem 0;">Loading messages…</div>';
+  inputContent.innerHTML = '';
+
+  // Fetch match + verify user is part of it
+  const { data: match, error: mErr } = await sb.from('discovery_matches')
+    .select('id, group_id, account_a_id, account_b_id, nexus_score, matched_at')
+    .eq('id', _activeMatchId).maybeSingle();
+  if (mErr || !match) {
+    header.innerHTML = '<div style="color:var(--danger);">Match not found.</div>';
+    return;
+  }
+  if (match.account_a_id !== currentUser.id && match.account_b_id !== currentUser.id && currentAccount?.role !== 'admin') {
+    header.innerHTML = '<div style="color:var(--danger);">You are not part of this match.</div>';
+    return;
+  }
+  const otherId = match.account_a_id === currentUser.id ? match.account_b_id : match.account_a_id;
+
+  // Other person info
+  const { data: otherAcct } = await sb.from('accounts').select('id, full_name').eq('id', otherId).single();
+  const { data: otherProf } = await sb.from('user_profiles').select('photo_url, current_city').eq('account_id', otherId).maybeSingle();
+  const otherName = (otherAcct && otherAcct.full_name) || 'Unknown';
+  const otherFirst = otherName.split(' ')[0];
+  const ini = otherName.split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+  const photo = otherProf && otherProf.photo_url
+    ? '<div style="width:48px;height:48px;border-radius:50%;background-image:url(\''+escapeHtml(otherProf.photo_url)+'\');background-size:cover;background-position:center;flex-shrink:0;"></div>'
+    : '<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+escapeHtml(ini)+'</div>';
+  const city = (otherProf && otherProf.current_city) ? ' · 📍 ' + escapeHtml(otherProf.current_city) : '';
+  header.innerHTML =
+    '<div style="display:flex;gap:.85rem;align-items:center;">'
+    + photo
+    + '<div style="flex:1;min-width:0;"><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">'+escapeHtml(otherName)+'</div>'
+    + '<div style="font-size:.8rem;color:var(--gray-text);">Match · '+match.nexus_score+'/100'+city+'</div></div>'
+    + '</div>';
+
+  // Load messages
+  const { data: msgs, error: msgErr } = await sb.from('user_messages')
+    .select('id, sender_id, body, created_at, read_at')
+    .eq('match_id', _activeMatchId)
+    .order('created_at', { ascending: true });
+  if (msgErr) {
+    thread.innerHTML = '<div style="text-align:center;color:var(--danger);font-size:.85rem;padding:2rem 0;">Could not load messages: '+escapeHtml(msgErr.message)+'</div>';
+  } else if (!msgs || msgs.length === 0) {
+    thread.innerHTML = '<div style="text-align:center;color:var(--gray-text);font-size:.85rem;padding:2.5rem 0;">No messages yet.<br><span style="font-size:.78rem;">Say hi to '+escapeHtml(otherFirst)+' to break the ice.</span></div>';
+  } else {
+    thread.innerHTML = msgs.map(function(m) {
+      const isMine = m.sender_id === currentUser.id;
+      const ts = new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      const align = isMine ? 'flex-end' : 'flex-start';
+      const bg = isMine ? 'linear-gradient(135deg,var(--blue),var(--navy))' : '#F3F4F6';
+      const color = isMine ? '#fff' : '#1F2937';
+      return '<div style="display:flex;flex-direction:column;align-items:'+align+';">'
+        + '<div style="max-width:80%;padding:.55rem .85rem;border-radius:14px;background:'+bg+';color:'+color+';font-size:.9rem;line-height:1.4;word-wrap:break-word;">'+escapeHtml(m.body)+'</div>'
+        + '<div style="font-size:.68rem;color:var(--gray-text);margin-top:.2rem;padding:0 .3rem;">'+(isMine?'You · ':'')+ts+'</div>'
+        + '</div>';
+    }).join('');
+    setTimeout(function(){ thread.scrollTop = thread.scrollHeight; }, 30);
+  }
+
+  // Mark messages from other side as read
+  try { await sb.rpc('mark_match_messages_read', { p_match_id: _activeMatchId }); } catch (e) {}
+
+  // Render input area — paid users can send, free users see paywall CTA
+  const isPaid = currentAccount?.discovery_tier === 'paid' || currentAccount?.tier === 'paid' || currentAccount?.role === 'admin';
+  if (isPaid) {
+    inputContent.innerHTML =
+      '<div style="display:flex;gap:.5rem;">'
+      + '<input id="uc-input" type="text" maxlength="4000" placeholder="Message '+escapeHtml(otherFirst)+'…" style="flex:1;padding:.7rem .9rem;border:1.5px solid var(--gray);border-radius:10px;font-size:.92rem;" onkeydown="if(event.key===\'Enter\'){event.preventDefault();sendUserMessageDM()}">'
+      + '<button class="btn-primary" style="padding:.7rem 1.4rem;" onclick="sendUserMessageDM()">Send</button>'
+      + '</div>';
+    setTimeout(function(){ const i = document.getElementById('uc-input'); if (i) i.focus(); }, 50);
+  } else {
+    inputContent.innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:.6rem;">'
+      + '<div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:10px;padding:.85rem 1rem;display:flex;align-items:center;gap:.65rem;">'
+      + '<div style="font-size:1.3rem;">🔒</div>'
+      + '<div style="flex:1;font-size:.85rem;color:#374151;line-height:1.35;">'+escapeHtml(otherFirst)+' can message you, but replying requires <strong style="color:var(--navy);">NEXUS Home</strong>.</div>'
+      + '<button class="btn-primary" style="padding:.55rem 1rem;font-size:.82rem;white-space:nowrap;" onclick="openPaywall()">Upgrade →</button>'
+      + '</div>'
+      + '<input type="text" placeholder="Upgrade to NEXUS Home to reply" disabled style="flex:1;padding:.7rem .9rem;border:1.5px solid var(--gray);border-radius:10px;font-size:.92rem;background:#F9FAFB;color:var(--gray-text);cursor:not-allowed;" onclick="openPaywall()">'
+      + '</div>';
+  }
+}
+window.loadUserConv = loadUserConv;
+
+async function sendUserMessageDM() {
+  if (!_activeMatchId || !currentUser) return;
+  const input = document.getElementById('uc-input');
+  if (!input) return;
+  const body = (input.value || '').trim();
+  if (!body) return;
+  if (body.length > 4000) { showToast('Message too long (max 4000 chars)', 'error'); return; }
+  input.disabled = true;
+  try {
+    const { error } = await sb.rpc('send_user_message', { p_match_id: _activeMatchId, p_body: body });
+    if (error) {
+      const msg = error.message || String(error);
+      if (msg.includes('subscription required')) {
+        showToast('Upgrade to NEXUS Home to send messages.', 'error');
+        openPaywall();
+      } else {
+        showToast('Send failed: ' + msg, 'error');
+      }
+      input.disabled = false;
+      return;
+    }
+    input.value = '';
+    input.disabled = false;
+    await loadUserConv();
+  } catch (e) {
+    showToast('Send failed: ' + (e.message || e), 'error');
+    input.disabled = false;
+  }
+}
+window.sendUserMessageDM = sendUserMessageDM;
+
+
 window.goToGroupDashboard = goToGroupDashboard;
 
 async function loadLikesYou() {
@@ -12243,7 +12391,7 @@ async function loadMyMatches() {
     const a=am[oid]||{}; const p=pm[oid]||{};
     const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
     const dt=new Date(m.matched_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    return `<div style="display:flex;gap:.85rem;align-items:center;padding:.75rem;border:1.5px solid var(--gray);border-radius:10px;background:#fff;margin-bottom:.6rem;cursor:pointer;" onclick="_activeGroupId='${m.group_id}';showView('group-dashboard')">
+    return `<div style="display:flex;gap:.85rem;align-items:center;padding:.75rem;border:1.5px solid var(--gray);border-radius:10px;background:#fff;margin-bottom:.6rem;cursor:pointer;" onclick="openUserConv('${m.id}')">
       <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">${escapeHtml(ini)}</div>
       <div style="flex:1;"><div style="font-weight:700;color:var(--navy);font-size:.92rem;">${escapeHtml(a.full_name||'Unknown')}</div><div style="font-size:.78rem;color:var(--gray-text);">Matched ${dt}</div></div>
       <div style="background:linear-gradient(135deg,#10B981,#059669);color:#fff;padding:.35rem .75rem;border-radius:14px;font-size:.78rem;font-weight:800;">${m.nexus_score}/100</div>
@@ -12787,6 +12935,11 @@ showView = function(viewName) {
     if (!_activeGroupId) { routeForRole(); return; }
     setTimeout(()=>loadGroupRealtors(),50);
   }
+  if (viewName==='user-conv') {
+    if (!currentUser) { openLoginModal(); return; }
+    if (!_activeMatchId) { routeForRole(); return; }
+    setTimeout(()=>loadUserConv(),50);
+  }
 };
 
 // ═══ SUPPORT WIDGET ═══
@@ -12902,7 +13055,8 @@ async function loadNotifications() {
       notifs.forEach(n => {
         let link = '';
         if (n.type === 'like_received') link = "showView('discovery')";
-        else if (n.type === 'match_created') link = n.metadata?.group_id ? `_activeGroupId='${n.metadata.group_id}';showView('group-dashboard')` : "showView('discovery')";
+        else if (n.type === 'match_created') link = n.metadata?.match_id ? `openUserConv('${n.metadata.match_id}')` : (n.metadata?.group_id ? `_activeGroupId='${n.metadata.group_id}';showView('group-dashboard')` : "showView('discovery')");
+        else if (n.type === 'user_message') link = n.metadata?.match_id ? `openUserConv('${n.metadata.match_id}')` : "showView('dashboard')";
         else if (n.type === 'group_complete') link = n.metadata?.group_id ? `_activeGroupId='${n.metadata.group_id}';showView('group-dashboard')` : '';
         else if (n.type === 'realtor_confirmed') link = n.metadata?.group_id ? `_activeGroupId='${n.metadata.group_id}';showView('group-dashboard')` : '';
 
@@ -13979,6 +14133,23 @@ showView = function(viewName) {
 </div>
 
 <!-- ══════════════════════ VIEW: GROUP DASHBOARD ══════════════════════ -->
+<div id="view-user-conv" class="view">
+  <div style="max-width:700px;margin:0 auto;padding:1.25rem 1rem;">
+    <div style="margin-bottom:.85rem;">
+      <span style="cursor:pointer;color:var(--blue);font-weight:600;font-size:.88rem;" onclick="showView('dashboard')">← Back to dashboard</span>
+    </div>
+    <div id="uc-header" style="background:#fff;border:1.5px solid var(--gray);border-radius:14px 14px 0 0;padding:1rem 1.25rem;border-bottom:none;">
+      <div style="color:var(--gray-text);font-size:.9rem;">Loading…</div>
+    </div>
+    <div id="uc-thread" style="background:#fff;border-left:1.5px solid var(--gray);border-right:1.5px solid var(--gray);padding:1rem 1.25rem;min-height:300px;max-height:540px;overflow-y:auto;display:flex;flex-direction:column;gap:.55rem;">
+      <div style="text-align:center;color:var(--gray-text);font-size:.85rem;padding:2rem 0;">Loading messages…</div>
+    </div>
+    <div id="uc-input-wrap" style="background:#fff;border:1.5px solid var(--gray);border-top:none;border-radius:0 0 14px 14px;padding:.85rem 1.25rem;">
+      <div id="uc-input-content"></div>
+    </div>
+  </div>
+</div>
+
 <div id="view-group-dashboard" class="view">
   <div class="grp-wrap" style="padding-top:1rem;">
     <span class="rp-back-link" onclick="routeForRole()">← Back to dashboard</span>
