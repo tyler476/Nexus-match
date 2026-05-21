@@ -12234,10 +12234,21 @@ async function loadGroupDashboard() {
   const { data: group, error } = await sb.from('coborrower_groups').select('*').eq('id',_activeGroupId).single();
   if (error||!group) {
     console.error('Group load failed:', error);
-    document.getElementById('grp-status-text').textContent = 'Could not load group — it may have been reset.';
-    document.getElementById('grp-members-list').innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:1rem;">This group may no longer exist. Try returning to Discovery.</div>';
-    document.getElementById('grp-actions-area').innerHTML = '<div style="text-align:center;margin-top:1rem;"><button class="btn-primary" onclick="showView(\'discovery\')">Back to Discovery →</button></div>';
+    showToast('That group no longer exists. It may have been reset.', 'error');
+    _activeGroupId = null;
+    routeForRole();
     return;
+  }
+  // Membership check — only members (or admin) can view a group dashboard
+  if (currentAccount?.role !== 'admin') {
+    const { data: meMem } = await sb.from('coborrower_group_members')
+      .select('account_id').eq('group_id',_activeGroupId).eq('account_id',currentUser.id).maybeSingle();
+    if (!meMem) {
+      showToast("You're not a member of that group.", 'error');
+      _activeGroupId = null;
+      routeForRole();
+      return;
+    }
   }
   const { data: members } = await sb.from('coborrower_group_members').select('account_id,role,unit_size,joined_at').eq('group_id',_activeGroupId);
   const mIds=(members||[]).map(m=>m.account_id);
@@ -12422,6 +12433,31 @@ window.handlePhotoUpload = handlePhotoUpload;
 async function loadGroupRealtors() {
   if (!_activeGroupId||!currentUser) return;
   const list=document.getElementById('grp-realtor-list');
+  // ── Gate: group exists, user is a member, status is realtor-eligible ──
+  try {
+    const { data: gr, error: grErr } = await sb.from('coborrower_groups')
+      .select('status,current_size,desired_total').eq('id',_activeGroupId).single();
+    if (grErr || !gr) {
+      showToast('That group no longer exists.', 'error');
+      _activeGroupId = null; routeForRole(); return;
+    }
+    if (currentAccount?.role !== 'admin') {
+      const { data: mem } = await sb.from('coborrower_group_members')
+        .select('account_id').eq('group_id',_activeGroupId).eq('account_id',currentUser.id).maybeSingle();
+      if (!mem) {
+        showToast("You're not a member of that group.", 'error');
+        _activeGroupId = null; routeForRole(); return;
+      }
+    }
+    if (gr.status !== 'seeking_realtor' && gr.status !== 'realtor_confirmed') {
+      const msg = gr.status === 'forming'
+        ? "Your group isn't complete yet — keep matching to fill it."
+        : 'Your group needs to complete pre-approval before selecting a realtor.';
+      showToast(msg, 'info');
+      showView('group-dashboard');
+      return;
+    }
+  } catch (e) { console.warn('group-realtors gate failed:', e); }
   try {
     const { data: realtors, error } = await sb.rpc('get_group_realtors',{p_group_id:_activeGroupId,p_limit:6});
     if (error) throw error;
@@ -12439,10 +12475,18 @@ async function loadGroupRealtors() {
 }
 
 async function selectGroupRealtor(rid) {
+  // Gate: group must already be at 'seeking_realtor' (pre-approval done)
+  const { data: g, error: ge } = await sb.from('coborrower_groups')
+    .select('status').eq('id',_activeGroupId).single();
+  if (ge || !g) { showToast('Group not found.', 'error'); return; }
+  if (g.status !== 'seeking_realtor') {
+    showToast('Your group must complete pre-approval before selecting a realtor.', 'error');
+    showView('group-dashboard');
+    return;
+  }
   const { error } = await sb.from('group_realtor_selections').insert({group_id:_activeGroupId,realtor_id:rid,initiated_by:currentUser.id,status:'selected'});
   if (error&&error.code!=='23505') { showToast('Error: '+error.message,'error'); return; }
   showToast('Realtor selected','success');
-  await sb.from('coborrower_groups').update({status:'seeking_realtor',updated_at:new Date().toISOString()}).eq('id',_activeGroupId);
   await loadGroupRealtors();
 }
 window.selectGroupRealtor = selectGroupRealtor;
@@ -12466,7 +12510,20 @@ showView = function(viewName) {
     if (!currentUser) { openLoginModal(); return; }
     if (currentAccount?.role!=='user' && currentAccount?.role!=='admin') { showToast('Homebuyer account required','error'); return; }
     setNavActive('nav-discover');
-    setTimeout(()=>loadDiscoveryStack(),50);
+    if (currentAccount?.role === 'admin') {
+      setTimeout(()=>loadDiscoveryStack(),50);
+    } else {
+      (async () => {
+        const { data: p } = await sb.from('user_profiles')
+          .select('profile_completed').eq('account_id',currentUser.id).maybeSingle();
+        if (!p || !p.profile_completed) {
+          showToast('Complete your profile to start matching.', 'info');
+          showView('register');
+          return;
+        }
+        loadDiscoveryStack();
+      })();
+    }
   }
   if (viewName==='group-dashboard') {
     if (!currentUser) { openLoginModal(); return; }
