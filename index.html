@@ -3222,7 +3222,7 @@ body.is-impersonating .view{padding-top:114px;}
       <!-- ─── TAB: Test Scenarios ─── -->
       <section id="admin-tab-scenarios" class="admin-tab-pane">
         <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:.85rem 1.1rem;border-radius:6px;margin-bottom:1.25rem;font-size:.86rem;color:#854d0e;">
-          ⚠️ <strong>Fresh state guaranteed.</strong> Each scenario wipes all <code>@nexus-test.local</code> accounts and their interactions (likes, matches, groups, messages, notifications) before seeding. Real users and standard mock data are untouched. All test accounts use password <code>NexusTest2026!</code>.
+          ⚠️ <strong>Fresh state guaranteed.</strong> Each scenario picks real existing mock users (Josh Kelly, Marcus Bennett, etc.) and wipes ONLY their interactions (likes, matches, groups, messages) before seeding. The user accounts persist with full profile data. Standard mock password: <code>NexusTest2026!</code>.
         </div>
         <div class="sc-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;">
           <div class="mock-empty">Loading scenarios…</div>
@@ -8294,16 +8294,16 @@ window.runValidator = runValidator;
 // ══════════════════════════════════════════════════════════════════════
 const TEST_SCENARIOS = [
   { id:'primed_pair', icon:'🥚', title:'Primed pair (group of 2)',
-    desc:'Alice + Bob have both completed profiles and have each already liked the other. The next swipe by either completes the mutual match and creates a group of 2.',
-    next:'Impersonate Alice or Bob. Open Discovery. Swipe right on the other.' },
+    desc:'Two real mock users with completed profiles, both have already liked each other. The next swipe by either completes the mutual match and creates a group of 2.',
+    next:'Impersonate either. Open Discovery. Swipe right on the other.' },
   { id:'duo_third', icon:'👥', title:'Duo + 3rd primed (group of 3)',
-    desc:'Alice + Bob already mutually matched in a forming group of 3. Carol has already liked Alice and is in Alice\'s discovery stack.',
-    next:'Impersonate Alice. Open Discovery. Swipe right on Carol. Group completes to 3 members.' },
+    desc:'Two real mock users mutually matched in a forming group of 3. A third user has already liked one of them, primed to complete the group.',
+    next:'Impersonate the duo member who has the incoming like. Open Discovery. Swipe right on the primed third.' },
   { id:'complete_group', icon:'✅', title:'Complete group (no pre-approval)',
-    desc:'Alice + Bob + Carol are all members of a complete group of 3. Status is "complete" — pre-approval not yet done.',
+    desc:'Three real mock users in a complete group of 3. Status is "complete" — pre-approval not yet done.',
     next:'Impersonate any member. Open group dashboard. Click "Start Pre-Approval".' },
   { id:'pre_approved', icon:'📋', title:'Pre-approved, ready for realtor',
-    desc:'Complete group, pre-approval done (status=seeking_realtor). Ready to pick a realtor.',
+    desc:'Complete group of 3, pre-approval done (status=seeking_realtor). Ready to pick a realtor.',
     next:'Impersonate any. Open group dashboard. Click "Select Your Realtor".' }
 ];
 
@@ -13238,11 +13238,11 @@ async function loadDashTestBanner() {
   const el = document.getElementById('dash-test-banner');
   if (!el) return;
 
-  // Always show for test accounts (@nexus-test.local); also show if impersonating
-  const isTestAccount = currentAccount.email && currentAccount.email.endsWith('@nexus-test.local');
+  // Show banner whenever impersonating, or when logged in as any mock user (is_mock=true)
+  const isMockAccount = currentAccount.is_mock === true;
   let impData = null;
   try { impData = JSON.parse(localStorage.getItem('imp_active') || 'null'); } catch (e) {}
-  if (!isTestAccount && !impData) { el.style.display = 'none'; return; }
+  if (!isMockAccount && !impData) { el.style.display = 'none'; return; }
 
   try {
     // Gather state
@@ -13278,7 +13278,7 @@ async function loadDashTestBanner() {
       + '<div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">'
       + '<div style="font-size:1.3rem;">🧪</div>'
       + '<div style="flex:1;min-width:200px;">'
-      + '<div style="font-weight:800;color:#5b21b6;font-size:.88rem;">TEST USER · ' + escapeHtml(currentAccount.full_name || currentAccount.email) + '</div>'
+      + '<div style="font-weight:800;color:#5b21b6;font-size:.88rem;">' + (impData ? '🎭 IMPERSONATING · ' : '🧪 MOCK USER · ') + escapeHtml(currentAccount.full_name || currentAccount.email) + '</div>'
       + '<div style="font-size:.8rem;color:#374151;margin-top:.2rem;">'
       + matchCount + ' match' + (matchCount === 1 ? '' : 'es')
       + ' · ' + oneSidedLikes + ' incoming like' + (oneSidedLikes === 1 ? '' : 's') + ' (no reciprocal yet)'
