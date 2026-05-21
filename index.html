@@ -12276,10 +12276,12 @@ async function loadUserConv() {
   }
   const otherId = match.account_a_id === currentUser.id ? match.account_b_id : match.account_a_id;
 
-  // Other person info
-  const { data: otherAcct } = await sb.from('accounts').select('id, full_name').eq('id', otherId).single();
-  const { data: otherProf } = await sb.from('user_profiles').select('photo_url, current_city').eq('account_id', otherId).maybeSingle();
-  const otherName = (otherAcct && otherAcct.full_name) || 'Unknown';
+  // SECURITY DEFINER helper bypasses RLS recursion — returns name + photo + city in one call
+  const { data: otherRows } = await sb.rpc('get_match_other_display', { p_match_id: _activeMatchId });
+  const otherInfo = (otherRows && otherRows[0]) || {};
+  const otherAcct = { id: otherInfo.account_id, full_name: otherInfo.full_name };
+  const otherProf = { photo_url: otherInfo.photo_url, current_city: otherInfo.current_city };
+  const otherName = otherInfo.full_name || 'Unknown';
   const otherFirst = otherName.split(' ')[0];
   const ini = otherName.split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
   const photo = otherProf && otherProf.photo_url
@@ -12381,23 +12383,14 @@ async function loadLikesYou() {
   const section = document.getElementById('likes-you-section');
   const grid = document.getElementById('likes-you-grid');
   if (!section||!grid) return;
-  const { data: likes } = await sb.from('discovery_likes').select('liker_id').eq('liked_id', currentUser.id);
-  if (!likes||likes.length===0) { section.style.display='none'; return; }
-  const { data: myLikes } = await sb.from('discovery_likes').select('liked_id').eq('liker_id', currentUser.id);
-  const mySet = new Set((myLikes||[]).map(l=>l.liked_id));
-  const pending = likes.filter(l=>!mySet.has(l.liker_id));
-  if (pending.length===0) { section.style.display='none'; return; }
+  const { data: pending } = await sb.rpc('get_my_likes_received');
+  if (!pending||pending.length===0) { section.style.display='none'; return; }
   section.style.display='block';
   document.getElementById('likes-you-count').textContent = `${pending.length} pending`;
   const isPaid = currentAccount?.discovery_tier === 'paid';
-  const ids = pending.map(l=>l.liker_id);
-  const { data: profs } = await sb.from('user_profiles').select('account_id,photo_url,current_city').in('account_id',ids);
-  const { data: accts } = await sb.from('accounts').select('id,full_name').in('id',ids);
-  const pm={}; (profs||[]).forEach(p=>{pm[p.account_id]=p;});
-  const am={}; (accts||[]).forEach(a=>{am[a.id]=a;});
   grid.innerHTML = pending.map(l=>{
-    const a=am[l.liker_id]||{};
-    const p=pm[l.liker_id]||{};
+    const a={ full_name: l.liker_name };
+    const p={ photo_url: l.liker_photo, current_city: l.liker_city };
     const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
     const bl=isPaid?'':'blurred';
     const ph=p.photo_url?`<img src="${escapeHtml(p.photo_url)}">`:ini;
@@ -12410,17 +12403,13 @@ async function loadMyMatches() {
   const section = document.getElementById('my-matches-section');
   const list = document.getElementById('my-matches-list');
   if (!section||!list) return;
-  const { data: matches } = await sb.from('discovery_matches').select('id,group_id,account_a_id,account_b_id,nexus_score,matched_at').or(`account_a_id.eq.${currentUser.id},account_b_id.eq.${currentUser.id}`).order('matched_at',{ascending:false});
-  if (!matches||matches.length===0) { section.style.display='none'; return; }
+  const { data: rows } = await sb.rpc('get_my_matches_with_others');
+  if (!rows||rows.length===0) { section.style.display='none'; return; }
   section.style.display='block';
-  const oIds = matches.map(m=>m.account_a_id===currentUser.id?m.account_b_id:m.account_a_id);
-  const { data: oa } = await sb.from('accounts').select('id,full_name').in('id',oIds);
-  const { data: op } = await sb.from('user_profiles').select('account_id,photo_url,current_city').in('account_id',oIds);
-  const am={}; (oa||[]).forEach(a=>{am[a.id]=a;});
-  const pm={}; (op||[]).forEach(p=>{pm[p.account_id]=p;});
+  const matches = rows.map(r=>({ id: r.match_id, nexus_score: r.nexus_score, matched_at: r.matched_at, _other: r }));
   list.innerHTML = matches.map(m=>{
-    const oid=m.account_a_id===currentUser.id?m.account_b_id:m.account_a_id;
-    const a=am[oid]||{}; const p=pm[oid]||{};
+    const a={ full_name: m._other.other_name };
+    const p={ photo_url: m._other.other_photo, current_city: m._other.other_city };
     const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
     const dt=new Date(m.matched_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
     return `<div style="display:flex;gap:.85rem;align-items:center;padding:.75rem;border:1.5px solid var(--gray);border-radius:10px;background:#fff;margin-bottom:.6rem;cursor:pointer;" onclick="openUserConv('${m.id}')">
@@ -12697,12 +12686,15 @@ async function loadGroupDashboard() {
       return;
     }
   }
-  const { data: members } = await sb.from('coborrower_group_members').select('account_id,role,unit_size,joined_at').eq('group_id',_activeGroupId);
-  const mIds=(members||[]).map(m=>m.account_id);
-  const { data: ma } = await sb.from('accounts').select('id,full_name,email').in('id',mIds);
-  const { data: mp } = await sb.from('user_profiles').select('account_id,photo_url,current_city,price_range').in('account_id',mIds);
-  const am={}; (ma||[]).forEach(a=>{am[a.id]=a;});
-  const pm={}; (mp||[]).forEach(p=>{pm[p.account_id]=p;});
+  // Use SECURITY DEFINER helper to bypass RLS recursion — returns members + names + photos in one call
+  const { data: memberRows } = await sb.rpc('get_group_members_display', { p_group_id: _activeGroupId });
+  const members = (memberRows||[]).map(r => ({ account_id: r.account_id, role: r.role, unit_size: r.unit_size }));
+  const mIds = members.map(m => m.account_id);
+  const am={}; const pm={};
+  (memberRows||[]).forEach(r => {
+    am[r.account_id] = { id: r.account_id, full_name: r.full_name, email: null };
+    pm[r.account_id] = { photo_url: r.photo_url, current_city: r.current_city, price_range: null };
+  });
   const progress = Math.round((group.current_size/group.desired_total)*100);
   const statL = {forming:'Group forming — finding more co-borrowers',complete:'Group complete! Ready to select a realtor.',seeking_realtor:'Selecting a realtor for your group.',realtor_confirmed:'Realtor confirmed! Contact info revealed.',active:'Active — working with your realtor.'};
   document.getElementById('grp-status-text').textContent = statL[group.status]||group.status;
@@ -13230,27 +13222,17 @@ async function loadDashboardMatchesList() {
   const list = document.getElementById('dash-my-matches-list');
   if (!wrap || !list) return;
   try {
-    const { data: matches, error } = await sb.from('discovery_matches')
-      .select('id, group_id, account_a_id, account_b_id, nexus_score, matched_at')
-      .or('account_a_id.eq.' + currentUser.id + ',account_b_id.eq.' + currentUser.id)
-      .order('matched_at', { ascending: false });
+    // SECURITY DEFINER helper — matches + other party info + unread counts in one call
+    const { data: rows, error } = await sb.rpc('get_my_matches_with_others');
     if (error) throw error;
-    if (!matches || matches.length === 0) { wrap.style.display = 'none'; return; }
+    if (!rows || rows.length === 0) { wrap.style.display = 'none'; return; }
     wrap.style.display = 'block';
-    const oIds = matches.map(m => m.account_a_id === currentUser.id ? m.account_b_id : m.account_a_id);
-    const { data: oa } = await sb.from('accounts').select('id, full_name').in('id', oIds);
-    const { data: op } = await sb.from('user_profiles').select('account_id, photo_url, current_city').in('account_id', oIds);
-    const am = {}; (oa || []).forEach(a => { am[a.id] = a; });
-    const pm = {}; (op || []).forEach(p => { pm[p.account_id] = p; });
-    // Unread counts
-    let unreadByMatch = {};
-    try {
-      const { data: u } = await sb.rpc('get_user_unread_by_match');
-      (u || []).forEach(row => { unreadByMatch[row.match_id] = row.unread_count; });
-    } catch (e) {}
+    const matches = rows.map(r => ({ id: r.match_id, nexus_score: r.nexus_score, matched_at: r.matched_at, _other: r }));
+    const unreadByMatch = {};
+    rows.forEach(r => { unreadByMatch[r.match_id] = r.unread_count; });
     list.innerHTML = matches.map(function(m) {
-      const oid = m.account_a_id === currentUser.id ? m.account_b_id : m.account_a_id;
-      const a = am[oid] || {}; const p = pm[oid] || {};
+      const a = { full_name: m._other.other_name };
+      const p = { photo_url: m._other.other_photo, current_city: m._other.other_city };
       const ini = (a.full_name || '?').split(' ').map(x => x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
       const dt = new Date(m.matched_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       const unread = unreadByMatch[m.id] || 0;
@@ -13350,8 +13332,8 @@ async function openGroupMemberProfile(memberId) {
   content.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:2rem;">Loading profile…</div>';
   try {
     const [{ data: acct }, { data: prof }] = await Promise.all([
-      sb.from('accounts').select('full_name').eq('id', memberId).maybeSingle(),
-      sb.from('user_profiles').select('*').eq('account_id', memberId).maybeSingle()
+      sb.rpc('get_group_member_full_profile', { p_member_id: memberId }).then(r => ({ data: r.data ? { full_name: r.data.full_name } : null })),
+      sb.rpc('get_group_member_full_profile', { p_member_id: memberId }).then(r => ({ data: r.data || null }))
     ]);
     if (!prof) {
       content.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:2rem;">Profile not available.</div>';
