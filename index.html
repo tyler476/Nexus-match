@@ -2948,6 +2948,11 @@ body.is-impersonating .view{padding-top:114px;}
       <div id="user-interests-row" style="background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
         <!-- Interests + working style -->
       </div>
+      <div id="dash-test-banner" style="display:none;margin-bottom:1.25rem;"></div>
+      <div id="dash-my-matches-wrap" style="display:none;background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
+        <div style="font-size:.7rem;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:.85rem;">Your Matches</div>
+        <div id="dash-my-matches-list"></div>
+      </div>
       <div id="user-pending-selections" style="margin-bottom:1.25rem;"></div>
     </div>
 
@@ -8107,6 +8112,7 @@ async function impersonateMock(email, fullName, role, photoUrl) {
 
   // Remember admin email so the banner can offer "Exit Impersonation"
   try {
+    localStorage.setItem('imp_active', JSON.stringify({ at: Date.now(), email: email, name: fullName }));
     localStorage.setItem(IMP_LSKEY, JSON.stringify({
       adminEmail: currentAccount.email,
       adminName: currentAccount.full_name,
@@ -8124,7 +8130,7 @@ async function impersonateMock(email, fullName, role, photoUrl) {
   } catch (_) {}
   const { error } = await sb.auth.signInWithPassword({ email, password: MOCK_PASSWORD });
   if (error) {
-    localStorage.removeItem(IMP_LSKEY);
+    localStorage.removeItem(IMP_LSKEY); localStorage.removeItem('imp_active');
     showToast('Impersonation failed: ' + error.message, 'error');
     return;
   }
@@ -8351,7 +8357,7 @@ window.runScenario = runScenario;
 
 async function exitImpersonation() {
   // Clear localStorage flag, sign out, return to login modal
-  try { localStorage.removeItem(IMP_LSKEY); } catch (_) {}
+  try { localStorage.removeItem(IMP_LSKEY); localStorage.removeItem('imp_active'); } catch (_) {}
   try { await sb.auth.signOut({ scope: 'local' }); } catch (_) {}
   // Clear keys belt-and-suspenders
   try {
@@ -8381,7 +8387,7 @@ function maybeShowImpersonationBanner() {
     document.body.classList.remove('is-impersonating');
     // If we have stale info but the account doesn't match anymore, clean up
     if (info && (!currentAccount || currentAccount.email !== info.mockEmail)) {
-      localStorage.removeItem(IMP_LSKEY);
+      localStorage.removeItem(IMP_LSKEY); localStorage.removeItem('imp_active');
     }
   }
 }
@@ -13170,6 +13176,124 @@ async function loadDashboardMatchesAndGroups() {
   } catch (e) { console.warn('Group loading failed:', e); }
 }
 
+// ═══ Dashboard MATCHES LIST — shows match cards on user dashboard ═══
+async function loadDashboardMatchesList() {
+  if (!currentUser) return;
+  const wrap = document.getElementById('dash-my-matches-wrap');
+  const list = document.getElementById('dash-my-matches-list');
+  if (!wrap || !list) return;
+  try {
+    const { data: matches, error } = await sb.from('discovery_matches')
+      .select('id, group_id, account_a_id, account_b_id, nexus_score, matched_at')
+      .or('account_a_id.eq.' + currentUser.id + ',account_b_id.eq.' + currentUser.id)
+      .order('matched_at', { ascending: false });
+    if (error) throw error;
+    if (!matches || matches.length === 0) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    const oIds = matches.map(m => m.account_a_id === currentUser.id ? m.account_b_id : m.account_a_id);
+    const { data: oa } = await sb.from('accounts').select('id, full_name').in('id', oIds);
+    const { data: op } = await sb.from('user_profiles').select('account_id, photo_url, current_city').in('account_id', oIds);
+    const am = {}; (oa || []).forEach(a => { am[a.id] = a; });
+    const pm = {}; (op || []).forEach(p => { pm[p.account_id] = p; });
+    // Unread counts
+    let unreadByMatch = {};
+    try {
+      const { data: u } = await sb.rpc('get_user_unread_by_match');
+      (u || []).forEach(row => { unreadByMatch[row.match_id] = row.unread_count; });
+    } catch (e) {}
+    list.innerHTML = matches.map(function(m) {
+      const oid = m.account_a_id === currentUser.id ? m.account_b_id : m.account_a_id;
+      const a = am[oid] || {}; const p = pm[oid] || {};
+      const ini = (a.full_name || '?').split(' ').map(x => x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+      const dt = new Date(m.matched_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const unread = unreadByMatch[m.id] || 0;
+      const photo = p.photo_url
+        ? '<div style="width:48px;height:48px;border-radius:50%;background-image:url(\''+escapeHtml(p.photo_url)+'\');background-size:cover;background-position:center;flex-shrink:0;"></div>'
+        : '<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem;">' + escapeHtml(ini) + '</div>';
+      const unreadBadge = unread > 0
+        ? '<div style="background:#ef4444;color:#fff;border-radius:11px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;padding:0 .4rem;">'+unread+'</div>'
+        : '';
+      const city = p.current_city ? ' · 📍 ' + escapeHtml(p.current_city) : '';
+      return '<div style="display:flex;gap:.85rem;align-items:center;padding:.75rem;border:1.5px solid var(--gray);border-radius:10px;background:#fff;margin-bottom:.6rem;cursor:pointer;transition:transform .15s;" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'translateY(0)\'" onclick="openUserConv(\''+m.id+'\')">'
+        + photo
+        + '<div style="flex:1;min-width:0;"><div style="font-weight:700;color:var(--navy);font-size:.95rem;">'+escapeHtml(a.full_name || 'Unknown')+'</div>'
+        + '<div style="font-size:.78rem;color:var(--gray-text);">Matched '+dt+city+'</div></div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;">'
+        + '<div style="background:linear-gradient(135deg,#10B981,#059669);color:#fff;padding:.3rem .7rem;border-radius:14px;font-size:.75rem;font-weight:800;">'+m.nexus_score+'/100</div>'
+        + unreadBadge
+        + '</div>'
+        + '<div style="color:var(--blue);font-weight:700;margin-left:.25rem;">💬</div>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    console.warn('loadDashboardMatchesList failed:', e);
+    wrap.style.display = 'none';
+  }
+}
+window.loadDashboardMatchesList = loadDashboardMatchesList;
+
+// ═══ TEST-STATE BANNER — shows impersonation + match/group state at a glance ═══
+async function loadDashTestBanner() {
+  if (!currentUser || !currentAccount) return;
+  const el = document.getElementById('dash-test-banner');
+  if (!el) return;
+
+  // Always show for test accounts (@nexus-test.local); also show if impersonating
+  const isTestAccount = currentAccount.email && currentAccount.email.endsWith('@nexus-test.local');
+  let impData = null;
+  try { impData = JSON.parse(localStorage.getItem('imp_active') || 'null'); } catch (e) {}
+  if (!isTestAccount && !impData) { el.style.display = 'none'; return; }
+
+  try {
+    // Gather state
+    const [{ data: matches }, { data: memberships }, { data: likedMe }, { data: myProfile }] = await Promise.all([
+      sb.from('discovery_matches').select('id,account_a_id,account_b_id,nexus_score').or('account_a_id.eq.'+currentUser.id+',account_b_id.eq.'+currentUser.id),
+      sb.from('coborrower_group_members').select('group_id').eq('account_id', currentUser.id),
+      sb.from('discovery_likes').select('liker_id').eq('liked_id', currentUser.id),
+      sb.from('user_profiles').select('total_coborrowers_desired,profile_completed').eq('account_id', currentUser.id).maybeSingle()
+    ]);
+    const matchCount = (matches || []).length;
+    const groupCount = (memberships || []).length;
+    const likedMeCount = (likedMe || []).length;
+    // For each like, check if I liked them back (then it would be a match, not a one-sided)
+    const oneSidedLikes = (likedMe || []).filter(l => !(matches || []).some(m => m.account_a_id === l.liker_id || m.account_b_id === l.liker_id)).length;
+
+    // Get group details if any
+    let groupSummary = '';
+    if (groupCount > 0) {
+      const gids = memberships.map(m => m.group_id);
+      const { data: groups } = await sb.from('coborrower_groups').select('id,status,current_size,desired_total').in('id', gids);
+      if (groups && groups.length > 0) {
+        const g = groups[0]; // show primary group
+        const needs = g.desired_total - g.current_size;
+        const statusLabel = { forming: 'forming', complete: 'complete', seeking_realtor: 'pre-approved · selecting realtor', realtor_confirmed: 'realtor confirmed' }[g.status] || g.status;
+        groupSummary = ' · in a <strong>' + statusLabel + '</strong> group (' + g.current_size + '/' + g.desired_total + (needs > 0 ? ', needs ' + needs + ' more' : '') + ')';
+      }
+    }
+
+    const desired = (myProfile && myProfile.total_coborrowers_desired) || 2;
+    const wants = ' · wants group of ' + desired;
+    const banner =
+      '<div style="background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(37,99,235,.04));border:1.5px solid rgba(139,92,246,.3);border-radius:12px;padding:.85rem 1.15rem;">'
+      + '<div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">'
+      + '<div style="font-size:1.3rem;">🧪</div>'
+      + '<div style="flex:1;min-width:200px;">'
+      + '<div style="font-weight:800;color:#5b21b6;font-size:.88rem;">TEST USER · ' + escapeHtml(currentAccount.full_name || currentAccount.email) + '</div>'
+      + '<div style="font-size:.8rem;color:#374151;margin-top:.2rem;">'
+      + matchCount + ' match' + (matchCount === 1 ? '' : 'es')
+      + ' · ' + oneSidedLikes + ' incoming like' + (oneSidedLikes === 1 ? '' : 's') + ' (no reciprocal yet)'
+      + wants + groupSummary
+      + '</div></div>'
+      + (impData ? '<button class="rp-btn rp-btn-secondary" style="font-size:.75rem;padding:.4rem .8rem;" onclick="exitImpersonation()">🔙 Exit Impersonation</button>' : '')
+      + '</div></div>';
+    el.innerHTML = banner;
+    el.style.display = 'block';
+  } catch (e) {
+    console.warn('loadDashTestBanner failed:', e);
+  }
+}
+window.loadDashTestBanner = loadDashTestBanner;
+
 // ═══ Group Member Profile Modal (F7) ═══
 async function openGroupMemberProfile(memberId) {
   const overlay = document.getElementById('group-member-profile-overlay');
@@ -13325,6 +13449,8 @@ window.routeForRole = async function() {
   if (currentAccount?.role === 'user' || currentAccount?.role === 'admin') {
     setTimeout(() => {
       loadDashboardMatchesAndGroups();
+      loadDashboardMatchesList();
+      loadDashTestBanner();
       loadDashboardLikesYouTeaser();
       loadNotifications();
     }, 300);
