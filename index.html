@@ -13309,10 +13309,13 @@ async function loadGroupDocuments() {
       : '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:#1E40AF;line-height:1.5;">'
         + '<strong>How signing works:</strong> Click each document below to read it, then type your full legal name and check the box to sign — <strong>in-app</strong>. All ' + totalDocs + ' members sign the <strong>same shared document</strong> in Supabase, not separate copies. Once every member has signed every document, the final signed PDF unlocks for everyone to download — identical for all parties.'
         + '</div>';
+    const editBtn = groupAllDone
+      ? ''
+      : '<button class="btn-outline" style="padding:.4rem .9rem;font-size:.78rem;border-radius:8px;border-width:1.5px;white-space:nowrap;" onclick="openEditFieldsModal()">✏️ Edit Document Details</button>';
     let html = '<div class="grp-docs-head">'
       + '<div><div class="grp-docs-title">📄 Co-Owner Documents — View, Sign &amp; Download</div>'
-      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All ' + totalDocs + ' Nexus Homes legal templates. Sign in-app — do not print and sign offline.</div></div>'
-      + headlineRight
+      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All ' + totalDocs + ' Nexus Homes legal templates. Customize details before signing — locked after first signature.</div></div>'
+      + '<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">' + editBtn + headlineRight + '</div>'
       + '</div>'
       + workflowBanner;
     docs.forEach(function(d) {
@@ -14001,6 +14004,197 @@ async function downloadAllSignedDocsPdf() {
   }
 }
 window.downloadAllSignedDocsPdf = downloadAllSignedDocsPdf;
+
+// ═══════════════════════════════════════════════════════════════════
+// EDIT DOCUMENT FIELDS (property details, thresholds, ownership %s)
+// ═══════════════════════════════════════════════════════════════════
+let _editFieldsState = null;
+
+async function openEditFieldsModal() {
+  if (!_activeGroupId) { showToast('No active group.', 'error'); return; }
+  const modal = document.getElementById('edit-fields-modal');
+  const body = document.getElementById('edit-fields-body');
+  const saveBtn = document.getElementById('edit-fields-save-btn');
+  body.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:1.5rem;">Loading editable fields…</div>';
+  saveBtn.disabled = true;
+  modal.classList.add('active');
+  try {
+    const { data, error } = await sb.rpc('get_editable_doc_fields', { p_group_id: _activeGroupId });
+    if (error) throw error;
+    if (data && data.error === 'not_a_member') {
+      body.innerHTML = '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;"><strong>Not a group member.</strong> Only group members can edit document details.</div>';
+      return;
+    }
+    _editFieldsState = data || {};
+    renderEditFieldsForm();
+    saveBtn.disabled = !!data.locked;
+  } catch (e) {
+    console.error('openEditFieldsModal failed:', e);
+    body.innerHTML = '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;"><strong>Could not load fields.</strong> ' + escapeHtml(e.message || String(e)) + '</div>';
+  }
+}
+window.openEditFieldsModal = openEditFieldsModal;
+
+function closeEditFieldsModal() {
+  document.getElementById('edit-fields-modal').classList.remove('active');
+  _editFieldsState = null;
+}
+window.closeEditFieldsModal = closeEditFieldsModal;
+
+function renderEditFieldsForm() {
+  const body = document.getElementById('edit-fields-body');
+  if (!body || !_editFieldsState) return;
+  const s = _editFieldsState.scalar_fields || {};
+  const eq = _editFieldsState.member_equity || [];
+  const locked = !!_editFieldsState.locked;
+
+  const lockedBanner = locked
+    ? '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;color:#991B1B;font-size:.85rem;"><strong>🔒 Locked.</strong> ' + escapeHtml(_editFieldsState.locked_reason || 'Fields cannot be edited once signatures exist.') + '</div>'
+    : '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;color:#1E40AF;font-size:.82rem;line-height:1.5;">Edits here apply to <strong>all 6 documents</strong>. Saving regenerates the merge fields and re-renders every document. Once any member signs <strong>any</strong> document, this entire panel locks.</div>';
+
+  const disabledAttr = locked ? 'disabled' : '';
+
+  let memberRows = '';
+  eq.forEach(function(m, idx) {
+    const pct = m.ownership_pct != null ? Number(m.ownership_pct).toFixed(2) : '';
+    const init = m.initial_contribution != null ? Number(m.initial_contribution).toFixed(2) : '';
+    const mo = m.monthly_contribution != null ? Number(m.monthly_contribution).toFixed(2) : '';
+    memberRows += '<tr>'
+      + '<td style="padding:.5rem .55rem;font-weight:700;color:var(--navy);font-size:.85rem;">' + escapeHtml(m.name || 'Co-Owner ' + (idx + 1)) + '</td>'
+      + '<td style="padding:.4rem .3rem;"><input type="number" step="0.01" min="0" max="100" class="up-modal-input ef-pct" data-account="' + escapeHtml(m.account_id) + '" value="' + escapeHtml(pct) + '" placeholder="50.00" ' + disabledAttr + ' style="width:100%;font-size:.85rem;padding:.45rem .55rem;"></td>'
+      + '<td style="padding:.4rem .3rem;"><input type="number" step="0.01" min="0" class="up-modal-input ef-init" data-account="' + escapeHtml(m.account_id) + '" value="' + escapeHtml(init) + '" placeholder="0.00" ' + disabledAttr + ' style="width:100%;font-size:.85rem;padding:.45rem .55rem;"></td>'
+      + '<td style="padding:.4rem .3rem;"><input type="number" step="0.01" min="0" class="up-modal-input ef-mo" data-account="' + escapeHtml(m.account_id) + '" value="' + escapeHtml(mo) + '" placeholder="0.00" ' + disabledAttr + ' style="width:100%;font-size:.85rem;padding:.45rem .55rem;"></td>'
+      + '</tr>';
+  });
+
+  body.innerHTML = lockedBanner
+    + '<div style="margin-bottom:1.25rem;">'
+    + '<div style="font-weight:800;color:var(--navy);font-size:.92rem;margin-bottom:.6rem;">Property Details</div>'
+    + '<div style="display:grid;gap:.75rem;">'
+    + '<div><label class="up-modal-label">Property Address</label><input type="text" id="ef-property_address" class="up-modal-input" value="' + escapeHtml(s.property_address || '') + '" placeholder="123 Main St" ' + disabledAttr + '></div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.55rem;">'
+    + '<div><label class="up-modal-label">City, State, ZIP</label><input type="text" id="ef-property_city_state_zip" class="up-modal-input" value="' + escapeHtml(s.property_city_state_zip || '') + '" placeholder="Vacaville, CA 95687" ' + disabledAttr + '></div>'
+    + '<div><label class="up-modal-label">APN</label><input type="text" id="ef-property_apn" class="up-modal-input" value="' + escapeHtml(s.property_apn || '') + '" placeholder="000-000-000" ' + disabledAttr + '></div>'
+    + '</div>'
+    + '</div></div>'
+    + '<div style="margin-bottom:1.25rem;">'
+    + '<div style="font-weight:800;color:var(--navy);font-size:.92rem;margin-bottom:.6rem;">Decision Thresholds &amp; Date</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.55rem;">'
+    + '<div><label class="up-modal-label">Minor Threshold</label><input type="text" id="ef-minor_threshold" class="up-modal-input" value="' + escapeHtml(s.minor_threshold || '') + '" placeholder="$500" ' + disabledAttr + '></div>'
+    + '<div><label class="up-modal-label">Major Threshold</label><input type="text" id="ef-major_threshold" class="up-modal-input" value="' + escapeHtml(s.major_threshold || '') + '" placeholder="$5,000" ' + disabledAttr + '></div>'
+    + '<div><label class="up-modal-label">Date of Agreement</label><input type="text" id="ef-date_of_agreement" class="up-modal-input" value="' + escapeHtml(s.date_of_agreement || '') + '" placeholder="May 22, 2026" ' + disabledAttr + '></div>'
+    + '</div></div>'
+    + '<div style="margin-bottom:.5rem;">'
+    + '<div style="font-weight:800;color:var(--navy);font-size:.92rem;margin-bottom:.4rem;">Ownership Splits &amp; Contributions</div>'
+    + '<div style="font-size:.76rem;color:var(--gray-text);margin-bottom:.55rem;">Ownership %s must sum to 100. Leave initial/monthly contributions blank to keep them as "$ ______" placeholders in the documents.</div>'
+    + '<table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;font-size:.82rem;">'
+    + '<thead><tr style="background:#F9FAFB;"><th style="text-align:left;padding:.55rem .6rem;font-weight:700;color:var(--navy);">Co-Owner</th><th style="text-align:left;padding:.55rem .3rem;font-weight:700;color:var(--navy);width:22%;">Ownership %</th><th style="text-align:left;padding:.55rem .3rem;font-weight:700;color:var(--navy);width:25%;">Initial $</th><th style="text-align:left;padding:.55rem .3rem;font-weight:700;color:var(--navy);width:25%;">Monthly $</th></tr></thead>'
+    + '<tbody>' + memberRows + '</tbody>'
+    + '</table>'
+    + '<div id="ef-pct-warning" style="font-size:.78rem;font-weight:700;margin-top:.5rem;display:none;"></div>'
+    + '</div>';
+
+  // Wire ownership % live-sum validator
+  body.querySelectorAll('.ef-pct').forEach(function(inp) {
+    inp.addEventListener('input', _refreshEditFieldsPctSum);
+  });
+  _refreshEditFieldsPctSum();
+}
+
+function _refreshEditFieldsPctSum() {
+  const inputs = document.querySelectorAll('.ef-pct');
+  let sum = 0;
+  let anyFilled = false;
+  inputs.forEach(function(i) {
+    const v = parseFloat(i.value);
+    if (!isNaN(v)) { sum += v; anyFilled = true; }
+  });
+  const warn = document.getElementById('ef-pct-warning');
+  if (!warn) return;
+  if (!anyFilled) {
+    warn.style.display = 'none';
+    return;
+  }
+  const rounded = Math.round(sum * 100) / 100;
+  if (Math.abs(rounded - 100) < 0.01) {
+    warn.style.display = 'block';
+    warn.style.color = '#065F46';
+    warn.textContent = '✓ Ownership sums to 100.00%';
+  } else {
+    warn.style.display = 'block';
+    warn.style.color = '#991B1B';
+    warn.textContent = '⚠ Ownership sums to ' + rounded.toFixed(2) + '% (must equal 100.00%)';
+  }
+}
+
+async function submitEditFields() {
+  if (!_activeGroupId) return;
+  if (_editFieldsState && _editFieldsState.locked) {
+    showToast('Editing is locked — signatures already exist.', 'error');
+    return;
+  }
+
+  // Build scalar overrides — only include non-empty values that user actually filled
+  const scalarKeys = ['property_address','property_city_state_zip','property_apn','minor_threshold','major_threshold','date_of_agreement'];
+  const scalar = {};
+  scalarKeys.forEach(function(k) {
+    const el = document.getElementById('ef-' + k);
+    if (el) {
+      const v = (el.value || '').trim();
+      if (v) scalar[k] = v;
+    }
+  });
+
+  // Validate ownership % sum
+  const pctInputs = document.querySelectorAll('.ef-pct');
+  const equity = [];
+  let totalPct = 0;
+  let anyPctFilled = false;
+  pctInputs.forEach(function(inp) {
+    const accountId = inp.getAttribute('data-account');
+    const pctRaw = (inp.value || '').trim();
+    const initRaw = (document.querySelector('.ef-init[data-account="' + accountId + '"]') || {}).value || '';
+    const moRaw = (document.querySelector('.ef-mo[data-account="' + accountId + '"]') || {}).value || '';
+    const pct = pctRaw === '' ? null : parseFloat(pctRaw);
+    if (pct != null && !isNaN(pct)) { totalPct += pct; anyPctFilled = true; }
+    equity.push({
+      account_id: accountId,
+      ownership_pct: pctRaw,
+      initial_contribution: (initRaw || '').trim(),
+      monthly_contribution: (moRaw || '').trim()
+    });
+  });
+
+  if (anyPctFilled && Math.abs(Math.round(totalPct * 100) / 100 - 100) >= 0.01) {
+    showToast('Ownership %s must sum to exactly 100.00%. Current total: ' + totalPct.toFixed(2) + '%', 'error');
+    return;
+  }
+
+  const saveBtn = document.getElementById('edit-fields-save-btn');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+
+  try {
+    const { data, error } = await sb.rpc('update_editable_doc_fields', {
+      p_group_id: _activeGroupId,
+      p_scalar_overrides: scalar,
+      p_member_equity: anyPctFilled ? equity : null
+    });
+    if (error) throw error;
+    if (data && data.error) {
+      showToast(data.message || data.error, 'error');
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save & Regenerate Docs'; }
+      return;
+    }
+    showToast('✓ Details saved. All 6 documents regenerated.', 'success');
+    closeEditFieldsModal();
+    await loadGroupDocuments();
+  } catch (e) {
+    console.error('submitEditFields failed:', e);
+    showToast('Save failed: ' + (e.message || e), 'error');
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save & Regenerate Docs'; }
+  }
+}
+window.submitEditFields = submitEditFields;
 
 async function loadGroupChat() {
   const t = document.getElementById('grp-chat-thread');
@@ -16532,5 +16726,25 @@ showView = function(viewName) {
     </div>
   </div>
 </div>
+<!-- ══════════════════════ EDIT DOCUMENT FIELDS MODAL ══════════════════════ -->
+<div class="up-modal" id="edit-fields-modal" onclick="if(event.target===this)closeEditFieldsModal()">
+  <div class="up-modal-card" style="max-width:720px;">
+    <div class="up-modal-head">
+      <div>
+        <div class="up-modal-title">✏️ Edit Document Details</div>
+        <div style="font-size:.74rem;color:var(--gray-text);">Customize property info, thresholds, and ownership splits. Locks after first signature.</div>
+      </div>
+      <button class="doc-modal-close" onclick="closeEditFieldsModal()">×</button>
+    </div>
+    <div class="up-modal-body" id="edit-fields-body" style="max-height:70vh;overflow-y:auto;">
+      <div style="text-align:center;color:var(--gray-text);padding:1.5rem;">Loading…</div>
+    </div>
+    <div class="up-modal-foot">
+      <button class="btn-outline" onclick="closeEditFieldsModal()">Cancel</button>
+      <button class="btn-primary" id="edit-fields-save-btn" onclick="submitEditFields()">Save &amp; Regenerate Docs</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
