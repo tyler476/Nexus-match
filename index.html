@@ -255,6 +255,89 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);padding:2.5rem 1.5rem;f
 
 
 #user-demo-grid{display:none !important;}
+
+/* ═══ Co-Owner Documents ═══ */
+.grp-docs-section{background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;}
+.grp-docs-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;gap:.5rem;flex-wrap:wrap;}
+.grp-docs-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;}
+.grp-docs-progress{font-size:.78rem;color:var(--gray-text);font-weight:600;}
+.doc-card{border:1.5px solid var(--gray);border-radius:10px;padding:.85rem 1.1rem;margin-bottom:.6rem;background:#fff;transition:border-color .15s;cursor:pointer;}
+.doc-card:hover{border-color:var(--blue);}
+.doc-card.signed{background:#ECFDF5;border-color:#10B981;}
+.doc-card-head{display:flex;align-items:center;justify-content:space-between;gap:.7rem;margin-bottom:.35rem;}
+.doc-card-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.92rem;}
+.doc-card-status{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:.25rem .55rem;border-radius:10px;}
+.doc-status-pending{background:#FEF3C7;color:#92400E;}
+.doc-status-signed{background:#D1FAE5;color:#065F46;}
+.doc-status-declined{background:#FEE2E2;color:#991B1B;}
+.doc-card-meta{font-size:.74rem;color:var(--gray-text);}
+.doc-card-signers{display:flex;gap:.3rem;margin-top:.45rem;flex-wrap:wrap;}
+.doc-signer-chip{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;background:#F3F4F6;color:#374151;padding:.2rem .55rem;border-radius:8px;font-weight:600;}
+.doc-signer-chip.signed{background:#D1FAE5;color:#065F46;}
+.doc-signer-chip.declined{background:#FEE2E2;color:#991B1B;}
+
+/* Document reader modal */
+.doc-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9000;display:none;align-items:center;justify-content:center;padding:1rem;overflow-y:auto;}
+.doc-modal.active{display:flex;}
+.doc-modal-card{background:#fff;width:100%;max-width:780px;max-height:92vh;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.doc-modal-head{padding:1.1rem 1.5rem;border-bottom:1px solid var(--gray);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.doc-modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.15rem;}
+.doc-modal-close{background:transparent;border:0;font-size:1.4rem;cursor:pointer;color:var(--gray-text);padding:.25rem .5rem;border-radius:6px;}
+.doc-modal-close:hover{background:#F3F4F6;}
+.doc-modal-body{padding:1.5rem 2rem;overflow-y:auto;flex:1;font-size:.92rem;line-height:1.65;color:#1f2937;}
+.doc-modal-body h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:var(--navy);margin:0 0 1rem;}
+.doc-modal-body h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:800;color:var(--navy);margin:1.5rem 0 .55rem;}
+.doc-modal-body h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);margin:1.1rem 0 .5rem;}
+.doc-modal-body p{margin:.5rem 0;}
+.doc-modal-body ul,.doc-modal-body ol{margin:.5rem 0 .5rem 1.5rem;}
+.doc-modal-body li{margin:.25rem 0;}
+.doc-modal-body strong{color:#0f172a;font-weight:700;}
+.doc-modal-body em{font-style:italic;color:#4b5563;}
+.doc-modal-body table{border-collapse:collapse;margin:.85rem 0;width:100%;}
+.doc-modal-body th,.doc-modal-body td{border:1px solid #e5e7eb;padding:.5rem .75rem;text-align:left;font-size:.88rem;}
+.doc-modal-body th{background:#F9FAFB;font-weight:700;}
+.doc-modal-foot{padding:1.1rem 1.5rem;border-top:1px solid var(--gray);background:#F9FAFB;}
+.doc-sign-grid{display:grid;grid-template-columns:1fr auto;gap:.7rem;align-items:end;}
+.doc-sign-row{display:flex;gap:.55rem;align-items:flex-start;margin-bottom:.7rem;}
+.doc-sign-row input[type=checkbox]{margin-top:.2rem;}
+.doc-sign-label{font-size:.85rem;line-height:1.5;color:#374151;}
+.doc-sign-input{font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;padding:.6rem .9rem;border:1.5px solid var(--gray);border-radius:8px;font-weight:700;letter-spacing:.5px;width:100%;}
+.doc-sign-input:focus{outline:none;border-color:var(--blue);}
+.doc-already-signed{background:#D1FAE5;color:#065F46;padding:.85rem 1rem;border-radius:8px;font-size:.85rem;text-align:center;font-weight:700;}
+
+
+/* ═══ Pre-approval form + summary ═══ */
+.grp-pa-section{background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;}
+.grp-pa-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;gap:.5rem;flex-wrap:wrap;}
+.grp-pa-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;}
+.grp-pa-summary{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:.9rem 1.1rem;margin-bottom:.85rem;}
+.grp-pa-summary-row{display:flex;justify-content:space-between;padding:.2rem 0;font-size:.84rem;}
+.grp-pa-summary-row strong{color:var(--navy);font-weight:800;}
+.grp-pa-members{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.85rem;}
+.grp-pa-member{display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;background:#fff;border:1px solid #E5E7EB;border-radius:8px;font-size:.85rem;}
+.grp-pa-member.submitted{background:#ECFDF5;border-color:#A7F3D0;}
+.grp-pa-status-chip{font-size:.7rem;font-weight:800;padding:.2rem .55rem;border-radius:10px;text-transform:uppercase;letter-spacing:.4px;}
+.pa-st-not_started{background:#F3F4F6;color:#6B7280;}
+.pa-st-in_progress{background:#FEF3C7;color:#92400E;}
+.pa-st-submitted{background:#D1FAE5;color:#065F46;}
+
+/* Pre-approval form modal */
+.pa-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9000;display:none;align-items:center;justify-content:center;padding:1rem;}
+.pa-modal.active{display:flex;}
+.pa-modal-card{background:#fff;width:100%;max-width:780px;max-height:92vh;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;}
+.pa-modal-head{padding:1.1rem 1.5rem;border-bottom:1px solid var(--gray);display:flex;justify-content:space-between;align-items:center;}
+.pa-modal-body{padding:1.5rem 2rem;overflow-y:auto;flex:1;}
+.pa-modal-foot{padding:1rem 1.5rem;border-top:1px solid var(--gray);background:#F9FAFB;display:flex;justify-content:flex-end;gap:.5rem;}
+.pa-section{margin-bottom:1.6rem;}
+.pa-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:.92rem;margin-bottom:.7rem;border-bottom:1px solid var(--gray);padding-bottom:.4rem;}
+.pa-row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.7rem;}
+.pa-field{display:flex;flex-direction:column;gap:.3rem;}
+.pa-field.full{grid-column:1 / -1;}
+.pa-field label{font-size:.74rem;font-weight:700;color:#374151;}
+.pa-field input,.pa-field select,.pa-field textarea{font-family:inherit;font-size:.88rem;padding:.5rem .7rem;border:1.5px solid var(--gray);border-radius:7px;}
+.pa-field input:focus,.pa-field select:focus,.pa-field textarea:focus{outline:none;border-color:var(--blue);}
+.pa-check-row{display:flex;align-items:flex-start;gap:.5rem;font-size:.85rem;color:#374151;line-height:1.45;margin-bottom:.5rem;}
+
 </style>
 <style id="part2-styles">
 /* ── FORM VIEW ── */
@@ -12774,7 +12857,450 @@ async function loadGroupDashboard() {
     act.innerHTML = `<div style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(37,99,235,.04));border:1.5px solid rgba(16,185,129,.3);border-radius:12px;padding:1.25rem;text-align:center;"><div style="font-weight:800;color:#15803D;font-size:1.05rem;">✅ Realtor Confirmed</div><div style="font-size:.85rem;color:var(--gray-text);margin:.3rem 0;">Contact info shared with all parties.</div></div>`;
   }
   await loadGroupChat();
+  await loadGroupPreapproval();
+  await loadGroupDocuments();
 }
+
+// ═══ Pre-Approval ═══
+async function loadGroupPreapproval() {
+  const section = document.getElementById('grp-preapproval-section');
+  if (!section || !_activeGroupId) return;
+  try {
+    const { data: summary, error } = await sb.rpc('get_group_preapproval_summary', { p_group_id: _activeGroupId });
+    if (error) { console.warn('preapproval summary error:', error); section.style.display='none'; return; }
+    if (!summary) { section.style.display='none'; return; }
+    section.style.display = 'block';
+    section.className = 'grp-pa-section';
+
+    const allDone = summary.all_submitted;
+    const headerRight = allDone
+      ? '<span style="background:#D1FAE5;color:#065F46;padding:.3rem .65rem;border-radius:10px;font-size:.72rem;font-weight:800;">✓ ALL SUBMITTED</span>'
+      : '<span style="font-size:.78rem;color:var(--gray-text);font-weight:600;">' + summary.submitted_count + ' of ' + summary.total_members + ' submitted</span>';
+    let h = '<div class="grp-pa-head">'
+      + '<div><div class="grp-pa-title">💼 Pre-Approval</div>'
+      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">Each Co-Owner submits their own financials. Combined totals power the ownership %s on your signed docs.</div></div>'
+      + headerRight + '</div>';
+
+    // Group summary card (only shows aggregate, no personal detail)
+    if (summary.submitted_count > 0) {
+      const fmt = function(n) { return '$' + Math.round(n||0).toLocaleString(); };
+      h += '<div class="grp-pa-summary">'
+        + '<div class="grp-pa-summary-row"><span>Combined monthly income</span><strong>' + fmt(summary.combined_monthly_income) + '</strong></div>'
+        + '<div class="grp-pa-summary-row"><span>Combined monthly debts</span><strong>' + fmt(summary.combined_monthly_debts) + '</strong></div>'
+        + '<div class="grp-pa-summary-row"><span>Combined down payment available</span><strong>' + fmt(summary.combined_down_payment) + '</strong></div>'
+        + (summary.combined_dti_pct !== null
+            ? '<div class="grp-pa-summary-row"><span>Aggregate DTI</span><strong>' + summary.combined_dti_pct + '%</strong></div>'
+            : '')
+        + '</div>';
+    }
+
+    // Per-member status
+    h += '<div class="grp-pa-members">';
+    (summary.members || []).forEach(function(m) {
+      const st = m.status || 'not_started';
+      const stLabel = st === 'submitted' ? 'Submitted' : (st === 'in_progress' ? 'In Progress' : 'Not Started');
+      const me = m.is_me;
+      const actionBtn = me && st !== 'submitted'
+        ? '<button class="btn-mini btn-mini-primary" onclick="openPreapprovalModal()">' + (st === 'in_progress' ? 'Continue →' : 'Start →') + '</button>'
+        : (me && st === 'submitted' ? '<button class="btn-mini btn-mini-secondary" onclick="openPreapprovalModal()">Edit</button>' : '');
+      h += '<div class="grp-pa-member ' + (st==='submitted'?'submitted':'') + '">'
+        + '<div style="display:flex;align-items:center;gap:.6rem;">'
+        + '<strong>' + escapeHtml(me ? 'You' : (m.name || 'Unknown')) + '</strong>'
+        + '<span class="grp-pa-status-chip pa-st-' + st + '">' + stLabel + '</span>'
+        + '</div>'
+        + actionBtn
+        + '</div>';
+    });
+    h += '</div>';
+
+    section.innerHTML = h;
+  } catch (e) {
+    console.warn('loadGroupPreapproval failed:', e);
+    section.style.display = 'none';
+  }
+}
+window.loadGroupPreapproval = loadGroupPreapproval;
+
+// ── Open the pre-approval form modal (loads existing draft if any)
+async function openPreapprovalModal() {
+  const modal = document.getElementById('pa-modal');
+  const body = document.getElementById('pa-modal-body');
+  body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-text);">Loading…</div>';
+  modal.classList.add('active');
+  let existing = {};
+  try {
+    const { data } = await sb.rpc('get_my_preapproval', { p_group_id: _activeGroupId });
+    existing = data || {};
+  } catch (e) {}
+
+  function v(k, def) { return existing[k] != null ? existing[k] : (def || ''); }
+  function num(k) { return existing[k] != null ? existing[k] : ''; }
+  function bool(k) { return existing[k] === true ? 'checked' : ''; }
+
+  body.innerHTML = `
+<div class="pa-section">
+  <div class="pa-section-title">Employment</div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Employer</label><input id="pa-employer_name" value="${escapeHtml(v('employer_name'))}"></div>
+    <div class="pa-field"><label>Job Title</label><input id="pa-job_title" value="${escapeHtml(v('job_title'))}"></div>
+  </div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Employment Type</label>
+      <select id="pa-employment_type">
+        <option value="">— Select —</option>
+        <option ${v('employment_type')==='W-2 employee'?'selected':''}>W-2 employee</option>
+        <option ${v('employment_type')==='1099 / contractor'?'selected':''}>1099 / contractor</option>
+        <option ${v('employment_type')==='Self-employed / business owner'?'selected':''}>Self-employed / business owner</option>
+        <option ${v('employment_type')==='Active military'?'selected':''}>Active military</option>
+        <option ${v('employment_type')==='Retired'?'selected':''}>Retired</option>
+        <option ${v('employment_type')==='Other'?'selected':''}>Other</option>
+      </select>
+    </div>
+    <div class="pa-field"><label>Years at Employer</label><input type="number" step="0.5" id="pa-years_at_employer" value="${num('years_at_employer')}"></div>
+  </div>
+</div>
+
+<div class="pa-section">
+  <div class="pa-section-title">Monthly Income (Gross)</div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Base monthly income ($)</label><input type="number" step="100" id="pa-base_monthly_income" value="${num('base_monthly_income')}"></div>
+    <div class="pa-field"><label>Bonus / commission (monthly avg, $)</label><input type="number" step="100" id="pa-bonus_commission_monthly" value="${num('bonus_commission_monthly')}"></div>
+  </div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Other monthly income ($)</label><input type="number" step="100" id="pa-other_income_monthly" value="${num('other_income_monthly')}"></div>
+    <div class="pa-field"><label>Other income source</label><input id="pa-other_income_source" value="${escapeHtml(v('other_income_source'))}" placeholder="Rental, alimony, etc."></div>
+  </div>
+</div>
+
+<div class="pa-section">
+  <div class="pa-section-title">Assets</div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Checking + savings balance ($)</label><input type="number" step="500" id="pa-checking_savings_balance" value="${num('checking_savings_balance')}"></div>
+    <div class="pa-field"><label>Retirement (401k, IRA) ($)</label><input type="number" step="500" id="pa-retirement_balance" value="${num('retirement_balance')}"></div>
+  </div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Investments / brokerage ($)</label><input type="number" step="500" id="pa-investment_balance" value="${num('investment_balance')}"></div>
+    <div class="pa-field"><label>Gift funds available ($)</label><input type="number" step="500" id="pa-gift_funds_amount" value="${num('gift_funds_amount')}"></div>
+  </div>
+  <div class="pa-row">
+    <div class="pa-field full"><label>Gift funds source (if any)</label><input id="pa-gift_funds_source" value="${escapeHtml(v('gift_funds_source'))}" placeholder="Parent, family member, etc."></div>
+  </div>
+</div>
+
+<div class="pa-section">
+  <div class="pa-section-title">Monthly Debts</div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Existing mortgage / rent ($)</label><input type="number" step="50" id="pa-existing_mortgage_payment" value="${num('existing_mortgage_payment')}"></div>
+    <div class="pa-field"><label>Auto loan ($)</label><input type="number" step="50" id="pa-auto_loan_payment" value="${num('auto_loan_payment')}"></div>
+  </div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Credit card minimums (total $)</label><input type="number" step="25" id="pa-credit_card_minimums" value="${num('credit_card_minimums')}"></div>
+    <div class="pa-field"><label>Student loans ($)</label><input type="number" step="25" id="pa-student_loan_payment" value="${num('student_loan_payment')}"></div>
+  </div>
+  <div class="pa-row">
+    <div class="pa-field full"><label>Other monthly debt ($)</label><input type="number" step="50" id="pa-other_debt_payment" value="${num('other_debt_payment')}"></div>
+  </div>
+</div>
+
+<div class="pa-section">
+  <div class="pa-section-title">Credit & Down Payment</div>
+  <div class="pa-row">
+    <div class="pa-field"><label>Credit score band (self-reported)</label>
+      <select id="pa-credit_band">
+        <option value="">— Select —</option>
+        <option value="740+" ${v('credit_band')==='740+'?'selected':''}>740+</option>
+        <option value="700-739" ${v('credit_band')==='700-739'?'selected':''}>700–739</option>
+        <option value="660-699" ${v('credit_band')==='660-699'?'selected':''}>660–699</option>
+        <option value="620-659" ${v('credit_band')==='620-659'?'selected':''}>620–659</option>
+        <option value="below_620" ${v('credit_band')==='below_620'?'selected':''}>Below 620</option>
+        <option value="dont_know" ${v('credit_band')==='dont_know'?'selected':''}>I don't know</option>
+      </select>
+    </div>
+    <div class="pa-field"><label>Down payment you'll contribute ($)</label><input type="number" step="1000" id="pa-down_payment_available" value="${num('down_payment_available')}"></div>
+  </div>
+</div>
+
+<div class="pa-section">
+  <div class="pa-section-title">Service & Eligibility</div>
+  <div class="pa-check-row">
+    <input type="checkbox" id="pa-is_military_veteran" ${bool('is_military_veteran')}>
+    <label for="pa-is_military_veteran">I'm active military or a veteran</label>
+  </div>
+  <div class="pa-check-row">
+    <input type="checkbox" id="pa-is_first_responder" ${bool('is_first_responder')}>
+    <label for="pa-is_first_responder">I'm a first responder (police, fire, EMS)</label>
+  </div>
+  <div class="pa-check-row">
+    <input type="checkbox" id="pa-va_loan_eligible" ${bool('va_loan_eligible')}>
+    <label for="pa-va_loan_eligible">I'm eligible for a VA loan</label>
+  </div>
+</div>
+
+<div class="pa-section">
+  <div class="pa-section-title">Disclosures</div>
+  <div class="pa-check-row">
+    <input type="checkbox" id="pa-disclosure_bankruptcy_7y" ${bool('disclosure_bankruptcy_7y')}>
+    <label for="pa-disclosure_bankruptcy_7y">I've filed for bankruptcy in the past 7 years</label>
+  </div>
+  <div class="pa-check-row">
+    <input type="checkbox" id="pa-disclosure_foreclosure_7y" ${bool('disclosure_foreclosure_7y')}>
+    <label for="pa-disclosure_foreclosure_7y">I've had a foreclosure or short-sale in the past 7 years</label>
+  </div>
+  <div class="pa-check-row">
+    <input type="checkbox" id="pa-disclosure_litigation" ${bool('disclosure_litigation')}>
+    <label for="pa-disclosure_litigation">I'm currently a party to active litigation that could affect my finances</label>
+  </div>
+  <div class="pa-row">
+    <div class="pa-field full"><label>Notes (optional)</label><textarea id="pa-disclosure_notes" rows="2" placeholder="Anything else you'd want a lender to know">${escapeHtml(v('disclosure_notes'))}</textarea></div>
+  </div>
+</div>
+
+<div style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:.7rem 1rem;border-radius:6px;font-size:.78rem;color:#92400E;line-height:1.45;">
+  <strong>How this is used:</strong> Citizens Financial reviews your combined group submission to issue a preliminary pre-qualification. Your individual numbers stay private to you and the lender — your group only sees the combined totals and your own contribution % on the signed docs.
+</div>
+`;
+}
+window.openPreapprovalModal = openPreapprovalModal;
+function closePreapprovalModal() { document.getElementById('pa-modal').classList.remove('active'); }
+window.closePreapprovalModal = closePreapprovalModal;
+
+async function savePreapproval(finalize) {
+  const fields = [
+    'employer_name','job_title','employment_type','years_at_employer',
+    'base_monthly_income','bonus_commission_monthly','other_income_monthly','other_income_source',
+    'checking_savings_balance','retirement_balance','investment_balance','gift_funds_amount','gift_funds_source',
+    'existing_mortgage_payment','auto_loan_payment','credit_card_minimums','student_loan_payment','other_debt_payment',
+    'credit_band','down_payment_available','disclosure_notes'
+  ];
+  const checks = ['is_military_veteran','is_first_responder','va_loan_eligible','disclosure_bankruptcy_7y','disclosure_foreclosure_7y','disclosure_litigation'];
+  const data = {};
+  fields.forEach(function(f) {
+    const el = document.getElementById('pa-' + f);
+    if (el) data[f] = el.value || null;
+  });
+  checks.forEach(function(c) {
+    const el = document.getElementById('pa-' + c);
+    if (el) data[c] = !!el.checked;
+  });
+
+  if (finalize) {
+    // Light validation on finalize
+    if (!data.base_monthly_income) { showToast('Please enter your base monthly income before submitting.', 'error'); return; }
+    if (!data.down_payment_available) { showToast('Please enter your down payment contribution.', 'error'); return; }
+    if (!data.credit_band) { showToast('Please select a credit score band.', 'error'); return; }
+  }
+  try {
+    const { data: resp, error } = await sb.rpc('upsert_my_preapproval', {
+      p_group_id: _activeGroupId, p_data: data, p_finalize: !!finalize
+    });
+    if (error) throw error;
+    if (resp && resp.error) { showToast(resp.error, 'error'); return; }
+    showToast(finalize ? '✓ Pre-approval submitted.' : 'Draft saved.', 'success');
+    closePreapprovalModal();
+    await loadGroupPreapproval();
+    await loadGroupDocuments(); // docs regenerate with real %s when submitted
+    if (typeof loadUnifiedRelationships === 'function') loadUnifiedRelationships();
+  } catch (e) {
+    showToast('Save failed: ' + (e.message || e), 'error');
+  }
+}
+window.savePreapproval = savePreapproval;
+
+// ═══ Co-Owner Documents (Phase 1 of docs system) ═══
+// Templates are server-rendered with member data. Renders as markdown in a
+// modal. Each member signs individually; all-signed unlocks realtor selection.
+
+// Tiny markdown→HTML renderer. Handles headers, bold/italic, lists, tables,
+// paragraphs. Sufficient for the structured templates we generate.
+function mdToHtml(md) {
+  if (!md) return '';
+  // Normalize line endings
+  md = md.replace(/\r\n/g, '\n');
+  const lines = md.split('\n');
+  const out = [];
+  let i = 0;
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function inline(s) {
+    s = esc(s);
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+    s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+    return s;
+  }
+  while (i < lines.length) {
+    const line = lines[i];
+    // Headings
+    let m = /^(#{1,6})\s+(.*)$/.exec(line);
+    if (m) { out.push('<h' + m[1].length + '>' + inline(m[2]) + '</h' + m[1].length + '>'); i++; continue; }
+    // Table — header row followed by ---|--- divider
+    if (/^\s*\|.+\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|[\s\-:|]+\|\s*$/.test(lines[i+1])) {
+      const headers = line.split('|').slice(1,-1).map(s => s.trim());
+      i += 2;
+      const rows = [];
+      while (i < lines.length && /^\s*\|.+\|\s*$/.test(lines[i])) {
+        rows.push(lines[i].split('|').slice(1,-1).map(s => s.trim()));
+        i++;
+      }
+      let table = '<table><thead><tr>' + headers.map(h => '<th>' + inline(h) + '</th>').join('') + '</tr></thead><tbody>';
+      rows.forEach(r => { table += '<tr>' + r.map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>'; });
+      table += '</tbody></table>';
+      out.push(table);
+      continue;
+    }
+    // Unordered list
+    if (/^\s*-\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\s*-\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^\s*-\s+/, ''));
+        i++;
+      }
+      out.push('<ul>' + items.map(it => '<li>' + inline(it) + '</li>').join('') + '</ul>');
+      continue;
+    }
+    // Ordered list
+    if (/^\s*\d+\.\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^\s*\d+\.\s+/, ''));
+        i++;
+      }
+      out.push('<ol>' + items.map(it => '<li>' + inline(it) + '</li>').join('') + '</ol>');
+      continue;
+    }
+    // Empty line — paragraph break
+    if (line.trim() === '') { i++; continue; }
+    // Paragraph (gather contiguous non-empty non-special lines)
+    const para = [line];
+    i++;
+    while (i < lines.length && lines[i].trim() !== ''
+           && !/^#{1,6}\s/.test(lines[i])
+           && !/^\s*-\s+/.test(lines[i])
+           && !/^\s*\d+\.\s+/.test(lines[i])
+           && !/^\s*\|.+\|\s*$/.test(lines[i])) {
+      para.push(lines[i]); i++;
+    }
+    out.push('<p>' + inline(para.join(' ')) + '</p>');
+  }
+  return out.join('\n');
+}
+
+let _docModalCurrentId = null;
+
+async function loadGroupDocuments() {
+  const section = document.getElementById('grp-docs-section');
+  if (!section || !_activeGroupId) return;
+  try {
+    const { data: docs, error } = await sb.rpc('get_group_documents', { p_group_id: _activeGroupId });
+    if (error) { console.warn('get_group_documents error:', error); section.style.display='none'; return; }
+    if (!docs || docs.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    const totalDocs = docs.length;
+    const allSigned = docs.filter(d => d.my_status === 'signed').length;
+    const groupAllDone = docs.every(d => d.signed_count === d.total_signers);
+    const headlineRight = groupAllDone
+      ? '<span style="background:#D1FAE5;color:#065F46;padding:.3rem .65rem;border-radius:10px;font-size:.72rem;font-weight:800;">✓ ALL SIGNED</span>'
+      : '<span class="grp-docs-progress">' + allSigned + ' of ' + totalDocs + ' you signed</span>';
+    let html = '<div class="grp-docs-head">'
+      + '<div><div class="grp-docs-title">📄 Co-Owner Documents</div>'
+      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">These define how you co-own. All must be signed by all members before you can choose a realtor.</div></div>'
+      + headlineRight
+      + '</div>';
+    docs.forEach(function(d) {
+      const myStatus = d.my_status || 'pending';
+      const isSignedByMe = myStatus === 'signed';
+      const allDoneOnThisDoc = d.signed_count === d.total_signers;
+      const statusCls = allDoneOnThisDoc ? 'doc-status-signed' : (myStatus === 'declined' ? 'doc-status-declined' : 'doc-status-pending');
+      const statusLabel = allDoneOnThisDoc ? 'Fully Signed' : (isSignedByMe ? 'Waiting on others' : 'Awaiting your signature');
+      const signerChips = (d.signers || []).map(function(s) {
+        const sCls = s.status === 'signed' ? 'signed' : (s.status === 'declined' ? 'declined' : '');
+        const icon = s.status === 'signed' ? '✓' : (s.status === 'declined' ? '✕' : '○');
+        const nm = s.is_me ? 'You' : (s.name || 'Unknown').split(' ')[0];
+        return '<span class="doc-signer-chip ' + sCls + '">' + icon + ' ' + escapeHtml(nm) + '</span>';
+      }).join('');
+      html += '<div class="doc-card ' + (allDoneOnThisDoc ? 'signed' : '') + '" onclick="openDocModal(\'' + d.document_id + '\')">'
+        + '<div class="doc-card-head">'
+        + '<div class="doc-card-title">' + escapeHtml(d.title) + '</div>'
+        + '<span class="doc-card-status ' + statusCls + '">' + statusLabel + '</span>'
+        + '</div>'
+        + '<div class="doc-card-meta">Click to review & sign</div>'
+        + '<div class="doc-card-signers">' + signerChips + '</div>'
+        + '</div>';
+    });
+    section.className = 'grp-docs-section';
+    section.innerHTML = html;
+  } catch (e) {
+    console.warn('loadGroupDocuments failed:', e);
+    section.style.display = 'none';
+  }
+}
+window.loadGroupDocuments = loadGroupDocuments;
+
+async function openDocModal(docId) {
+  if (!docId) return;
+  _docModalCurrentId = docId;
+  const modal = document.getElementById('doc-modal');
+  const title = document.getElementById('doc-modal-title');
+  const body = document.getElementById('doc-modal-body');
+  const foot = document.getElementById('doc-modal-foot');
+  body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-text);">Loading…</div>';
+  foot.innerHTML = '';
+  modal.classList.add('active');
+  try {
+    const { data: docs } = await sb.rpc('get_group_documents', { p_group_id: _activeGroupId });
+    const doc = (docs || []).find(function(d) { return d.document_id === docId; });
+    if (!doc) { body.innerHTML = '<div style="color:#991B1B;text-align:center;">Document not found.</div>'; return; }
+    title.textContent = doc.title;
+    body.innerHTML = mdToHtml(doc.body_md);
+    if (doc.my_status === 'signed') {
+      const when = doc.my_signed_at ? new Date(doc.my_signed_at).toLocaleString() : '';
+      foot.innerHTML = '<div class="doc-already-signed">✓ You signed this document' + (when ? ' on ' + when : '') + '.</div>';
+    } else {
+      foot.innerHTML =
+        '<div class="doc-sign-row"><input type="checkbox" id="doc-sign-agree"><label for="doc-sign-agree" class="doc-sign-label">I have read this document and agree to be bound by its terms.</label></div>'
+        + '<div class="doc-sign-grid">'
+        + '<input class="doc-sign-input" id="doc-sign-name" placeholder="Type your full legal name to sign">'
+        + '<button class="btn-primary" style="padding:.7rem 1.5rem;" onclick="submitSignDoc()">Sign →</button>'
+        + '</div>';
+    }
+  } catch (e) {
+    body.innerHTML = '<div style="color:#991B1B;text-align:center;">Failed to load: ' + escapeHtml(e.message || String(e)) + '</div>';
+  }
+}
+window.openDocModal = openDocModal;
+
+function closeDocModal() {
+  document.getElementById('doc-modal').classList.remove('active');
+  _docModalCurrentId = null;
+}
+window.closeDocModal = closeDocModal;
+
+async function submitSignDoc() {
+  if (!_docModalCurrentId) return;
+  const nameInput = document.getElementById('doc-sign-name');
+  const agreeBox = document.getElementById('doc-sign-agree');
+  if (!nameInput || !agreeBox) return;
+  const typedName = (nameInput.value || '').trim();
+  const agreed = !!agreeBox.checked;
+  if (!agreed || typedName.length < 2) {
+    showToast('Check the agreement box and type your full name to sign.', 'error');
+    return;
+  }
+  try {
+    const { data, error } = await sb.rpc('sign_group_document', {
+      p_document_id: _docModalCurrentId, p_typed_name: typedName, p_agreed: agreed
+    });
+    if (error) throw error;
+    if (data && data.error) { showToast(data.error, 'error'); return; }
+    showToast('✓ Signed.', 'success');
+    closeDocModal();
+    await loadGroupDocuments();
+    if (typeof loadGroupChat === 'function') loadGroupChat();
+    if (typeof loadUnifiedRelationships === 'function') loadUnifiedRelationships();
+  } catch (e) {
+    showToast('Sign failed: ' + (e.message || e), 'error');
+  }
+}
+window.submitSignDoc = submitSignDoc;
 
 async function loadGroupChat() {
   const t = document.getElementById('grp-chat-thread');
@@ -13307,9 +13833,11 @@ async function loadUnifiedRelationships() {
       const m = matchByGroupId[g.group_id];
       return m && m.unread_count > 0;
     });
-    // Priority 2: a group that's ready for the user to act on (seeking_realtor > complete)
+    // Priority 2: any group with unsigned co-owner docs (waiting on me)
+    const docsToSignGroup = groups.find(g => g.docs_total > 0 && g.docs_my_signed < g.docs_total);
+    // Priority 3: a group that's ready for realtor (docs done + status flipped)
     const realtorReadyGroup = groups.find(g => g.status === 'seeking_realtor');
-    const preapprovalReadyGroup = groups.find(g => g.status === 'complete');
+    const preapprovalReadyGroup = groups.find(g => g.status === 'complete' && g.docs_group_complete);
     // Priority 3: group still needs members (forming)
     const formingGroup = groups.find(g => g.status === 'forming');
 
@@ -13324,6 +13852,17 @@ async function loadUnifiedRelationships() {
         + '<div class="rel-hero-sub">Reply to keep the conversation going.</div>'
         + '</div>'
         + '<button class="rel-hero-btn" onclick="openUserConv(\''+ m.match_id +'\')">Reply →</button>'
+        + '</div>';
+    } else if (docsToSignGroup) {
+      const others = (docsToSignGroup.members || []).filter(m=>!m.is_me).map(m=>(m.full_name||'?').split(' ')[0]).join(' & ');
+      const pending = docsToSignGroup.docs_total - docsToSignGroup.docs_my_signed;
+      heroHtml = '<div class="rel-hero" style="background:linear-gradient(135deg,#0EA5E9,#0369A1);">'
+        + '<div class="rel-hero-icon">📄</div>'
+        + '<div class="rel-hero-body">'
+        + '<div class="rel-hero-title">' + pending + ' co-owner document' + (pending===1?'':'s') + ' to sign with ' + escapeHtml(others) + '</div>'
+        + '<div class="rel-hero-sub">These define how you co-own. Required before you can choose a realtor.</div>'
+        + '</div>'
+        + '<button class="rel-hero-btn" onclick="_activeGroupId=\''+ docsToSignGroup.group_id +'\';showView(\'group-dashboard\')">Review →</button>'
         + '</div>';
     } else if (realtorReadyGroup) {
       const others = (realtorReadyGroup.members || []).filter(m=>!m.is_me).map(m=>(m.full_name||'?').split(' ')[0]).join(' & ');
@@ -13430,9 +13969,18 @@ async function loadUnifiedRelationships() {
         const need = g.desired_total - g.current_size;
         primaryBtn = '<button class="btn-mini btn-mini-primary" onclick="showView(\'discovery\')">🔍 Find ' + need + ' More</button>';
       } else if (g.status === 'complete') {
-        primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#8B5CF6;border-color:#8B5CF6;" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">📋 Start Pre-Approval</button>';
+        // Surface docs as the immediate action; pre-approval is a parallel step (Phase 2 build)
+        if (g.docs_group_complete) {
+          primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#8B5CF6;border-color:#8B5CF6;" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">📋 Start Pre-Approval</button>';
+        } else {
+          primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#0EA5E9;border-color:#0EA5E9;" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">📄 Sign Co-Owner Docs</button>';
+        }
       } else if (g.status === 'seeking_realtor') {
-        primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#10B981;border-color:#10B981;" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-realtors\')">🏘️ Select Realtor</button>';
+        if (g.docs_group_complete) {
+          primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#10B981;border-color:#10B981;" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-realtors\')">🏘️ Select Realtor</button>';
+        } else {
+          primaryBtn = '<button class="btn-mini btn-mini-primary" style="background:#0EA5E9;border-color:#0EA5E9;" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">📄 Finish Co-Owner Docs</button>';
+        }
       } else {
         primaryBtn = '<button class="btn-mini btn-mini-primary" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">View Group →</button>';
       }
@@ -13451,6 +13999,20 @@ async function loadUnifiedRelationships() {
         ? '<button class="btn-mini-leave" title="Leave this group" onclick=\'leaveRelationship("'+ g.group_id +'", '+ JSON.stringify(otherNames) +')\'>✕</button>'
         : '';
 
+      // Docs status indicator (only shown when docs exist)
+      let docsLine = '';
+      if (g.docs_total > 0) {
+        const allSignedByMe = g.docs_my_signed === g.docs_total;
+        const groupAllSigned = g.docs_group_complete;
+        const dot = groupAllSigned ? '✓' : (allSignedByMe ? '⏳' : '📄');
+        const label = groupAllSigned
+          ? 'All co-owner docs signed'
+          : (allSignedByMe ? 'You signed all docs · waiting on group' : g.docs_my_signed + ' of ' + g.docs_total + ' docs you signed');
+        const bg = groupAllSigned ? '#D1FAE5' : (allSignedByMe ? '#FEF3C7' : '#DBEAFE');
+        const fg = groupAllSigned ? '#065F46' : (allSignedByMe ? '#92400E' : '#1E40AF');
+        docsLine = '<div style="display:inline-flex;align-items:center;gap:.4rem;background:' + bg + ';color:' + fg + ';padding:.3rem .65rem;border-radius:8px;font-size:.74rem;font-weight:700;margin-top:.5rem;cursor:pointer;" onclick="_activeGroupId=\''+ g.group_id +'\';showView(\'group-dashboard\')">' + dot + ' ' + label + '</div>';
+      }
+
       cardsHtml += '<div class="rel-card" style="border-left:4px solid ' + pill.accent + ';">'
         + '<div class="rel-card-head">'
         + '<div class="rel-avatars">' + avs + '</div>'
@@ -13464,6 +14026,7 @@ async function loadUnifiedRelationships() {
         + '</div>'
         + '</div>'
         + contextStrip
+        + docsLine
         + msgPreview
         + '<div class="rel-actions">' + primaryBtn + chatBtn + viewBtn + '</div>'
         + '</div>';
@@ -14682,7 +15245,9 @@ showView = function(viewName) {
     </div>
 
     <!-- Actions based on group status -->
-    <div id="grp-actions-area"></div>
+    <div id="grp-preapproval-section" style="display:none;"></div>
+        <div id="grp-docs-section" style="display:none;"></div>
+        <div id="grp-actions-area"></div>
 
     <!-- Group chat -->
     <div style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-top:1rem;">
@@ -15169,5 +15734,35 @@ showView = function(viewName) {
   </div>
 </div>
 
+
+<!-- Co-owner document reader/signer modal -->
+<div class="doc-modal" id="doc-modal" onclick="if(event.target===this)closeDocModal()">
+  <div class="doc-modal-card">
+    <div class="doc-modal-head">
+      <div class="doc-modal-title" id="doc-modal-title">Document</div>
+      <button class="doc-modal-close" onclick="closeDocModal()">×</button>
+    </div>
+    <div class="doc-modal-body" id="doc-modal-body"></div>
+    <div class="doc-modal-foot" id="doc-modal-foot"></div>
+  </div>
+</div>
+
+<!-- Pre-approval form modal -->
+<div class="pa-modal" id="pa-modal" onclick="if(event.target===this)closePreapprovalModal()">
+  <div class="pa-modal-card">
+    <div class="pa-modal-head">
+      <div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.15rem;">Your Pre-Approval Application</div>
+        <div style="font-size:.78rem;color:var(--gray-text);">Your information stays private. Only your name and contribution % are shared with the group.</div>
+      </div>
+      <button class="doc-modal-close" onclick="closePreapprovalModal()">×</button>
+    </div>
+    <div class="pa-modal-body" id="pa-modal-body">Loading…</div>
+    <div class="pa-modal-foot">
+      <button class="btn-outline" onclick="savePreapproval(false)">Save Draft</button>
+      <button class="btn-primary" onclick="savePreapproval(true)">Submit Pre-Approval</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
