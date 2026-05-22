@@ -12915,8 +12915,10 @@ async function loadGroupPreapproval() {
 
     section.innerHTML = h;
   } catch (e) {
-    console.warn('loadGroupPreapproval failed:', e);
-    section.style.display = 'none';
+    console.error('loadGroupPreapproval failed:', e);
+    section.style.display = 'block';
+    section.className = 'grp-pa-section';
+    section.innerHTML = '<div style="color:#991B1B;font-size:.85rem;">Could not load pre-approval status. <button class="btn-mini btn-mini-secondary" onclick="loadGroupPreapproval()">Retry</button></div>';
   }
 }
 window.loadGroupPreapproval = loadGroupPreapproval;
@@ -13229,8 +13231,10 @@ async function loadGroupDocuments() {
     section.className = 'grp-docs-section';
     section.innerHTML = html;
   } catch (e) {
-    console.warn('loadGroupDocuments failed:', e);
-    section.style.display = 'none';
+    console.error('loadGroupDocuments failed:', e);
+    section.style.display = 'block';
+    section.className = 'grp-docs-section';
+    section.innerHTML = '<div style="color:#991B1B;font-size:.85rem;">Could not load co-owner documents. <button class="btn-mini btn-mini-secondary" onclick="loadGroupDocuments()">Retry</button></div>';
   }
 }
 window.loadGroupDocuments = loadGroupDocuments;
@@ -14037,8 +14041,13 @@ async function loadUnifiedRelationships() {
       + cardsHtml
       + '</div>';
   } catch (e) {
-    console.warn('loadUnifiedRelationships failed:', e);
-    wrap.innerHTML = '';
+    console.error('loadUnifiedRelationships failed:', e);
+    // Surface error visibly so silent failures don't make the dashboard look broken
+    wrap.innerHTML = '<div style="background:#FEE2E2;border:1.5px solid #FCA5A5;border-radius:10px;padding:1rem 1.25rem;color:#991B1B;font-size:.85rem;">'
+      + '<strong>Couldn\'t load your co-buyer groups.</strong> '
+      + (e && e.message ? '<br><span style="font-size:.78rem;opacity:.85;">Detail: ' + escapeHtml(e.message) + '</span>' : '')
+      + '<br><button class="btn-mini btn-mini-secondary" style="margin-top:.55rem;" onclick="loadUnifiedRelationships()">Try again</button>'
+      + '</div>';
   }
 }
 window.loadUnifiedRelationships = loadUnifiedRelationships;
