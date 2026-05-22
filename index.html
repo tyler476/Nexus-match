@@ -13234,39 +13234,66 @@ function mdToHtml(md) {
 let _docModalCurrentId = null;
 
 async function loadGroupDocuments() {
+  console.log('[docs] loadGroupDocuments called. _activeGroupId=', _activeGroupId);
   const section = document.getElementById('grp-docs-section');
-  if (!section || !_activeGroupId) return;
+  if (!section) {
+    console.error('[docs] grp-docs-section element NOT FOUND in DOM');
+    return;
+  }
+  // Always make the section visible
+  section.style.display = 'block';
+  section.className = 'grp-docs-section';
+
+  if (!_activeGroupId || _activeGroupId === 'null' || _activeGroupId === 'undefined') {
+    console.warn('[docs] no active group id; cannot load documents');
+    section.innerHTML = '<div class="grp-docs-head">'
+      + '<div><div class="grp-docs-title">📄 Co-Owner Documents — View, Sign &amp; Download</div>'
+      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All 6 Nexus Homes legal templates.</div></div>'
+      + '</div>'
+      + '<div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;padding:1rem 1.1rem;color:#92400E;font-size:.88rem;">'
+      + '<strong>No active group selected.</strong>'
+      + '<div style="font-size:.78rem;margin-top:.3rem;color:#78350F;">Open a group from your dashboard to view its co-owner documents.</div>'
+      + '</div>';
+    return;
+  }
+
+  // Loading state
+  section.innerHTML = '<div class="grp-docs-head">'
+    + '<div><div class="grp-docs-title">📄 Co-Owner Documents — View, Sign &amp; Download</div>'
+    + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">Loading 6 Nexus Homes legal templates…</div></div>'
+    + '</div>'
+    + '<div style="font-size:.85rem;color:var(--gray-text);padding:.5rem 0;">⏳ Loading documents from Supabase…</div>';
+
   try {
+    console.log('[docs] calling sb.rpc(get_group_documents) with p_group_id=', _activeGroupId);
     const { data: docs, error } = await sb.rpc('get_group_documents', { p_group_id: _activeGroupId });
+    console.log('[docs] RPC returned. error=', error, 'docs=', docs);
     if (error) {
       console.error('get_group_documents error:', error);
-      section.style.display = 'block';
-      section.className = 'grp-docs-section';
       section.innerHTML = '<div class="grp-docs-head">'
         + '<div><div class="grp-docs-title">📄 Co-Owner Documents</div>'
         + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">View, sign &amp; download all 6 Nexus Homes legal templates.</div></div>'
         + '</div>'
         + '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;">'
-        + '<strong>Could not load documents.</strong> ' + escapeHtml(error.message || String(error))
+        + '<strong>Could not load documents.</strong> ' + escapeHtml(error.message || error.code || JSON.stringify(error))
         + ' <button class="btn-mini btn-mini-secondary" style="margin-left:.5rem;font-size:.78rem;padding:.35rem .8rem;border-radius:7px;border:1.5px solid #FCA5A5;background:#fff;color:#991B1B;font-weight:700;cursor:pointer;" onclick="loadGroupDocuments()">Retry</button>'
+        + '<div style="margin-top:.5rem;font-size:.72rem;color:#7F1D1D;">Group ID: ' + escapeHtml(_activeGroupId) + '</div>'
         + '</div>';
       return;
     }
     if (!docs || docs.length === 0) {
-      section.style.display = 'block';
-      section.className = 'grp-docs-section';
       section.innerHTML = '<div class="grp-docs-head">'
-        + '<div><div class="grp-docs-title">📄 Co-Owner Documents</div>'
-        + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">View, sign &amp; download all 6 Nexus Homes legal templates.</div></div>'
+        + '<div><div class="grp-docs-title">📄 Co-Owner Documents — View, Sign &amp; Download</div>'
+        + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All 6 Nexus Homes legal templates.</div></div>'
         + '</div>'
         + '<div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;padding:1rem 1.1rem;color:#92400E;font-size:.88rem;">'
         + '<strong>Your 6 co-owner documents will appear here once your group is finalized.</strong>'
         + '<div style="font-size:.78rem;margin-top:.4rem;color:#78350F;">Partnership Operating Agreement · Shared Reserve Account · Advisory Board Charter · Democratic Decision Making · Co-Living Standards · Exit &amp; Enforcement</div>'
+        + '<div style="margin-top:.5rem;font-size:.72rem;color:#78350F;">RPC returned 0 documents for group ' + escapeHtml(_activeGroupId) + '.</div>'
         + '<button class="btn-mini btn-mini-secondary" style="margin-top:.6rem;font-size:.78rem;padding:.35rem .8rem;border-radius:7px;border:1.5px solid #FCD34D;background:#fff;color:#92400E;font-weight:700;cursor:pointer;" onclick="loadGroupDocuments()">Refresh</button>'
         + '</div>';
       return;
     }
-    section.style.display = 'block';
     const totalDocs = docs.length;
     const allSigned = docs.filter(d => d.my_status === 'signed').length;
     const groupAllDone = docs.every(d => d.signed_count === d.total_signers);
@@ -13432,13 +13459,34 @@ function _safeFileName(name) {
 }
 
 async function loadGroupUploads() {
+  console.log('[uploads] loadGroupUploads called. _activeGroupId=', _activeGroupId);
   const section = document.getElementById('grp-files-section');
-  if (!section || !_activeGroupId) return;
+  if (!section) {
+    console.error('[uploads] grp-files-section element NOT FOUND in DOM');
+    return;
+  }
+  section.style.display = 'block';
+  section.className = 'grp-files-section';
+
+  if (!_activeGroupId || _activeGroupId === 'null' || _activeGroupId === 'undefined') {
+    console.warn('[uploads] no active group id; cannot load uploads');
+    section.innerHTML = '<div class="grp-files-head">'
+      + '<div><div class="grp-files-title">📎 Shared Files</div>'
+      + '<div class="grp-files-sub">Income proofs, IDs, bank statements — share privately with your group.</div></div>'
+      + '</div>'
+      + '<div class="grp-files-empty">Open a group to upload and view shared files.</div>';
+    return;
+  }
+
+  // Loading state
+  section.innerHTML = '<div class="grp-files-head">'
+    + '<div><div class="grp-files-title">📎 Shared Files</div>'
+    + '<div class="grp-files-sub">Loading…</div></div>'
+    + '</div>';
+
   try {
     const { data: uploads, error } = await sb.rpc('list_group_uploads', { p_group_id: _activeGroupId });
     if (error) throw error;
-    section.style.display = 'block';
-    section.className = 'grp-files-section';
     const list = uploads || [];
     let html = '<div class="grp-files-head">'
       + '<div><div class="grp-files-title">📎 Shared Files</div>'
@@ -13472,10 +13520,12 @@ async function loadGroupUploads() {
     section.innerHTML = html;
   } catch (e) {
     console.error('loadGroupUploads failed:', e);
-    section.style.display = 'block';
-    section.className = 'grp-files-section';
-    section.innerHTML = '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;">'
-      + '<strong>Could not load shared files.</strong> ' + escapeHtml(e.message || String(e))
+    section.innerHTML = '<div class="grp-files-head">'
+      + '<div><div class="grp-files-title">📎 Shared Files</div></div>'
+      + '<button class="btn-primary btn-sm" onclick="openUploadModal()">+ Upload File</button>'
+      + '</div>'
+      + '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;">'
+      + '<strong>Could not load shared files.</strong> ' + escapeHtml(e.message || e.code || JSON.stringify(e))
       + ' <button class="btn-mini btn-mini-secondary" style="margin-left:.5rem;font-size:.78rem;padding:.35rem .8rem;border-radius:7px;border:1.5px solid #FCA5A5;background:#fff;color:#991B1B;font-weight:700;cursor:pointer;" onclick="loadGroupUploads()">Retry</button>'
       + '</div>';
   }
@@ -15740,8 +15790,23 @@ showView = function(viewName) {
 
     <!-- Actions based on group status -->
     <div id="grp-preapproval-section" style="display:none;"></div>
-        <div id="grp-docs-section" style="display:none;"></div>
-        <div id="grp-files-section" style="display:none;"></div>
+        <div id="grp-docs-section" class="grp-docs-section" style="display:block;">
+          <div class="grp-docs-head">
+            <div>
+              <div class="grp-docs-title">📄 Co-Owner Documents — View, Sign &amp; Download</div>
+              <div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All 6 Nexus Homes legal templates. Loading…</div>
+            </div>
+          </div>
+          <div style="font-size:.85rem;color:var(--gray-text);padding:.5rem 0;">⏳ Loading documents…</div>
+        </div>
+        <div id="grp-files-section" class="grp-files-section" style="display:block;">
+          <div class="grp-files-head">
+            <div>
+              <div class="grp-files-title">📎 Shared Files</div>
+              <div class="grp-files-sub">Loading…</div>
+            </div>
+          </div>
+        </div>
         <div id="grp-actions-area"></div>
 
     <!-- Group chat -->
