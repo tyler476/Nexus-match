@@ -13238,8 +13238,34 @@ async function loadGroupDocuments() {
   if (!section || !_activeGroupId) return;
   try {
     const { data: docs, error } = await sb.rpc('get_group_documents', { p_group_id: _activeGroupId });
-    if (error) { console.warn('get_group_documents error:', error); section.style.display='none'; return; }
-    if (!docs || docs.length === 0) { section.style.display = 'none'; return; }
+    if (error) {
+      console.error('get_group_documents error:', error);
+      section.style.display = 'block';
+      section.className = 'grp-docs-section';
+      section.innerHTML = '<div class="grp-docs-head">'
+        + '<div><div class="grp-docs-title">📄 Co-Owner Documents</div>'
+        + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">View, sign &amp; download all 6 Nexus Homes legal templates.</div></div>'
+        + '</div>'
+        + '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;">'
+        + '<strong>Could not load documents.</strong> ' + escapeHtml(error.message || String(error))
+        + ' <button class="btn-mini btn-mini-secondary" style="margin-left:.5rem;font-size:.78rem;padding:.35rem .8rem;border-radius:7px;border:1.5px solid #FCA5A5;background:#fff;color:#991B1B;font-weight:700;cursor:pointer;" onclick="loadGroupDocuments()">Retry</button>'
+        + '</div>';
+      return;
+    }
+    if (!docs || docs.length === 0) {
+      section.style.display = 'block';
+      section.className = 'grp-docs-section';
+      section.innerHTML = '<div class="grp-docs-head">'
+        + '<div><div class="grp-docs-title">📄 Co-Owner Documents</div>'
+        + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">View, sign &amp; download all 6 Nexus Homes legal templates.</div></div>'
+        + '</div>'
+        + '<div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;padding:1rem 1.1rem;color:#92400E;font-size:.88rem;">'
+        + '<strong>Your 6 co-owner documents will appear here once your group is finalized.</strong>'
+        + '<div style="font-size:.78rem;margin-top:.4rem;color:#78350F;">Partnership Operating Agreement · Shared Reserve Account · Advisory Board Charter · Democratic Decision Making · Co-Living Standards · Exit &amp; Enforcement</div>'
+        + '<button class="btn-mini btn-mini-secondary" style="margin-top:.6rem;font-size:.78rem;padding:.35rem .8rem;border-radius:7px;border:1.5px solid #FCD34D;background:#fff;color:#92400E;font-weight:700;cursor:pointer;" onclick="loadGroupDocuments()">Refresh</button>'
+        + '</div>';
+      return;
+    }
     section.style.display = 'block';
     const totalDocs = docs.length;
     const allSigned = docs.filter(d => d.my_status === 'signed').length;
@@ -13248,8 +13274,8 @@ async function loadGroupDocuments() {
       ? '<span style="background:#D1FAE5;color:#065F46;padding:.3rem .65rem;border-radius:10px;font-size:.72rem;font-weight:800;">✓ ALL SIGNED</span>'
       : '<span class="grp-docs-progress">' + allSigned + ' of ' + totalDocs + ' you signed</span>';
     let html = '<div class="grp-docs-head">'
-      + '<div><div class="grp-docs-title">📄 Co-Owner Documents</div>'
-      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">These define how you co-own. All must be signed by all members before you can choose a realtor.</div></div>'
+      + '<div><div class="grp-docs-title">📄 Co-Owner Documents — View, Sign &amp; Download</div>'
+      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All ' + totalDocs + ' Nexus Homes legal templates. Every co-buyer must sign before you can choose a realtor.</div></div>'
       + headlineRight
       + '</div>';
     docs.forEach(function(d) {
@@ -13282,7 +13308,13 @@ async function loadGroupDocuments() {
     console.error('loadGroupDocuments failed:', e);
     section.style.display = 'block';
     section.className = 'grp-docs-section';
-    section.innerHTML = '<div style="color:#991B1B;font-size:.85rem;">Could not load co-owner documents. <button class="btn-mini btn-mini-secondary" onclick="loadGroupDocuments()">Retry</button></div>';
+    section.innerHTML = '<div class="grp-docs-head">'
+      + '<div><div class="grp-docs-title">📄 Co-Owner Documents</div></div>'
+      + '</div>'
+      + '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;">'
+      + '<strong>Could not load co-owner documents.</strong> ' + escapeHtml(e.message || String(e))
+      + ' <button class="btn-mini btn-mini-secondary" style="margin-left:.5rem;font-size:.78rem;padding:.35rem .8rem;border-radius:7px;border:1.5px solid #FCA5A5;background:#fff;color:#991B1B;font-weight:700;cursor:pointer;" onclick="loadGroupDocuments()">Retry</button>'
+      + '</div>';
   }
 }
 window.loadGroupDocuments = loadGroupDocuments;
