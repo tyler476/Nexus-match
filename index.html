@@ -305,6 +305,50 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);padding:2.5rem 1.5rem;f
 .doc-sign-input:focus{outline:none;border-color:var(--blue);}
 .doc-already-signed{background:#D1FAE5;color:#065F46;padding:.85rem 1rem;border-radius:8px;font-size:.85rem;text-align:center;font-weight:700;}
 
+/* ═══ Shared File Uploads ═══ */
+.grp-files-section{background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;}
+.grp-files-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;gap:.5rem;flex-wrap:wrap;}
+.grp-files-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;}
+.grp-files-sub{font-size:.78rem;color:var(--gray-text);margin-top:.15rem;}
+.grp-files-empty{font-size:.85rem;color:var(--gray-text);background:#F9FAFB;border:1px dashed #D1D5DB;border-radius:10px;padding:1rem;text-align:center;}
+.upload-row{display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;border:1px solid #E5E7EB;border-radius:10px;background:#fff;margin-bottom:.5rem;}
+.upload-row + .upload-row{margin-top:0;}
+.upload-row:hover{border-color:var(--blue);}
+.upload-row-icon{font-size:1.2rem;flex-shrink:0;}
+.upload-row-main{flex:1;min-width:0;}
+.upload-row-name{font-weight:700;color:var(--navy);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.upload-row-meta{font-size:.72rem;color:var(--gray-text);margin-top:.15rem;}
+.upload-row-tag{display:inline-block;background:#EFF6FF;color:#1E40AF;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:.18rem .5rem;border-radius:8px;margin-right:.4rem;}
+.upload-row-notes{font-size:.74rem;color:#4B5563;margin-top:.2rem;font-style:italic;word-break:break-word;}
+.upload-row-actions{display:flex;gap:.35rem;flex-shrink:0;}
+.upload-row-btn{font-size:.74rem;padding:.4rem .7rem;border-radius:7px;border:1.5px solid var(--gray);background:#fff;color:var(--navy);font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.upload-row-btn:hover{border-color:var(--blue);color:var(--blue);}
+.upload-row-btn.danger{color:#991B1B;border-color:#FCA5A5;}
+.upload-row-btn.danger:hover{background:#FEE2E2;border-color:#DC2626;}
+
+/* Upload modal */
+.up-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9100;display:none;align-items:center;justify-content:center;padding:1rem;overflow-y:auto;}
+.up-modal.active{display:flex;}
+.up-modal-card{background:#fff;width:100%;max-width:520px;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.up-modal-head{padding:1.1rem 1.5rem;border-bottom:1px solid var(--gray);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.up-modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1.1rem;}
+.up-modal-body{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.9rem;}
+.up-modal-label{font-size:.78rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.3rem;display:block;}
+.up-modal-input,.up-modal-select,.up-modal-textarea{width:100%;font-family:inherit;font-size:.9rem;padding:.6rem .85rem;border:1.5px solid var(--gray);border-radius:8px;background:#fff;color:var(--navy);}
+.up-modal-input:focus,.up-modal-select:focus,.up-modal-textarea:focus{outline:none;border-color:var(--blue);}
+.up-modal-textarea{resize:vertical;min-height:60px;}
+.up-modal-filebox{padding:1rem;border:1.5px dashed var(--gray);border-radius:10px;background:#F9FAFB;text-align:center;}
+.up-modal-filebox.picked{border-style:solid;border-color:#10B981;background:#ECFDF5;}
+.up-modal-filename{font-weight:700;color:var(--navy);font-size:.85rem;margin-top:.4rem;word-break:break-word;}
+.up-modal-filesize{font-size:.74rem;color:var(--gray-text);}
+.up-modal-foot{padding:1rem 1.5rem;border-top:1px solid var(--gray);background:#F9FAFB;display:flex;justify-content:flex-end;gap:.6rem;}
+.up-modal-foot .btn-outline,.up-modal-foot .btn-primary{padding:.6rem 1.2rem;font-size:.9rem;}
+.up-modal-error{color:#991B1B;font-size:.8rem;background:#FEE2E2;border:1px solid #FCA5A5;padding:.55rem .75rem;border-radius:8px;}
+.up-modal-progress{font-size:.8rem;color:var(--blue);font-weight:700;}
+
+/* PDF Download button on doc card */
+.doc-card-pdf-btn{font-size:.72rem;padding:.35rem .7rem;border-radius:7px;border:1.5px solid var(--gray);background:#fff;color:var(--navy);font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;margin-left:.5rem;}
+.doc-card-pdf-btn:hover{border-color:var(--blue);color:var(--blue);background:#EFF6FF;}
 
 /* ═══ Pre-approval form + summary ═══ */
 .grp-pa-section{background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;}
@@ -12859,6 +12903,7 @@ async function loadGroupDashboard() {
   await loadGroupChat();
   await loadGroupPreapproval();
   await loadGroupDocuments();
+  await loadGroupUploads();
 }
 
 // ═══ Pre-Approval ═══
@@ -13222,9 +13267,12 @@ async function loadGroupDocuments() {
       html += '<div class="doc-card ' + (allDoneOnThisDoc ? 'signed' : '') + '" onclick="openDocModal(\'' + d.document_id + '\')">'
         + '<div class="doc-card-head">'
         + '<div class="doc-card-title">' + escapeHtml(d.title) + '</div>'
+        + '<div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">'
         + '<span class="doc-card-status ' + statusCls + '">' + statusLabel + '</span>'
+        + '<button class="doc-card-pdf-btn" onclick="event.stopPropagation();downloadDocPdf(\'' + d.document_id + '\')" title="Open print-ready PDF view">⬇ Download PDF</button>'
         + '</div>'
-        + '<div class="doc-card-meta">Click to review & sign</div>'
+        + '</div>'
+        + '<div class="doc-card-meta">Click to review &amp; sign</div>'
         + '<div class="doc-card-signers">' + signerChips + '</div>'
         + '</div>';
     });
@@ -13305,6 +13353,411 @@ async function submitSignDoc() {
   }
 }
 window.submitSignDoc = submitSignDoc;
+
+// ═══════════════════════════════════════════════════════════════════
+// SHARED FILE UPLOADS
+// ═══════════════════════════════════════════════════════════════════
+let _uploadPickedFile = null;
+
+function _formatFileSize(bytes) {
+  if (!bytes && bytes !== 0) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+function _formatUploadTag(tag) {
+  const map = {
+    income_proof: 'Income Proof',
+    bank_statement: 'Bank Statement',
+    id: 'ID',
+    gift_letter: 'Gift Letter',
+    prior_lease: 'Prior Lease',
+    tax_return: 'Tax Return',
+    signed_doc: 'Signed Doc',
+    other: 'Other'
+  };
+  return map[tag] || (tag || 'Other');
+}
+
+function _iconForUpload(contentType, name) {
+  const ct = (contentType || '').toLowerCase();
+  const ext = ((name || '').split('.').pop() || '').toLowerCase();
+  if (ct.startsWith('image/') || ['png','jpg','jpeg','gif','webp','heic'].indexOf(ext) >= 0) return '🖼️';
+  if (ct === 'application/pdf' || ext === 'pdf') return '📕';
+  if (ct.indexOf('word') >= 0 || ['doc','docx'].indexOf(ext) >= 0) return '📘';
+  if (ct.indexOf('sheet') >= 0 || ct === 'text/csv' || ['xls','xlsx','csv'].indexOf(ext) >= 0) return '📊';
+  if (ct.startsWith('text/') || ['txt','md'].indexOf(ext) >= 0) return '📄';
+  return '📎';
+}
+
+function _safeFileName(name) {
+  return (name || 'file')
+    .replace(/[^\w.\-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 100) || 'file';
+}
+
+async function loadGroupUploads() {
+  const section = document.getElementById('grp-files-section');
+  if (!section || !_activeGroupId) return;
+  try {
+    const { data: uploads, error } = await sb.rpc('list_group_uploads', { p_group_id: _activeGroupId });
+    if (error) throw error;
+    section.style.display = 'block';
+    section.className = 'grp-files-section';
+    const list = uploads || [];
+    let html = '<div class="grp-files-head">'
+      + '<div><div class="grp-files-title">📎 Shared Files</div>'
+      + '<div class="grp-files-sub">Income proofs, IDs, bank statements — share with your group privately.</div></div>'
+      + '<button class="btn-primary btn-sm" onclick="openUploadModal()">+ Upload File</button>'
+      + '</div>';
+    if (list.length === 0) {
+      html += '<div class="grp-files-empty">No files yet. Upload paystubs, bank statements, or IDs to share with your co-buyers.</div>';
+    } else {
+      list.forEach(function(u) {
+        const uploaderName = u.uploader_name || (u.is_mine ? 'You' : 'Member');
+        const when = u.created_at ? new Date(u.created_at).toLocaleString() : '';
+        const canDelete = !!u.is_mine;
+        html += '<div class="upload-row">'
+          + '<div class="upload-row-icon">' + _iconForUpload(u.content_type, u.original_name) + '</div>'
+          + '<div class="upload-row-main">'
+          + '<div class="upload-row-name">' + escapeHtml(u.original_name || 'File') + '</div>'
+          + '<div class="upload-row-meta">'
+          + '<span class="upload-row-tag">' + escapeHtml(_formatUploadTag(u.tag)) + '</span>'
+          + escapeHtml(uploaderName) + ' · ' + escapeHtml(when) + ' · ' + _formatFileSize(u.size_bytes)
+          + '</div>'
+          + (u.notes ? '<div class="upload-row-notes">' + escapeHtml(u.notes) + '</div>' : '')
+          + '</div>'
+          + '<div class="upload-row-actions">'
+          + '<button class="upload-row-btn" onclick="downloadUpload(\'' + u.id + '\')">⬇ Download</button>'
+          + (canDelete ? '<button class="upload-row-btn danger" onclick="deleteUpload(\'' + u.id + '\')">Delete</button>' : '')
+          + '</div>'
+          + '</div>';
+      });
+    }
+    section.innerHTML = html;
+  } catch (e) {
+    console.error('loadGroupUploads failed:', e);
+    section.style.display = 'block';
+    section.className = 'grp-files-section';
+    section.innerHTML = '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;">'
+      + '<strong>Could not load shared files.</strong> ' + escapeHtml(e.message || String(e))
+      + ' <button class="btn-mini btn-mini-secondary" style="margin-left:.5rem;font-size:.78rem;padding:.35rem .8rem;border-radius:7px;border:1.5px solid #FCA5A5;background:#fff;color:#991B1B;font-weight:700;cursor:pointer;" onclick="loadGroupUploads()">Retry</button>'
+      + '</div>';
+  }
+}
+window.loadGroupUploads = loadGroupUploads;
+
+function openUploadModal() {
+  if (!_activeGroupId) { showToast('No active group.', 'error'); return; }
+  _uploadPickedFile = null;
+  const modal = document.getElementById('up-modal');
+  const filebox = document.getElementById('up-filebox');
+  const nameEl = document.getElementById('up-filename');
+  const sizeEl = document.getElementById('up-filesize');
+  const tagEl = document.getElementById('up-tag');
+  const notesEl = document.getElementById('up-notes');
+  const errEl = document.getElementById('up-modal-error');
+  const progEl = document.getElementById('up-modal-progress');
+  const submitBtn = document.getElementById('up-submit-btn');
+  const fileInput = document.getElementById('up-file-input');
+  if (fileInput) fileInput.value = '';
+  if (filebox) filebox.classList.remove('picked');
+  if (nameEl) { nameEl.style.display = 'none'; nameEl.textContent = ''; }
+  if (sizeEl) { sizeEl.style.display = 'none'; sizeEl.textContent = ''; }
+  if (tagEl) tagEl.value = 'other';
+  if (notesEl) notesEl.value = '';
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+  if (progEl) progEl.style.display = 'none';
+  if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Upload'; }
+  modal.classList.add('active');
+}
+window.openUploadModal = openUploadModal;
+
+function closeUploadModal() {
+  document.getElementById('up-modal').classList.remove('active');
+  _uploadPickedFile = null;
+}
+window.closeUploadModal = closeUploadModal;
+
+function onUploadFilePicked(ev) {
+  const f = ev && ev.target && ev.target.files && ev.target.files[0];
+  const errEl = document.getElementById('up-modal-error');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+  if (!f) { _uploadPickedFile = null; return; }
+  const MAX = 25 * 1024 * 1024;
+  if (f.size > MAX) {
+    _uploadPickedFile = null;
+    if (errEl) { errEl.textContent = 'File too large (max 25MB).'; errEl.style.display = 'block'; }
+    return;
+  }
+  _uploadPickedFile = f;
+  const filebox = document.getElementById('up-filebox');
+  const nameEl = document.getElementById('up-filename');
+  const sizeEl = document.getElementById('up-filesize');
+  if (filebox) filebox.classList.add('picked');
+  if (nameEl) { nameEl.textContent = f.name; nameEl.style.display = 'block'; }
+  if (sizeEl) { sizeEl.textContent = _formatFileSize(f.size); sizeEl.style.display = 'block'; }
+}
+window.onUploadFilePicked = onUploadFilePicked;
+
+async function submitUpload() {
+  if (!_activeGroupId) { showToast('No active group.', 'error'); return; }
+  const errEl = document.getElementById('up-modal-error');
+  const progEl = document.getElementById('up-modal-progress');
+  const submitBtn = document.getElementById('up-submit-btn');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+  if (!_uploadPickedFile) {
+    if (errEl) { errEl.textContent = 'Please choose a file first.'; errEl.style.display = 'block'; }
+    return;
+  }
+  const file = _uploadPickedFile;
+  const tag = (document.getElementById('up-tag') || {}).value || 'other';
+  const notes = ((document.getElementById('up-notes') || {}).value || '').trim().slice(0, 500);
+
+  // Build storage path: <group_id>/<random>_<safe_filename>
+  let randomPart;
+  try {
+    randomPart = (crypto && crypto.randomUUID) ? crypto.randomUUID().replace(/-/g, '') : (Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+  } catch (_) {
+    randomPart = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+  const safeName = _safeFileName(file.name);
+  const storagePath = _activeGroupId + '/' + randomPart + '_' + safeName;
+
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
+  if (progEl) { progEl.textContent = 'Uploading to secure storage…'; progEl.style.display = 'block'; }
+
+  let uploadedOk = false;
+  try {
+    const { error: upErr } = await sb.storage.from('group-uploads').upload(storagePath, file, {
+      contentType: file.type || 'application/octet-stream',
+      upsert: false
+    });
+    if (upErr) throw upErr;
+    uploadedOk = true;
+
+    if (progEl) progEl.textContent = 'Registering file…';
+
+    const { data: regData, error: regErr } = await sb.rpc('register_group_upload', {
+      p_group_id: _activeGroupId,
+      p_storage_path: storagePath,
+      p_original_name: file.name,
+      p_content_type: file.type || 'application/octet-stream',
+      p_size_bytes: file.size,
+      p_tag: tag,
+      p_notes: notes || null
+    });
+    if (regErr) throw regErr;
+    if (regData && regData.error) throw new Error(regData.error);
+
+    showToast('✓ File uploaded.', 'success');
+    closeUploadModal();
+    await loadGroupUploads();
+  } catch (e) {
+    console.error('submitUpload failed:', e);
+    // Roll back storage object if upload succeeded but RPC failed
+    if (uploadedOk) {
+      try {
+        await sb.storage.from('group-uploads').remove([storagePath]);
+      } catch (rmErr) {
+        console.warn('rollback remove failed:', rmErr);
+      }
+    }
+    if (errEl) {
+      errEl.textContent = 'Upload failed: ' + (e.message || String(e));
+      errEl.style.display = 'block';
+    }
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Upload'; }
+    if (progEl) progEl.style.display = 'none';
+  }
+}
+window.submitUpload = submitUpload;
+
+async function downloadUpload(uploadId) {
+  if (!uploadId) return;
+  try {
+    const { data: uploads, error } = await sb.rpc('list_group_uploads', { p_group_id: _activeGroupId });
+    if (error) throw error;
+    const u = (uploads || []).find(function(x) { return x.id === uploadId; });
+    if (!u) { showToast('File not found.', 'error'); return; }
+    const { data: signed, error: sErr } = await sb.storage
+      .from('group-uploads')
+      .createSignedUrl(u.storage_path, 120, { download: u.original_name || true });
+    if (sErr) throw sErr;
+    if (!signed || !signed.signedUrl) throw new Error('No download URL returned.');
+    window.open(signed.signedUrl, '_blank', 'noopener');
+  } catch (e) {
+    console.error('downloadUpload failed:', e);
+    showToast('Download failed: ' + (e.message || e), 'error');
+  }
+}
+window.downloadUpload = downloadUpload;
+
+async function deleteUpload(uploadId) {
+  if (!uploadId) return;
+  if (!confirm('Delete this file? This cannot be undone.')) return;
+  try {
+    // Look up storage_path before deleting the row
+    const { data: uploads } = await sb.rpc('list_group_uploads', { p_group_id: _activeGroupId });
+    const u = (uploads || []).find(function(x) { return x.id === uploadId; });
+    const storagePath = u && u.storage_path;
+
+    const { data, error } = await sb.rpc('delete_group_upload', { p_upload_id: uploadId });
+    if (error) throw error;
+    if (data && data.error) throw new Error(data.error);
+
+    // Best-effort storage cleanup
+    if (storagePath) {
+      try {
+        await sb.storage.from('group-uploads').remove([storagePath]);
+      } catch (rmErr) {
+        console.warn('storage remove after delete failed:', rmErr);
+      }
+    }
+    showToast('✓ File deleted.', 'success');
+    await loadGroupUploads();
+  } catch (e) {
+    console.error('deleteUpload failed:', e);
+    showToast('Delete failed: ' + (e.message || e), 'error');
+  }
+}
+window.deleteUpload = deleteUpload;
+
+// ═══════════════════════════════════════════════════════════════════
+// DOC PDF DOWNLOAD (print-friendly tab)
+// ═══════════════════════════════════════════════════════════════════
+async function downloadDocPdf(docId) {
+  if (!docId || !_activeGroupId) return;
+  try {
+    const { data: docs, error } = await sb.rpc('get_group_documents', { p_group_id: _activeGroupId });
+    if (error) throw error;
+    const doc = (docs || []).find(function(d) { return d.document_id === docId; });
+    if (!doc) { showToast('Document not found.', 'error'); return; }
+
+    const bodyHtml = mdToHtml(doc.body_md || '');
+    const title = doc.title || 'Co-Owner Document';
+    const generatedAt = new Date().toLocaleString();
+
+    // Build signature block from signers list (defensive: signed_at may or may not be present)
+    const signers = doc.signers || [];
+    let signatureRows = '';
+    signers.forEach(function(s) {
+      const name = s.name || (s.is_me ? 'You' : 'Unknown');
+      const status = s.status || 'pending';
+      let signedDisplay = '—';
+      if (status === 'signed') {
+        const ts = s.signed_at || (s.is_me ? doc.my_signed_at : null);
+        signedDisplay = ts ? new Date(ts).toLocaleString() : 'Signed';
+      } else if (status === 'declined') {
+        signedDisplay = 'Declined';
+      } else {
+        signedDisplay = 'Pending';
+      }
+      const typedName = s.typed_name || (status === 'signed' ? name : '');
+      signatureRows +=
+        '<tr>'
+        + '<td>' + escapeHtml(name) + '</td>'
+        + '<td class="sig-typed">' + escapeHtml(typedName) + '</td>'
+        + '<td>' + escapeHtml(signedDisplay) + '</td>'
+        + '<td><span class="sig-status sig-' + escapeHtml(status) + '">' + escapeHtml(status.toUpperCase()) + '</span></td>'
+        + '</tr>';
+    });
+    if (!signatureRows) {
+      signatureRows = '<tr><td colspan="4" style="text-align:center;color:#666;">No signers on record.</td></tr>';
+    }
+
+    const safeTitle = escapeHtml(title);
+    const safeFileSlug = (title || 'document').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'document';
+
+    const fullHtml =
+      '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+      + '<title>' + safeTitle + ' — Nexus Homes</title>'
+      + '<style>'
+      + '*{box-sizing:border-box;}'
+      + 'body{font-family:"Inter","Helvetica Neue",Arial,sans-serif;color:#1f2937;line-height:1.6;margin:0;padding:0;background:#f4f6fa;}'
+      + '.toolbar{position:sticky;top:0;background:#0B1D3E;color:#fff;padding:.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;z-index:10;}'
+      + '.toolbar-title{font-weight:700;font-size:.95rem;}'
+      + '.print-btn{background:#2563EB;color:#fff;border:none;padding:.55rem 1.2rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;}'
+      + '.print-btn:hover{background:#1a4fcc;}'
+      + '.page{max-width:8.5in;margin:1.5rem auto;background:#fff;padding:1in;box-shadow:0 4px 20px rgba(0,0,0,.08);}'
+      + '.brand-bar{border-bottom:2px solid #2563EB;padding-bottom:.85rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:flex-end;}'
+      + '.brand-name{font-weight:800;color:#0B1D3E;font-size:1.1rem;letter-spacing:.5px;}'
+      + '.brand-sub{font-size:.75rem;color:#666;text-transform:uppercase;letter-spacing:1px;}'
+      + '.doc-title{font-size:1.6rem;font-weight:800;color:#0B1D3E;margin:0 0 .25rem;}'
+      + '.doc-meta{font-size:.78rem;color:#666;margin-bottom:1.5rem;}'
+      + '.doc-body h1{font-size:1.4rem;font-weight:800;color:#0B1D3E;margin:1.4rem 0 .65rem;}'
+      + '.doc-body h2{font-size:1.1rem;font-weight:800;color:#0B1D3E;margin:1.2rem 0 .5rem;}'
+      + '.doc-body h3{font-size:.98rem;font-weight:700;color:#0B1D3E;margin:1rem 0 .4rem;}'
+      + '.doc-body p{margin:.5rem 0;}'
+      + '.doc-body ul,.doc-body ol{margin:.5rem 0 .5rem 1.5rem;}'
+      + '.doc-body table{border-collapse:collapse;margin:.85rem 0;width:100%;}'
+      + '.doc-body th,.doc-body td{border:1px solid #e5e7eb;padding:.5rem .75rem;text-align:left;font-size:.88rem;}'
+      + '.doc-body th{background:#f9fafb;font-weight:700;}'
+      + '.doc-body strong{color:#0f172a;font-weight:700;}'
+      + '.doc-body em{color:#4b5563;font-style:italic;}'
+      + '.sig-section{margin-top:2rem;border-top:2px solid #0B1D3E;padding-top:1.25rem;page-break-inside:avoid;}'
+      + '.sig-title{font-size:1.1rem;font-weight:800;color:#0B1D3E;margin-bottom:.75rem;}'
+      + '.sig-table{width:100%;border-collapse:collapse;font-size:.85rem;}'
+      + '.sig-table th{background:#f9fafb;text-align:left;padding:.5rem .65rem;border:1px solid #e5e7eb;font-weight:700;color:#0B1D3E;}'
+      + '.sig-table td{padding:.5rem .65rem;border:1px solid #e5e7eb;}'
+      + '.sig-typed{font-family:"Brush Script MT","Lucida Handwriting",cursive;font-size:1.1rem;color:#0B1D3E;}'
+      + '.sig-status{display:inline-block;padding:.15rem .5rem;border-radius:8px;font-size:.68rem;font-weight:800;letter-spacing:.4px;}'
+      + '.sig-signed{background:#D1FAE5;color:#065F46;}'
+      + '.sig-pending{background:#FEF3C7;color:#92400E;}'
+      + '.sig-declined{background:#FEE2E2;color:#991B1B;}'
+      + '.footer{margin-top:2.5rem;padding-top:1rem;border-top:1px solid #e5e7eb;font-size:.72rem;color:#6b7280;text-align:center;line-height:1.5;}'
+      + '.footer strong{color:#0B1D3E;}'
+      + '@media print{'
+      + '.toolbar{display:none;}'
+      + 'body{background:#fff;}'
+      + '.page{margin:0;padding:.6in;box-shadow:none;max-width:none;}'
+      + '}'
+      + '</style></head><body>'
+      + '<div class="toolbar">'
+      + '<div class="toolbar-title">' + safeTitle + '</div>'
+      + '<button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>'
+      + '</div>'
+      + '<div class="page">'
+      + '<div class="brand-bar">'
+      + '<div><div class="brand-name">NEXUS HOMES</div><div class="brand-sub">by Citizens Financial</div></div>'
+      + '<div style="text-align:right;font-size:.72rem;color:#666;">Generated ' + escapeHtml(generatedAt) + '</div>'
+      + '</div>'
+      + '<h1 class="doc-title">' + safeTitle + '</h1>'
+      + '<div class="doc-meta">Group ID: ' + escapeHtml(_activeGroupId || '') + '</div>'
+      + '<div class="doc-body">' + bodyHtml + '</div>'
+      + '<div class="sig-section">'
+      + '<div class="sig-title">Signatures</div>'
+      + '<table class="sig-table">'
+      + '<thead><tr><th>Signer</th><th>Typed Signature</th><th>Date Signed</th><th>Status</th></tr></thead>'
+      + '<tbody>' + signatureRows + '</tbody>'
+      + '</table>'
+      + '</div>'
+      + '<div class="footer">'
+      + '<strong>Citizens Financial Home Services</strong> &nbsp;|&nbsp; Nexus Homes Program &nbsp;|&nbsp; NMLS #2503947<br>'
+      + 'This document is provided for informational purposes only and does not constitute legal or financial advice.<br>'
+      + 'Consult a licensed attorney before relying on the terms herein.'
+      + '</div>'
+      + '</div>'
+      + '<script>document.title=' + JSON.stringify(safeFileSlug + '-nexus-homes') + ';<\/script>'
+      + '</body></html>';
+
+    const w = window.open('', '_blank');
+    if (!w) {
+      showToast('Pop-up blocked. Allow pop-ups to download PDF.', 'error');
+      return;
+    }
+    w.document.open();
+    w.document.write(fullHtml);
+    w.document.close();
+  } catch (e) {
+    console.error('downloadDocPdf failed:', e);
+    showToast('Could not open PDF view: ' + (e.message || e), 'error');
+  }
+}
+window.downloadDocPdf = downloadDocPdf;
 
 async function loadGroupChat() {
   const t = document.getElementById('grp-chat-thread');
@@ -15256,6 +15709,7 @@ showView = function(viewName) {
     <!-- Actions based on group status -->
     <div id="grp-preapproval-section" style="display:none;"></div>
         <div id="grp-docs-section" style="display:none;"></div>
+        <div id="grp-files-section" style="display:none;"></div>
         <div id="grp-actions-area"></div>
 
     <!-- Group chat -->
@@ -15770,6 +16224,53 @@ showView = function(viewName) {
     <div class="pa-modal-foot">
       <button class="btn-outline" onclick="savePreapproval(false)">Save Draft</button>
       <button class="btn-primary" onclick="savePreapproval(true)">Submit Pre-Approval</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ UPLOAD MODAL ══════════════════════ -->
+<div class="up-modal" id="up-modal" onclick="if(event.target===this)closeUploadModal()">
+  <div class="up-modal-card">
+    <div class="up-modal-head">
+      <div>
+        <div class="up-modal-title">Upload Shared File</div>
+        <div style="font-size:.74rem;color:var(--gray-text);">Visible to everyone in your group. 25MB max.</div>
+      </div>
+      <button class="doc-modal-close" onclick="closeUploadModal()">×</button>
+    </div>
+    <div class="up-modal-body">
+      <div>
+        <label class="up-modal-label">File</label>
+        <div class="up-modal-filebox" id="up-filebox">
+          <input type="file" id="up-file-input" style="display:none;" onchange="onUploadFilePicked(event)">
+          <button type="button" class="btn-outline" style="padding:.55rem 1.2rem;font-size:.85rem;" onclick="document.getElementById('up-file-input').click()">Choose File…</button>
+          <div class="up-modal-filename" id="up-filename" style="display:none;"></div>
+          <div class="up-modal-filesize" id="up-filesize" style="display:none;"></div>
+        </div>
+      </div>
+      <div>
+        <label class="up-modal-label" for="up-tag">Tag</label>
+        <select id="up-tag" class="up-modal-select">
+          <option value="other">Other</option>
+          <option value="income_proof">Income Proof (paystub, W-2)</option>
+          <option value="bank_statement">Bank Statement</option>
+          <option value="id">Government ID</option>
+          <option value="gift_letter">Gift Letter</option>
+          <option value="prior_lease">Prior Lease</option>
+          <option value="tax_return">Tax Return</option>
+          <option value="signed_doc">Signed Document</option>
+        </select>
+      </div>
+      <div>
+        <label class="up-modal-label" for="up-notes">Notes (optional)</label>
+        <textarea id="up-notes" class="up-modal-textarea" maxlength="500" placeholder="Add context for your group…"></textarea>
+      </div>
+      <div id="up-modal-error" class="up-modal-error" style="display:none;"></div>
+      <div id="up-modal-progress" class="up-modal-progress" style="display:none;">Uploading…</div>
+    </div>
+    <div class="up-modal-foot">
+      <button class="btn-outline" onclick="closeUploadModal()">Cancel</button>
+      <button class="btn-primary" id="up-submit-btn" onclick="submitUpload()">Upload</button>
     </div>
   </div>
 </div>
