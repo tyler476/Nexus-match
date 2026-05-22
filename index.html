@@ -349,6 +349,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);padding:2.5rem 1.5rem;f
 /* PDF Download button on doc card */
 .doc-card-pdf-btn{font-size:.72rem;padding:.35rem .7rem;border-radius:7px;border:1.5px solid var(--gray);background:#fff;color:var(--navy);font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;margin-left:.5rem;}
 .doc-card-pdf-btn:hover{border-color:var(--blue);color:var(--blue);background:#EFF6FF;}
+.doc-card-pdf-locked{font-size:.7rem;padding:.3rem .6rem;border-radius:7px;background:#F3F4F6;color:#6B7280;font-weight:700;margin-left:.5rem;letter-spacing:.2px;}
 
 /* ═══ Pre-approval form + summary ═══ */
 .grp-pa-section{background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;}
@@ -13300,11 +13301,20 @@ async function loadGroupDocuments() {
     const headlineRight = groupAllDone
       ? '<span style="background:#D1FAE5;color:#065F46;padding:.3rem .65rem;border-radius:10px;font-size:.72rem;font-weight:800;">✓ ALL SIGNED</span>'
       : '<span class="grp-docs-progress">' + allSigned + ' of ' + totalDocs + ' you signed</span>';
+    const workflowBanner = groupAllDone
+      ? '<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">'
+        + '<div style="font-size:.85rem;color:#065F46;"><strong>✓ All 6 documents are fully signed by every co-buyer.</strong><div style="font-size:.76rem;margin-top:.2rem;">Download the complete signed packet — same copy for everyone, all signatures included.</div></div>'
+        + '<button class="btn-primary btn-sm" onclick="downloadAllSignedDocsPdf()" style="white-space:nowrap;">⬇ Download Complete Signed Packet</button>'
+        + '</div>'
+      : '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;color:#1E40AF;line-height:1.5;">'
+        + '<strong>How signing works:</strong> Click each document below to read it, then type your full legal name and check the box to sign — <strong>in-app</strong>. All ' + totalDocs + ' members sign the <strong>same shared document</strong> in Supabase, not separate copies. Once every member has signed every document, the final signed PDF unlocks for everyone to download — identical for all parties.'
+        + '</div>';
     let html = '<div class="grp-docs-head">'
       + '<div><div class="grp-docs-title">📄 Co-Owner Documents — View, Sign &amp; Download</div>'
-      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All ' + totalDocs + ' Nexus Homes legal templates. Every co-buyer must sign before you can choose a realtor.</div></div>'
+      + '<div style="font-size:.78rem;color:var(--gray-text);margin-top:.15rem;">All ' + totalDocs + ' Nexus Homes legal templates. Sign in-app — do not print and sign offline.</div></div>'
       + headlineRight
-      + '</div>';
+      + '</div>'
+      + workflowBanner;
     docs.forEach(function(d) {
       const myStatus = d.my_status || 'pending';
       const isSignedByMe = myStatus === 'signed';
@@ -13317,15 +13327,18 @@ async function loadGroupDocuments() {
         const nm = s.is_me ? 'You' : (s.name || 'Unknown').split(' ')[0];
         return '<span class="doc-signer-chip ' + sCls + '">' + icon + ' ' + escapeHtml(nm) + '</span>';
       }).join('');
+      const pdfBtn = allDoneOnThisDoc
+        ? '<button class="doc-card-pdf-btn" onclick="event.stopPropagation();downloadDocPdf(\'' + d.document_id + '\')" title="Open final signed copy with all signatures">⬇ Download Signed Copy</button>'
+        : '<span class="doc-card-pdf-locked" title="PDF available once all members sign in-app">🔒 PDF locked until all sign</span>';
       html += '<div class="doc-card ' + (allDoneOnThisDoc ? 'signed' : '') + '" onclick="openDocModal(\'' + d.document_id + '\')">'
         + '<div class="doc-card-head">'
         + '<div class="doc-card-title">' + escapeHtml(d.title) + '</div>'
         + '<div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">'
         + '<span class="doc-card-status ' + statusCls + '">' + statusLabel + '</span>'
-        + '<button class="doc-card-pdf-btn" onclick="event.stopPropagation();downloadDocPdf(\'' + d.document_id + '\')" title="Open print-ready PDF view">⬇ Download PDF</button>'
+        + pdfBtn
         + '</div>'
         + '</div>'
-        + '<div class="doc-card-meta">Click to review &amp; sign</div>'
+        + '<div class="doc-card-meta">Click to review &amp; sign in-app</div>'
         + '<div class="doc-card-signers">' + signerChips + '</div>'
         + '</div>';
     });
@@ -13840,6 +13853,154 @@ async function downloadDocPdf(docId) {
   }
 }
 window.downloadDocPdf = downloadDocPdf;
+
+async function downloadAllSignedDocsPdf() {
+  if (!_activeGroupId) return;
+  try {
+    const { data: docs, error } = await sb.rpc('get_group_documents', { p_group_id: _activeGroupId });
+    if (error) throw error;
+    if (!docs || docs.length === 0) { showToast('No documents to download.', 'error'); return; }
+
+    // Verify every doc is fully signed
+    const notFullySigned = docs.filter(function(d) { return d.signed_count !== d.total_signers; });
+    if (notFullySigned.length > 0) {
+      showToast('Cannot download — ' + notFullySigned.length + ' document(s) not yet fully signed.', 'error');
+      return;
+    }
+
+    const generatedAt = new Date().toLocaleString();
+
+    function renderSignatureRows(doc) {
+      const signers = doc.signers || [];
+      let rows = '';
+      signers.forEach(function(s) {
+        const name = s.name || (s.is_me ? 'You' : 'Unknown');
+        const status = s.status || 'pending';
+        let signedDisplay = '—';
+        if (status === 'signed') {
+          const ts = s.signed_at || (s.is_me ? doc.my_signed_at : null);
+          signedDisplay = ts ? new Date(ts).toLocaleString() : 'Signed';
+        } else if (status === 'declined') {
+          signedDisplay = 'Declined';
+        } else {
+          signedDisplay = 'Pending';
+        }
+        const typedName = s.typed_name || (status === 'signed' ? name : '');
+        rows +=
+          '<tr>'
+          + '<td>' + escapeHtml(name) + '</td>'
+          + '<td class="sig-typed">' + escapeHtml(typedName) + '</td>'
+          + '<td>' + escapeHtml(signedDisplay) + '</td>'
+          + '<td><span class="sig-status sig-' + escapeHtml(status) + '">' + escapeHtml(status.toUpperCase()) + '</span></td>'
+          + '</tr>';
+      });
+      if (!rows) rows = '<tr><td colspan="4" style="text-align:center;color:#666;">No signers on record.</td></tr>';
+      return rows;
+    }
+
+    // Build a single consolidated HTML with all 6 docs, each followed by its signature table
+    let allDocsHtml = '';
+    docs.forEach(function(doc, idx) {
+      const title = doc.title || ('Document ' + (idx + 1));
+      const bodyHtml = mdToHtml(doc.body_md || '');
+      allDocsHtml +=
+        '<div class="doc-section">'
+        + '<div class="doc-section-num">Document ' + (idx + 1) + ' of ' + docs.length + '</div>'
+        + '<h1 class="doc-title">' + escapeHtml(title) + '</h1>'
+        + '<div class="doc-body">' + bodyHtml + '</div>'
+        + '<div class="sig-section">'
+        + '<div class="sig-title">Signatures</div>'
+        + '<table class="sig-table">'
+        + '<thead><tr><th>Signer</th><th>Typed Signature</th><th>Date Signed</th><th>Status</th></tr></thead>'
+        + '<tbody>' + renderSignatureRows(doc) + '</tbody>'
+        + '</table>'
+        + '</div>'
+        + '</div>';
+    });
+
+    const fullHtml =
+      '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+      + '<title>Complete Signed Packet — Nexus Homes</title>'
+      + '<style>'
+      + '*{box-sizing:border-box;}'
+      + 'body{font-family:"Inter","Helvetica Neue",Arial,sans-serif;color:#1f2937;line-height:1.6;margin:0;padding:0;background:#f4f6fa;}'
+      + '.toolbar{position:sticky;top:0;background:#0B1D3E;color:#fff;padding:.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;z-index:10;}'
+      + '.toolbar-title{font-weight:700;font-size:.95rem;}'
+      + '.print-btn{background:#2563EB;color:#fff;border:none;padding:.55rem 1.2rem;border-radius:8px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;}'
+      + '.print-btn:hover{background:#1a4fcc;}'
+      + '.page{max-width:8.5in;margin:1.5rem auto;background:#fff;padding:1in;box-shadow:0 4px 20px rgba(0,0,0,.08);}'
+      + '.brand-bar{border-bottom:2px solid #2563EB;padding-bottom:.85rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:flex-end;}'
+      + '.brand-name{font-weight:800;color:#0B1D3E;font-size:1.1rem;letter-spacing:.5px;}'
+      + '.brand-sub{font-size:.75rem;color:#666;text-transform:uppercase;letter-spacing:1px;}'
+      + '.cover-title{font-size:2rem;font-weight:800;color:#0B1D3E;margin:1.5rem 0 .5rem;}'
+      + '.cover-sub{font-size:.95rem;color:#4B5563;margin-bottom:2rem;}'
+      + '.cover-toc{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:2rem;}'
+      + '.cover-toc h3{margin:0 0 .65rem;font-size:1rem;color:#0B1D3E;}'
+      + '.cover-toc ol{margin:0;padding-left:1.5rem;font-size:.9rem;}'
+      + '.cover-toc li{margin:.25rem 0;}'
+      + '.doc-section{page-break-before:always;padding-top:1rem;}'
+      + '.doc-section:first-of-type{page-break-before:auto;}'
+      + '.doc-section-num{font-size:.75rem;color:#6B7280;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:.5rem;}'
+      + '.doc-title{font-size:1.6rem;font-weight:800;color:#0B1D3E;margin:0 0 1rem;}'
+      + '.doc-body h1{font-size:1.4rem;font-weight:800;color:#0B1D3E;margin:1.4rem 0 .65rem;}'
+      + '.doc-body h2{font-size:1.1rem;font-weight:800;color:#0B1D3E;margin:1.2rem 0 .5rem;}'
+      + '.doc-body h3{font-size:.98rem;font-weight:700;color:#0B1D3E;margin:1rem 0 .4rem;}'
+      + '.doc-body p{margin:.5rem 0;}'
+      + '.doc-body ul,.doc-body ol{margin:.5rem 0 .5rem 1.5rem;}'
+      + '.doc-body table{border-collapse:collapse;margin:.85rem 0;width:100%;}'
+      + '.doc-body th,.doc-body td{border:1px solid #e5e7eb;padding:.5rem .75rem;text-align:left;font-size:.88rem;}'
+      + '.doc-body th{background:#f9fafb;font-weight:700;}'
+      + '.doc-body strong{color:#0f172a;font-weight:700;}'
+      + '.doc-body em{color:#4b5563;font-style:italic;}'
+      + '.sig-section{margin-top:2rem;border-top:2px solid #0B1D3E;padding-top:1.25rem;page-break-inside:avoid;}'
+      + '.sig-title{font-size:1.1rem;font-weight:800;color:#0B1D3E;margin-bottom:.75rem;}'
+      + '.sig-table{width:100%;border-collapse:collapse;font-size:.85rem;}'
+      + '.sig-table th{background:#f9fafb;text-align:left;padding:.5rem .65rem;border:1px solid #e5e7eb;font-weight:700;color:#0B1D3E;}'
+      + '.sig-table td{padding:.5rem .65rem;border:1px solid #e5e7eb;}'
+      + '.sig-typed{font-family:"Brush Script MT","Lucida Handwriting",cursive;font-size:1.1rem;color:#0B1D3E;}'
+      + '.sig-status{display:inline-block;padding:.15rem .5rem;border-radius:8px;font-size:.68rem;font-weight:800;letter-spacing:.4px;}'
+      + '.sig-signed{background:#D1FAE5;color:#065F46;}'
+      + '.sig-pending{background:#FEF3C7;color:#92400E;}'
+      + '.sig-declined{background:#FEE2E2;color:#991B1B;}'
+      + '.footer{margin-top:2.5rem;padding-top:1rem;border-top:1px solid #e5e7eb;font-size:.72rem;color:#6b7280;text-align:center;line-height:1.5;}'
+      + '.footer strong{color:#0B1D3E;}'
+      + '@media print{.toolbar{display:none;}body{background:#fff;}.page{margin:0;padding:.6in;box-shadow:none;max-width:none;}}'
+      + '</style></head><body>'
+      + '<div class="toolbar">'
+      + '<div class="toolbar-title">Complete Signed Packet — ' + docs.length + ' Documents</div>'
+      + '<button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>'
+      + '</div>'
+      + '<div class="page">'
+      + '<div class="brand-bar">'
+      + '<div><div class="brand-name">NEXUS HOMES</div><div class="brand-sub">by Citizens Financial</div></div>'
+      + '<div style="text-align:right;font-size:.72rem;color:#666;">Generated ' + escapeHtml(generatedAt) + '</div>'
+      + '</div>'
+      + '<h1 class="cover-title">Complete Signed Co-Owner Packet</h1>'
+      + '<div class="cover-sub">Group ID: ' + escapeHtml(_activeGroupId) + ' &nbsp;·&nbsp; All ' + docs.length + ' documents signed by every co-buyer.</div>'
+      + '<div class="cover-toc"><h3>Contents</h3><ol>'
+      + docs.map(function(d) { return '<li>' + escapeHtml(d.title || 'Untitled') + '</li>'; }).join('')
+      + '</ol></div>'
+      + allDocsHtml
+      + '<div class="footer">'
+      + '<strong>Citizens Financial Home Services</strong> &nbsp;|&nbsp; Nexus Homes Program &nbsp;|&nbsp; NMLS #2503947<br>'
+      + 'This document is provided for informational purposes only and does not constitute legal or financial advice.<br>'
+      + 'Consult a licensed attorney before relying on the terms herein.'
+      + '</div>'
+      + '</div>'
+      + '<script>document.title="nexus-homes-signed-packet";<\/script>'
+      + '</body></html>';
+
+    const w = window.open('', '_blank');
+    if (!w) { showToast('Pop-up blocked. Allow pop-ups to download PDF.', 'error'); return; }
+    w.document.open();
+    w.document.write(fullHtml);
+    w.document.close();
+  } catch (e) {
+    console.error('downloadAllSignedDocsPdf failed:', e);
+    showToast('Could not open packet: ' + (e.message || e), 'error');
+  }
+}
+window.downloadAllSignedDocsPdf = downloadAllSignedDocsPdf;
 
 async function loadGroupChat() {
   const t = document.getElementById('grp-chat-thread');
