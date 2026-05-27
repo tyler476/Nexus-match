@@ -8233,16 +8233,9 @@ async function loadAdminAnalytics() {
 
   body.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:2rem;">Loading analytics…</div>';
   try {
-    const [siteRes, funnelRes] = await Promise.all([
-      sb.rpc('admin_site_analytics', { p_days_back: daysBack }),
-      sb.rpc('admin_platform_funnel')
-    ]);
-    if (siteRes.error) throw siteRes.error;
-    if (funnelRes.error) throw funnelRes.error;
-
-    const site = siteRes.data || {};
-    const funnel = funnelRes.data || {};
-    body.innerHTML = renderAnalyticsDashboard(site, funnel, daysBack);
+    const { data, error } = await sb.rpc('admin_full_analytics', { p_days_back: daysBack });
+    if (error) throw error;
+    body.innerHTML = renderAnalyticsDashboard(data || {}, daysBack);
     if (updatedEl) updatedEl.textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch (e) {
     console.error('loadAdminAnalytics failed:', e);
@@ -8254,121 +8247,379 @@ window.loadAdminAnalytics = loadAdminAnalytics;
 function _anStatCard(num, label, sub, bg, border) {
   bg = bg || '#fff';
   border = border || '#E5E7EB';
-  const subHtml = sub ? '<div style="font-size:.7rem;color:var(--gray-text);margin-top:.25rem;">' + escapeHtml(String(sub)) + '</div>' : '';
-  return '<div style="background:' + bg + ';border:1.5px solid ' + border + ';border-radius:10px;padding:.95rem 1.1rem;min-width:130px;flex:1;">'
-    + '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.65rem;line-height:1.05;">' + escapeHtml(String(num != null ? num : 0)) + '</div>'
-    + '<div style="font-size:.72rem;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:.3rem;">' + escapeHtml(label) + '</div>'
+  const subHtml = sub != null ? '<div style="font-size:.7rem;color:var(--gray-text);margin-top:.25rem;">' + escapeHtml(String(sub)) + '</div>' : '';
+  return '<div style="background:' + bg + ';border:1.5px solid ' + border + ';border-radius:10px;padding:.85rem 1rem;min-width:130px;flex:1;">'
+    + '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.5rem;line-height:1.05;">' + escapeHtml(String(num != null ? num : 0)) + '</div>'
+    + '<div style="font-size:.7rem;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:.3rem;">' + escapeHtml(label) + '</div>'
     + subHtml
     + '</div>';
 }
 
-function renderAnalyticsDashboard(site, funnel, daysBack) {
-  const totals = site.totals || {};
-  const today = site.today || {};
+function _anSectionTitle(emoji, title, sub) {
+  return '<div style="margin:1.5rem 0 .6rem;border-top:1px solid #E5E7EB;padding-top:1.1rem;">'
+    + '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;">' + emoji + ' ' + escapeHtml(title)
+    + (sub ? ' <span style="font-size:.74rem;font-weight:600;color:var(--gray-text);">' + escapeHtml(sub) + '</span>' : '')
+    + '</div></div>';
+}
+
+function _anClassBadge(cls) {
+  const map = {
+    internal: { bg: '#DBEAFE', fg: '#1E40AF', label: 'INTERNAL' },
+    family:   { bg: '#FEF3C7', fg: '#92400E', label: 'FAMILY' },
+    external: { bg: '#D1FAE5', fg: '#065F46', label: 'EXTERNAL' }
+  };
+  const m = map[cls] || { bg: '#F3F4F6', fg: '#374151', label: (cls || '').toUpperCase() };
+  return '<span style="display:inline-block;background:' + m.bg + ';color:' + m.fg + ';font-size:.62rem;font-weight:800;padding:.15rem .45rem;border-radius:6px;letter-spacing:.4px;">' + m.label + '</span>';
+}
+
+function _anStatusBadge(status) {
+  const map = {
+    forming:           { bg: '#FEF3C7', fg: '#92400E' },
+    complete:          { bg: '#DBEAFE', fg: '#1E40AF' },
+    seeking_realtor:   { bg: '#E0E7FF', fg: '#3730A3' },
+    realtor_confirmed: { bg: '#D1FAE5', fg: '#065F46' },
+    active:            { bg: '#D1FAE5', fg: '#065F46' },
+    certified:         { bg: '#D1FAE5', fg: '#065F46' },
+    pending:           { bg: '#FEF3C7', fg: '#92400E' },
+    in_progress:       { bg: '#E0E7FF', fg: '#3730A3' },
+    update_required:   { bg: '#FEE2E2', fg: '#991B1B' }
+  };
+  const m = map[status] || { bg: '#F3F4F6', fg: '#374151' };
+  return '<span style="display:inline-block;background:' + m.bg + ';color:' + m.fg + ';font-size:.62rem;font-weight:800;padding:.15rem .45rem;border-radius:6px;letter-spacing:.4px;">' + escapeHtml((status || '').toUpperCase()) + '</span>';
+}
+
+function _anYesNo(b) {
+  return b ? '<span style="color:#065F46;font-weight:800;">✓</span>' : '<span style="color:#9CA3AF;">—</span>';
+}
+
+function _anTimeAgo(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  const diffSec = Math.max(1, Math.round((Date.now() - d.getTime()) / 1000));
+  if (diffSec < 60) return diffSec + 's ago';
+  if (diffSec < 3600) return Math.round(diffSec / 60) + 'm ago';
+  if (diffSec < 86400) return Math.round(diffSec / 3600) + 'h ago';
+  if (diffSec < 86400 * 30) return Math.round(diffSec / 86400) + 'd ago';
+  return d.toLocaleDateString();
+}
+
+function _anPct(num, denom) {
+  if (!denom || denom === 0) return '—';
+  return ((num / denom) * 100).toFixed(1) + '%';
+}
+
+function _anProgressBar(curr, total, color) {
+  const pct = total > 0 ? Math.min(100, Math.round((curr / total) * 100)) : 0;
+  return '<div style="background:#F3F4F6;height:8px;border-radius:4px;overflow:hidden;width:100px;display:inline-block;vertical-align:middle;">'
+    + '<div style="background:' + (color || '#2563EB') + ';height:100%;width:' + pct + '%;"></div></div>'
+    + '<span style="font-size:.72rem;color:var(--gray-text);margin-left:.4rem;vertical-align:middle;">' + curr + '/' + total + '</span>';
+}
+
+function renderAnalyticsDashboard(d, daysBack) {
+  const breakdown = d.account_breakdown || {};
+  const accounts = d.real_accounts || [];
+  const userProfiles = d.user_profiles || [];
+  const realtorProfiles = d.realtor_profiles || [];
+  const groups = d.groups || [];
+  const stuck = d.stuck_groups || [];
+  const funnel = d.funnel_external || {};
+  const site = d.site || {};
+  const targetGeo = d.target_geo || [];
+  const dailySignups = d.daily_signups || [];
+
+  let html = '';
+
+  // ═══ EXECUTIVE SUMMARY ═══
+  html += '<div style="background:linear-gradient(135deg,#0B1D3E,#1e40af);color:#fff;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1.25rem;">'
+    + '<div style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px;opacity:.7;font-weight:800;">Executive Summary</div>'
+    + '<div style="font-size:1.15rem;font-weight:700;margin-top:.3rem;line-height:1.4;">'
+    + '<strong>' + (breakdown.external_count || 0) + '</strong> external signups · '
+    + '<strong>' + (funnel.user_profiles_completed_external || 0) + '</strong> completed profiles · '
+    + '<strong>' + (funnel.in_a_group_external || 0) + '</strong> in groups · '
+    + '<strong>' + (funnel.realtors_certified_external || 0) + '</strong> certified realtors'
+    + '</div>'
+    + '<div style="font-size:.78rem;opacity:.85;margin-top:.4rem;">Excludes ' + (breakdown.internal_count || 0) + ' internal team accounts, ' + (breakdown.family_count || 0) + ' family, and ' + (breakdown.mock_count || 0) + ' mock test accounts.</div>'
+    + '</div>';
+
+  // ═══ ACCOUNT BREAKDOWN ═══
+  html += _anSectionTitle('👤', 'Account Breakdown', 'classified by email pattern');
+  html += '<div style="display:flex;gap:.7rem;flex-wrap:wrap;">';
+  html += _anStatCard(breakdown.external_count, 'External', breakdown.external_last_7d + ' new in 7d · ' + breakdown.external_last_30d + ' in 30d', '#ECFDF5', '#6EE7B7');
+  html += _anStatCard(breakdown.family_count, 'Family/Test', 'manually tagged', '#FEF3C7', '#FCD34D');
+  html += _anStatCard(breakdown.internal_count, 'Internal Team', '@citizensfinancial.co', '#DBEAFE', '#93C5FD');
+  html += _anStatCard(breakdown.mock_count, 'Mock', 'is_mock=true', '#F3F4F6', '#D1D5DB');
+  html += '</div>';
+
+  // ═══ EXTERNAL FUNNEL with conversion % ═══
+  html += _anSectionTitle('📊', 'External User Funnel', 'real prospects only — excludes team, family, mock');
+  const steps = [
+    { label: 'Signed Up', count: funnel.signups_external || 0, color: '#2563EB' },
+    { label: 'Completed Profile', count: funnel.user_profiles_completed_external || 0, color: '#7C3AED' },
+    { label: 'Joined a Group', count: funnel.in_a_group_external || 0, color: '#10B981' },
+    { label: 'Realtor Certified', count: funnel.realtors_certified_external || 0, color: '#F59E0B' }
+  ];
+  html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.95rem 1.1rem;">';
+  steps.forEach(function(s, i) {
+    const prev = i > 0 ? steps[i - 1].count : steps[0].count;
+    const pct = _anPct(s.count, prev);
+    const barPct = steps[0].count > 0 ? Math.max(2, Math.round((s.count / steps[0].count) * 100)) : 2;
+    html += '<div style="margin-bottom:.55rem;">'
+      + '<div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.2rem;">'
+      + '<span style="font-weight:700;color:var(--navy);">' + s.label + '</span>'
+      + '<span style="color:var(--gray-text);"><strong style="color:var(--navy);font-size:.95rem;">' + s.count + '</strong>'
+      + (i > 0 ? ' · ' + pct + ' from prev' : '') + '</span>'
+      + '</div>'
+      + '<div style="background:#F3F4F6;height:10px;border-radius:5px;overflow:hidden;">'
+      + '<div style="background:' + s.color + ';height:100%;width:' + barPct + '%;transition:width .3s;"></div>'
+      + '</div></div>';
+  });
+  html += '</div>';
+
+  // ═══ ALL REAL ACCOUNTS (full drill-down) ═══
+  html += _anSectionTitle('📋', 'All Real Accounts', accounts.length + ' total — sortable by clicking column headers');
+  if (accounts.length === 0) {
+    html += '<div style="color:var(--gray-text);font-size:.85rem;">No real accounts.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;border:1.5px solid #E5E7EB;border-radius:10px;background:#fff;">'
+      + '<table style="width:100%;border-collapse:collapse;font-size:.78rem;min-width:1000px;">'
+      + '<thead><tr style="background:#F9FAFB;border-bottom:2px solid #E5E7EB;">'
+      + '<th style="text-align:left;padding:.55rem .6rem;font-weight:700;color:var(--navy);">Email</th>'
+      + '<th style="text-align:left;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Name</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Class</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Role</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Profile</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Realtor</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Cert</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Visible</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Groups</th>'
+      + '<th style="text-align:center;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Pageviews</th>'
+      + '<th style="text-align:left;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Last Seen</th>'
+      + '<th style="text-align:left;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Signed Up</th>'
+      + '</tr></thead><tbody>';
+    accounts.forEach(function(a) {
+      html += '<tr style="border-bottom:1px solid #F3F4F6;">'
+        + '<td style="padding:.5rem .6rem;color:var(--navy);font-weight:600;word-break:break-all;">' + escapeHtml(a.email || '—') + '</td>'
+        + '<td style="padding:.5rem .4rem;">' + escapeHtml(a.full_name || '—') + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;">' + _anClassBadge(a.class) + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;color:var(--gray-text);">' + escapeHtml(a.role || '—') + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;" title="' + (a.has_user_profile ? 'Has profile, completed=' + a.user_profile_completed : 'No profile') + '">'
+          + (a.has_user_profile ? (a.user_profile_completed ? '<span style="color:#065F46;font-weight:800;">✓</span>' : '<span style="color:#92400E;">~</span>') : '<span style="color:#9CA3AF;">—</span>') + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;" title="' + (a.has_realtor_profile ? 'Realtor profile, completed=' + a.realtor_profile_completed : 'No realtor profile') + '">'
+          + (a.has_realtor_profile ? (a.realtor_profile_completed ? '<span style="color:#065F46;font-weight:800;">✓</span>' : '<span style="color:#92400E;">~</span>') : '<span style="color:#9CA3AF;">—</span>') + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;">' + _anYesNo(a.realtor_cert_completed) + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;">' + _anYesNo(a.realtor_visible) + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;font-weight:700;color:var(--navy);">' + (a.group_memberships || 0) + '</td>'
+        + '<td style="padding:.5rem .4rem;text-align:center;font-weight:700;color:var(--navy);">' + (a.lifetime_pageviews || 0) + '</td>'
+        + '<td style="padding:.5rem .4rem;color:var(--gray-text);white-space:nowrap;">' + _anTimeAgo(a.last_seen_at) + '</td>'
+        + '<td style="padding:.5rem .4rem;color:var(--gray-text);white-space:nowrap;">' + _anTimeAgo(a.created_at) + '</td>'
+        + '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  // ═══ USER PROFILES drill-down ═══
+  html += _anSectionTitle('🏠', 'Buyer Profiles (Completed)', userProfiles.length + ' total — real users only');
+  if (userProfiles.length === 0) {
+    html += '<div style="color:var(--gray-text);font-size:.85rem;">No real user profiles yet.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;border:1.5px solid #E5E7EB;border-radius:10px;background:#fff;">'
+      + '<table style="width:100%;border-collapse:collapse;font-size:.78rem;min-width:1100px;">'
+      + '<thead><tr style="background:#F9FAFB;border-bottom:2px solid #E5E7EB;">'
+      + ['Email','Name','Class','Current City','Target Cities','Price Range','Timeline','Credit','Income','Employment','Co-buyer?','Consent','Created'].map(function(h){
+          return '<th style="text-align:left;padding:.55rem .55rem;font-weight:700;color:var(--navy);white-space:nowrap;">' + h + '</th>';
+        }).join('')
+      + '</tr></thead><tbody>';
+    userProfiles.forEach(function(u) {
+      html += '<tr style="border-bottom:1px solid #F3F4F6;">'
+        + '<td style="padding:.5rem .55rem;color:var(--navy);font-weight:600;word-break:break-all;">' + escapeHtml(u.email || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + escapeHtml(u.full_name || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + _anClassBadge(u.class) + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(u.current_city || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml((u.target_cities || []).join(', ') || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);white-space:nowrap;">' + escapeHtml(u.price_range || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(u.timeline || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(u.credit_range || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(u.income_range || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(u.employment_status || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;text-align:center;">' + _anYesNo(u.has_existing_coborrower) + '</td>'
+        + '<td style="padding:.5rem .55rem;text-align:center;">' + _anYesNo(u.consent_to_realtor_matching) + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);white-space:nowrap;">' + _anTimeAgo(u.created_at) + '</td>'
+        + '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  // ═══ REALTOR PROFILES drill-down ═══
+  html += _anSectionTitle('🏢', 'Realtor Profiles', realtorProfiles.length + ' total — real realtors only');
+  if (realtorProfiles.length === 0) {
+    html += '<div style="color:var(--gray-text);font-size:.85rem;">No real realtor profiles yet.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;border:1.5px solid #E5E7EB;border-radius:10px;background:#fff;">'
+      + '<table style="width:100%;border-collapse:collapse;font-size:.78rem;min-width:1100px;">'
+      + '<thead><tr style="background:#F9FAFB;border-bottom:2px solid #E5E7EB;">'
+      + ['Email','Name','Class','Brokerage','DRE #','NMLS #','Yrs','Cert Status','Visible','Profile','ZIPs','Created'].map(function(h){
+          return '<th style="text-align:left;padding:.55rem .55rem;font-weight:700;color:var(--navy);white-space:nowrap;">' + h + '</th>';
+        }).join('')
+      + '</tr></thead><tbody>';
+    realtorProfiles.forEach(function(r) {
+      html += '<tr style="border-bottom:1px solid #F3F4F6;">'
+        + '<td style="padding:.5rem .55rem;color:var(--navy);font-weight:600;word-break:break-all;">' + escapeHtml(r.email || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + escapeHtml(r.full_name || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + _anClassBadge(r.class) + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(r.brokerage || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(r.dre_number || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);">' + escapeHtml(r.nmls_number || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);text-align:center;">' + (r.years_experience != null ? r.years_experience : '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + _anStatusBadge(r.cert_status) + '</td>'
+        + '<td style="padding:.5rem .55rem;text-align:center;">' + _anYesNo(r.is_visible) + '</td>'
+        + '<td style="padding:.5rem .55rem;text-align:center;">' + _anYesNo(r.profile_completed) + '</td>'
+        + '<td style="padding:.5rem .55rem;text-align:center;font-weight:700;color:var(--navy);">' + (r.zips_count || 0) + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);white-space:nowrap;">' + _anTimeAgo(r.created_at) + '</td>'
+        + '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  // ═══ STUCK GROUPS alert ═══
+  if (stuck.length > 0) {
+    html += _anSectionTitle('⚠️', 'Stuck Groups (>14 days)', stuck.length + ' need attention');
+    html += '<div style="background:#FEE2E2;border:1.5px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;">';
+    stuck.forEach(function(s) {
+      html += '<div style="font-size:.82rem;margin-bottom:.4rem;color:#991B1B;">'
+        + '<strong>' + escapeHtml(s.member_names || 'Group ' + s.id.slice(0, 8)) + '</strong> · '
+        + _anStatusBadge(s.status) + ' · ' + s.current_size + '/' + s.desired_total + ' members · '
+        + Math.round(s.age_days) + 'd old' + (s.has_real_member ? ' · <strong style="color:#7F1D1D;">contains real users</strong>' : ' · mock-only')
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  // ═══ ALL GROUPS drill-down ═══
+  html += _anSectionTitle('👥', 'All Groups', groups.length + ' total (mock + real)');
+  if (groups.length === 0) {
+    html += '<div style="color:var(--gray-text);font-size:.85rem;">No groups.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;border:1.5px solid #E5E7EB;border-radius:10px;background:#fff;">'
+      + '<table style="width:100%;border-collapse:collapse;font-size:.78rem;min-width:1000px;">'
+      + '<thead><tr style="background:#F9FAFB;border-bottom:2px solid #E5E7EB;">'
+      + ['Members','Status','Size','Age','Docs','Signatures','Has Real?','Group ID'].map(function(h){
+          return '<th style="text-align:left;padding:.55rem .55rem;font-weight:700;color:var(--navy);white-space:nowrap;">' + h + '</th>';
+        }).join('')
+      + '</tr></thead><tbody>';
+    groups.forEach(function(g) {
+      html += '<tr style="border-bottom:1px solid #F3F4F6;">'
+        + '<td style="padding:.5rem .55rem;color:var(--navy);font-weight:600;">' + escapeHtml(g.member_names || '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + _anStatusBadge(g.status) + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + _anProgressBar(g.current_size, g.desired_total, '#2563EB') + '</td>'
+        + '<td style="padding:.5rem .55rem;color:var(--gray-text);white-space:nowrap;">' + (g.age_days != null ? g.age_days + 'd' : '—') + '</td>'
+        + '<td style="padding:.5rem .55rem;text-align:center;font-weight:700;color:var(--navy);">' + (g.docs_count || 0) + '</td>'
+        + '<td style="padding:.5rem .55rem;">' + _anProgressBar(g.sigs_collected, g.sigs_total, '#10B981') + '</td>'
+        + '<td style="padding:.5rem .55rem;text-align:center;">' + _anYesNo(g.has_real_member) + '</td>'
+        + '<td style="padding:.5rem .55rem;font-family:ui-monospace,monospace;color:var(--gray-text);font-size:.7rem;">' + escapeHtml(g.id.slice(0, 8)) + '…</td>'
+        + '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  // ═══ SITE VIEWERS ═══
+  const tot = site.totals || {};
   const live = site.live_now || {};
+  const today = site.today || {};
   const byDay = site.by_day || [];
   const topViews = site.top_views || [];
   const topRefs = site.top_referrers || [];
 
-  // ── Site Viewers section ──
-  let html = '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;margin-bottom:.55rem;">🌐 Site Viewers <span style="font-size:.75rem;font-weight:600;color:var(--gray-text);">(last ' + daysBack + 'd)</span></div>';
-  html += '<div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.55rem;">';
+  html += _anSectionTitle('🌐', 'Site Viewers', 'last ' + daysBack + 'd window');
+  html += '<div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.7rem;">';
   html += _anStatCard(live.sessions_last_5min, 'Live Now', 'sessions in last 5 min', '#ECFDF5', '#6EE7B7');
-  html += _anStatCard(today.pageviews_today, 'Pageviews Today', today.sessions_today + ' sessions', '#EFF6FF', '#BFDBFE');
-  html += _anStatCard(totals.pageviews, 'Total Pageviews', daysBack + 'd window');
-  html += _anStatCard(totals.unique_sessions, 'Unique Sessions', daysBack + 'd window');
-  html += _anStatCard(totals.unique_authed_users, 'Logged-in Users', daysBack + 'd window');
-  html += _anStatCard((totals.anon_pageviews || 0) + ' / ' + (totals.authed_pageviews || 0), 'Anon / Authed', 'pageview split');
+  html += _anStatCard(today.pageviews_today, 'Today', (today.sessions_today || 0) + ' sessions', '#EFF6FF', '#BFDBFE');
+  html += _anStatCard(tot.pageviews, 'Pageviews', daysBack + 'd window');
+  html += _anStatCard(tot.unique_sessions, 'Unique Sessions', daysBack + 'd window');
+  html += _anStatCard(tot.unique_authed_users, 'Logged-in Users', 'distinct accounts');
+  html += _anStatCard((tot.anon_pageviews || 0) + '/' + (tot.authed_pageviews || 0), 'Anon/Authed', 'pageview split');
   html += '</div>';
 
-  // ── Daily sparkline (text-based) ──
+  // Sparkline
   if (byDay.length > 0) {
-    const maxViews = Math.max.apply(null, byDay.map(function(d) { return d.views; }));
-    const sparkBars = byDay.slice().reverse().map(function(d) {
-      const pct = maxViews > 0 ? Math.max(4, Math.round((d.views / maxViews) * 100)) : 4;
-      return '<div title="' + escapeHtml(d.day) + ': ' + d.views + ' views, ' + d.sessions + ' sessions" '
-        + 'style="flex:1;background:linear-gradient(to top, #2563EB ' + pct + '%, #EFF6FF ' + pct + '%);height:60px;border-radius:3px;min-width:8px;cursor:help;"></div>';
+    const maxViews = Math.max.apply(null, byDay.map(function(x) { return x.views; }));
+    const bars = byDay.slice().reverse().map(function(x) {
+      const pct = maxViews > 0 ? Math.max(4, Math.round((x.views / maxViews) * 100)) : 4;
+      return '<div title="' + escapeHtml(x.day) + ': ' + x.views + ' views, ' + x.sessions + ' sessions" '
+        + 'style="flex:1;background:linear-gradient(to top, #2563EB ' + pct + '%, #EFF6FF ' + pct + '%);height:55px;border-radius:3px;min-width:6px;cursor:help;"></div>';
     }).join('');
-    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1.25rem;">'
-      + '<div style="font-size:.78rem;color:var(--navy);font-weight:700;margin-bottom:.5rem;">Daily Pageviews (hover for details)</div>'
-      + '<div style="display:flex;gap:3px;align-items:flex-end;height:60px;">' + sparkBars + '</div>'
-      + '<div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--gray-text);margin-top:.3rem;">'
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:.9rem;">'
+      + '<div style="font-size:.78rem;color:var(--navy);font-weight:700;margin-bottom:.45rem;">Daily Pageviews (hover for details)</div>'
+      + '<div style="display:flex;gap:3px;align-items:flex-end;height:55px;">' + bars + '</div>'
+      + '<div style="display:flex;justify-content:space-between;font-size:.66rem;color:var(--gray-text);margin-top:.3rem;">'
       + '<span>' + escapeHtml((byDay[byDay.length - 1] || {}).day || '') + '</span>'
       + '<span>' + escapeHtml((byDay[0] || {}).day || '') + '</span>'
       + '</div></div>';
   }
 
-  // ── Top views + top referrers (two columns) ──
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">';
+  // Top views + referrers
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.9rem;">';
   html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;">'
-    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.55rem;">Top Pages</div>';
+    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">Top Pages</div>';
   if (topViews.length === 0) {
     html += '<div style="font-size:.78rem;color:var(--gray-text);">No data yet.</div>';
   } else {
-    html += '<table style="width:100%;font-size:.82rem;border-collapse:collapse;">';
+    html += '<table style="width:100%;font-size:.8rem;border-collapse:collapse;">';
     topViews.forEach(function(v) {
-      html += '<tr><td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;color:var(--navy);font-weight:600;">' + escapeHtml(v.view_name || '—') + '</td>'
-        + '<td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;text-align:right;color:var(--gray-text);font-weight:700;">' + escapeHtml(String(v.views)) + '</td></tr>';
+      html += '<tr><td style="padding:.28rem 0;color:var(--navy);font-weight:600;">' + escapeHtml(v.view_name || '—') + '</td>'
+        + '<td style="padding:.28rem 0;text-align:right;color:var(--gray-text);font-weight:700;">' + v.views + '</td></tr>';
     });
     html += '</table>';
+  }
+  html += '</div>';
+  html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;">'
+    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">Top Referrers</div>';
+  if (topRefs.length === 0) {
+    html += '<div style="font-size:.78rem;color:var(--gray-text);">No data yet.</div>';
+  } else {
+    html += '<table style="width:100%;font-size:.8rem;border-collapse:collapse;">';
+    topRefs.forEach(function(r) {
+      const refStr = r.referrer || '—';
+      const refDisplay = refStr.length > 50 ? (refStr.slice(0, 47) + '…') : refStr;
+      html += '<tr><td style="padding:.28rem 0;color:var(--navy);font-weight:600;word-break:break-all;">' + escapeHtml(refDisplay) + '</td>'
+        + '<td style="padding:.28rem 0;text-align:right;color:var(--gray-text);font-weight:700;">' + r.views + '</td></tr>';
+    });
+    html += '</table>';
+  }
+  html += '</div></div>';
+
+  // ═══ GEOGRAPHIC + DAILY SIGNUPS ═══
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.9rem;">';
+  html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;">'
+    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">Where Buyers Want to Live</div>';
+  if (targetGeo.length === 0) {
+    html += '<div style="font-size:.78rem;color:var(--gray-text);">No real user profiles yet.</div>';
+  } else {
+    const maxGeo = Math.max.apply(null, targetGeo.map(function(g) { return g.users; }));
+    html += targetGeo.map(function(g) {
+      const pct = maxGeo > 0 ? Math.round((g.users / maxGeo) * 100) : 0;
+      return '<div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.3rem;font-size:.8rem;">'
+        + '<span style="min-width:110px;color:var(--navy);font-weight:600;">' + escapeHtml(g.city) + '</span>'
+        + '<div style="flex:1;background:#F3F4F6;height:8px;border-radius:4px;overflow:hidden;">'
+        + '<div style="background:#7C3AED;height:100%;width:' + pct + '%;"></div></div>'
+        + '<span style="color:var(--gray-text);font-weight:700;min-width:24px;text-align:right;">' + g.users + '</span>'
+        + '</div>';
+    }).join('');
   }
   html += '</div>';
 
   html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;">'
-    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.55rem;">Top Referrers</div>';
-  if (topRefs.length === 0) {
-    html += '<div style="font-size:.78rem;color:var(--gray-text);">No data yet.</div>';
+    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;">External Signups by Day (last 90d)</div>';
+  if (dailySignups.length === 0) {
+    html += '<div style="font-size:.78rem;color:var(--gray-text);">No external signups yet.</div>';
   } else {
-    html += '<table style="width:100%;font-size:.82rem;border-collapse:collapse;">';
-    topRefs.forEach(function(r) {
-      const refDisplay = (r.referrer || '—').length > 50 ? (r.referrer.slice(0, 47) + '…') : (r.referrer || '—');
-      html += '<tr><td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;color:var(--navy);font-weight:600;word-break:break-all;">' + escapeHtml(refDisplay) + '</td>'
-        + '<td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;text-align:right;color:var(--gray-text);font-weight:700;">' + escapeHtml(String(r.views)) + '</td></tr>';
+    html += '<table style="width:100%;font-size:.8rem;border-collapse:collapse;">';
+    dailySignups.forEach(function(ds) {
+      html += '<tr><td style="padding:.28rem 0;color:var(--navy);font-weight:600;font-family:ui-monospace,monospace;">' + escapeHtml(ds.day) + '</td>'
+        + '<td style="padding:.28rem 0;text-align:right;color:var(--gray-text);font-weight:700;">' + ds.signups + ' signups</td></tr>';
     });
     html += '</table>';
   }
-  html += '</div>';
-  html += '</div>';
-
-  // ── Platform Funnel section ──
-  const acct = funnel.accounts || {};
-  const up = funnel.user_profiles || {};
-  const realtors = funnel.realtors || {};
-  const matches = funnel.matches || {};
-  const groups = funnel.groups || {};
-  const docs = funnel.documents || {};
-  const sel = funnel.realtor_selections || {};
-  const pay = funnel.payments || {};
-
-  html += '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;margin:1.5rem 0 .55rem;">📊 Platform Funnel <span style="font-size:.75rem;font-weight:600;color:var(--gray-text);">(real users, lifetime)</span></div>';
-
-  html += '<div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;">';
-  html += _anStatCard(acct.real, 'Real Accounts', acct.mock != null ? (acct.mock + ' mock') : null, '#fff', '#2563EB');
-  html += _anStatCard(acct.last_7d_real, 'New (7d)', acct.last_30d_real + ' in 30d');
-  html += _anStatCard(up.real != null ? up.real : up.total, 'User Profiles', up.total + ' incl. mock');
-  html += _anStatCard(realtors.real != null ? realtors.real : realtors.total, 'Realtor Profiles', realtors.total + ' incl. mock');
-  html += _anStatCard(matches.total, 'Total Matches');
-  html += '</div>';
-
-  html += '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin:1rem 0 .4rem;">Groups by Stage</div>';
-  html += '<div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:.75rem;">';
-  html += _anStatCard(groups.total, 'All Groups');
-  html += _anStatCard(groups.forming, 'Forming', null, '#FEF3C7', '#FCD34D');
-  html += _anStatCard(groups.complete, 'Complete', null, '#DBEAFE', '#93C5FD');
-  html += _anStatCard(groups.seeking_realtor, 'Seeking Realtor');
-  html += _anStatCard(groups.realtor_confirmed, 'Realtor Confirmed', null, '#D1FAE5', '#6EE7B7');
-  html += _anStatCard(groups.active, 'Active', null, '#D1FAE5', '#10B981');
-  html += '</div>';
-
-  html += '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin:1rem 0 .4rem;">Documents &amp; Conversion</div>';
-  html += '<div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1rem;">';
-  html += _anStatCard(docs.docs_generated, 'Docs Generated');
-  html += _anStatCard(docs.signers_signed, 'Signatures Collected', null, '#D1FAE5', '#6EE7B7');
-  html += _anStatCard(docs.signers_pending, 'Signatures Pending', null, '#FEF3C7', '#FCD34D');
-  html += _anStatCard(docs.signers_declined, 'Declined', null, '#FEE2E2', '#FCA5A5');
-  html += _anStatCard(sel.total, 'Realtor Selections');
-  html += _anStatCard(pay.total, 'Payments', (pay.last_30d || 0) + ' in 30d', '#ECFDF5', '#6EE7B7');
-  html += '</div>';
+  html += '</div></div>';
 
   return html;
 }
