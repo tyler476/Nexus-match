@@ -6109,6 +6109,64 @@ async function trackPageView(viewName) {
 }
 window.trackPageView = trackPageView;
 
+// ─── Platform event + error tracking ─────────────────────────────────
+async function trackEvent(eventType, category, payload) {
+  if (!eventType || !sb || typeof sb.rpc !== 'function') return;
+  try {
+    const sid = _getOrCreateSessionId();
+    const activeViewEl = document.querySelector('.view.active');
+    const viewName = (activeViewEl && activeViewEl.id && activeViewEl.id.indexOf('view-') === 0) ? activeViewEl.id.slice(5) : '';
+    await sb.rpc('track_event', {
+      p_event_type: String(eventType).slice(0, 80),
+      p_event_category: category ? String(category).slice(0, 40) : null,
+      p_payload: payload || {},
+      p_session_id: sid,
+      p_view_name: viewName
+    });
+  } catch (e) {
+    console.debug('[trackEvent] failed', e);
+  }
+}
+window.trackEvent = trackEvent;
+
+async function trackClientError(errorType, errorMessage, context, extraPayload) {
+  if (!sb || typeof sb.rpc !== 'function') return;
+  try {
+    const sid = _getOrCreateSessionId();
+    const activeViewEl = document.querySelector('.view.active');
+    const viewName = (activeViewEl && activeViewEl.id && activeViewEl.id.indexOf('view-') === 0) ? activeViewEl.id.slice(5) : '';
+    const ua = (navigator && navigator.userAgent) ? navigator.userAgent.slice(0, 240) : '';
+    await sb.rpc('track_client_error', {
+      p_error_type: String(errorType || 'unknown').slice(0, 80),
+      p_error_message: String(errorMessage || '').slice(0, 2000),
+      p_context: context ? String(context).slice(0, 200) : null,
+      p_view_name: viewName,
+      p_session_id: sid,
+      p_user_agent: ua,
+      p_stack: (extraPayload && extraPayload.stack) ? String(extraPayload.stack).slice(0, 5000) : null,
+      p_payload: extraPayload || {}
+    });
+  } catch (e) {
+    console.debug('[trackClientError] failed', e);
+  }
+}
+window.trackClientError = trackClientError;
+
+// Global error capture — silently logs uncaught errors and unhandled promise rejections
+window.addEventListener('error', function(ev) {
+  try {
+    trackClientError('uncaught_error', (ev.error && ev.error.message) || ev.message || 'unknown',
+      ev.filename ? (ev.filename + ':' + ev.lineno) : null,
+      { stack: ev.error && ev.error.stack });
+  } catch (_) {}
+});
+window.addEventListener('unhandledrejection', function(ev) {
+  try {
+    const r = ev.reason || {};
+    trackClientError('unhandled_rejection', (r.message || String(r)).slice(0, 500), null, { stack: r.stack });
+  } catch (_) {}
+});
+
 // ── ADMIN AUTH ──
 const ADMIN_CODE = 'nexus2026';
 function checkAdminPass() {
@@ -8397,7 +8455,7 @@ function renderAnalyticsDashboard(d, daysBack) {
       + '<th style="text-align:left;padding:.55rem .4rem;font-weight:700;color:var(--navy);">Signed Up</th>'
       + '</tr></thead><tbody>';
     accounts.forEach(function(a) {
-      html += '<tr style="border-bottom:1px solid #F3F4F6;">'
+      html += '<tr style="border-bottom:1px solid #F3F4F6;cursor:pointer;" onclick="openUserDrillDown(\'' + escapeHtml(a.id) + '\')" onmouseover="this.style.background=\'#F9FAFB\'" onmouseout="this.style.background=\'\'">'
         + '<td style="padding:.5rem .6rem;color:var(--navy);font-weight:600;word-break:break-all;">' + escapeHtml(a.email || '—') + '</td>'
         + '<td style="padding:.5rem .4rem;">' + escapeHtml(a.full_name || '—') + '</td>'
         + '<td style="padding:.5rem .4rem;text-align:center;">' + _anClassBadge(a.class) + '</td>'
@@ -8620,6 +8678,300 @@ function renderAnalyticsDashboard(d, daysBack) {
     html += '</table>';
   }
   html += '</div></div>';
+
+  // ═══ STRIPE STATUS ═══
+  const stripe = d.stripe || {};
+  const ready = !!stripe.ready_for_live_traffic;
+  html += _anSectionTitle('💳', 'Stripe / Payments', null);
+  if (ready) {
+    html += '<div style="background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:10px;padding:1rem 1.2rem;color:#065F46;margin-bottom:.6rem;">'
+      + '<div style="font-weight:800;font-size:.95rem;margin-bottom:.4rem;">✅ Stripe is LIVE</div>'
+      + '<div style="font-size:.82rem;line-height:1.5;">stripe-checkout and stripe-webhook edge functions deployed. All ' + (stripe.products_total || 0) + ' active products have Stripe Price IDs linked.</div>'
+      + '<div style="font-size:.74rem;margin-top:.4rem;color:#047857;"><strong>Note:</strong> Requires <code>STRIPE_SECRET_KEY</code> + <code>STRIPE_WEBHOOK_SECRET</code> set in Supabase Edge Function Secrets. If checkouts fail with auth errors, that\'s the cause.</div>'
+      + '</div>';
+  } else {
+    html += '<div style="background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:10px;padding:1rem 1.2rem;color:#92400E;margin-bottom:.6rem;">'
+      + '<div style="font-weight:800;font-size:.95rem;margin-bottom:.4rem;">⚠ Stripe partially configured</div>'
+      + '<div style="font-size:.82rem;line-height:1.5;">' + (stripe.products_configured || 0) + ' of ' + (stripe.products_total || 0) + ' products have Stripe Price IDs linked. ' + (stripe.products_missing_price_id || 0) + ' products still need price IDs.</div>'
+      + '<div style="font-size:.74rem;margin-top:.4rem;">Run <code>SELECT slug, stripe_price_id FROM stripe_products WHERE stripe_price_id IS NULL;</code> to see which are missing.</div>'
+      + '</div>';
+  }
+  html += '<div style="display:flex;gap:.7rem;flex-wrap:wrap;">';
+  html += _anStatCard(stripe.active_subscriptions, 'Active Subs', null, '#ECFDF5', '#6EE7B7');
+  html += _anStatCard(stripe.successful_payments, 'Successful Payments', stripe.failed_payments + ' failed');
+  html += _anStatCard('$' + ((stripe.revenue_cents_last_30d || 0) / 100).toFixed(2), 'Revenue 30d', null, '#ECFDF5', '#6EE7B7');
+  html += _anStatCard(stripe.stripe_customers_count, 'Stripe Customers');
+  html += _anStatCard(stripe.webhook_events_received, 'Webhook Events', (stripe.webhook_events_last_24h || 0) + ' in 24h');
+  html += _anStatCard(stripe.canceled_subscriptions, 'Canceled Subs');
+  html += '</div>';
+
+  // ═══ AUTH HEALTH ═══
+  const auth = d.auth || {};
+  html += _anSectionTitle('🔐', 'Auth Health', 'login activity + email confirmation status');
+  html += '<div style="display:flex;gap:.7rem;flex-wrap:wrap;">';
+  html += _anStatCard(auth.logins_24h, 'Logins 24h', null, '#ECFDF5', '#6EE7B7');
+  html += _anStatCard(auth.logins_7d, 'Logins 7d');
+  html += _anStatCard(auth.logins_30d, 'Logins 30d');
+  html += _anStatCard(auth.email_confirmed_count, 'Email Confirmed', auth.email_unconfirmed_count + ' unconfirmed');
+  html += _anStatCard(auth.never_logged_in_count, 'Never Logged In', 'inactive accounts', '#FEF3C7', '#FCD34D');
+  html += '</div>';
+
+  // ═══ REALTOR FUNNEL ═══
+  const fr = d.funnel_realtor || {};
+  html += _anSectionTitle('🏢', 'Realtor Funnel', 'external realtors only — Profile → Cert → Visibility');
+  const realtorSteps = [
+    { label: 'Realtor Profile Started', count: fr.realtor_profile_started || 0, color: '#3B82F6' },
+    { label: 'Profile Completed', count: fr.realtor_profile_completed || 0, color: '#7C3AED' },
+    { label: 'Cert Started', count: fr.cert_started || 0, color: '#F59E0B' },
+    { label: 'Cert Completed', count: fr.cert_completed || 0, color: '#10B981' },
+    { label: 'Visible to Buyers', count: fr.realtor_visible || 0, color: '#065F46' }
+  ];
+  html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.95rem 1.1rem;">';
+  const realtorTop = realtorSteps[0].count;
+  realtorSteps.forEach(function(s, i) {
+    const prev = i > 0 ? realtorSteps[i - 1].count : realtorTop;
+    const pct = _anPct(s.count, prev);
+    const barPct = realtorTop > 0 ? Math.max(2, Math.round((s.count / realtorTop) * 100)) : 2;
+    html += '<div style="margin-bottom:.55rem;">'
+      + '<div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.2rem;">'
+      + '<span style="font-weight:700;color:var(--navy);">' + s.label + '</span>'
+      + '<span style="color:var(--gray-text);"><strong style="color:var(--navy);font-size:.95rem;">' + s.count + '</strong>'
+      + (i > 0 ? ' · ' + pct + ' from prev' : '') + '</span>'
+      + '</div>'
+      + '<div style="background:#F3F4F6;height:10px;border-radius:5px;overflow:hidden;">'
+      + '<div style="background:' + s.color + ';height:100%;width:' + barPct + '%;"></div>'
+      + '</div></div>';
+  });
+  html += '</div>';
+
+  // ═══ DEVICE SPLIT ═══
+  const ds = (d.site || {}).device_split || {};
+  const totalDeviceViews = (ds.mobile_views || 0) + (ds.desktop_views || 0);
+  if (totalDeviceViews > 0) {
+    html += _anSectionTitle('📱', 'Mobile vs Desktop', 'inferred from user-agent strings');
+    html += '<div style="display:flex;gap:.7rem;flex-wrap:wrap;">';
+    html += _anStatCard(ds.mobile_views, 'Mobile Views', _anPct(ds.mobile_views, totalDeviceViews) + ' of traffic', '#DBEAFE', '#93C5FD');
+    html += _anStatCard(ds.desktop_views, 'Desktop Views', _anPct(ds.desktop_views, totalDeviceViews) + ' of traffic');
+    html += _anStatCard(ds.apple_views, 'Apple ecosystem', 'iPhone/iPad/Mac');
+    html += _anStatCard(ds.non_apple_views, 'Non-Apple', 'Android/Win/Linux');
+    html += '</div>';
+  }
+
+  // ═══ RECENT EVENTS FEED ═══
+  const events = d.recent_events || [];
+  html += _anSectionTitle('⚡', 'Recent Platform Events', 'last 50 in past 7 days');
+  if (events.length === 0) {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.95rem 1.1rem;color:var(--gray-text);font-size:.85rem;">No events yet. Once event tracking hooks are firing, every meaningful user action will appear here.</div>';
+  } else {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;max-height:340px;overflow-y:auto;">';
+    events.forEach(function(e) {
+      const cat = e.event_category ? ('<span style="font-size:.62rem;background:#F3F4F6;color:#374151;padding:.1rem .4rem;border-radius:4px;font-weight:800;letter-spacing:.3px;margin-right:.35rem;">' + escapeHtml(e.event_category.toUpperCase()) + '</span>') : '';
+      html += '<div style="padding:.55rem .9rem;border-bottom:1px solid #F3F4F6;font-size:.8rem;">'
+        + '<span style="color:var(--gray-text);font-size:.7rem;font-family:ui-monospace,monospace;margin-right:.4rem;">' + _anTimeAgo(e.created_at) + '</span>'
+        + cat + '<strong style="color:var(--navy);">' + escapeHtml(e.event_type) + '</strong>'
+        + ' &middot; <span style="color:var(--gray-text);">' + escapeHtml(e.who) + '</span>'
+        + (e.who_class ? ' ' + _anClassBadge(e.who_class) : '')
+        + (e.view_name ? ' <span style="color:#9CA3AF;font-size:.7rem;">on /' + escapeHtml(e.view_name) + '</span>' : '')
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  // ═══ RECENT ERRORS ═══
+  const errors = d.recent_errors || [];
+  if (errors.length > 0) {
+    html += _anSectionTitle('🐛', 'Recent Client Errors', errors.length + ' captured');
+    html += '<div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:10px;max-height:280px;overflow-y:auto;">';
+    errors.forEach(function(e) {
+      html += '<div style="padding:.55rem .9rem;border-bottom:1px solid #FECACA;font-size:.78rem;">'
+        + '<span style="color:#7F1D1D;font-size:.7rem;font-family:ui-monospace,monospace;margin-right:.4rem;">' + _anTimeAgo(e.created_at) + '</span>'
+        + '<strong style="color:#991B1B;">' + escapeHtml(e.error_type) + '</strong>'
+        + ' · <span style="color:#7F1D1D;">' + escapeHtml((e.error_message || '').slice(0, 200)) + '</span>'
+        + ' · <span style="color:#9CA3AF;font-size:.7rem;">' + escapeHtml(e.who) + (e.view_name ? ' on /' + escapeHtml(e.view_name) : '') + '</span>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  // ═══ AUDIT LOG ═══
+  const audit = d.audit_recent || [];
+  html += _anSectionTitle('📋', 'Audit Log', 'last 30 admin/sensitive actions');
+  if (audit.length === 0) {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.95rem 1.1rem;color:var(--gray-text);font-size:.85rem;">No audit log entries yet. Sensitive actions (impersonation, data overrides, document regeneration after signatures) will appear here once they fire.</div>';
+  } else {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;max-height:340px;overflow-y:auto;">';
+    audit.forEach(function(a) {
+      html += '<div style="padding:.6rem .9rem;border-bottom:1px solid #F3F4F6;font-size:.8rem;">'
+        + '<span style="color:var(--gray-text);font-size:.7rem;font-family:ui-monospace,monospace;margin-right:.4rem;">' + _anTimeAgo(a.created_at) + '</span>'
+        + '<strong style="color:var(--navy);">' + escapeHtml(a.action) + '</strong>'
+        + ' · <span style="color:var(--gray-text);">actor: <strong>' + escapeHtml(a.actor) + '</strong></span>'
+        + (a.target_type ? ' · <span style="color:#9CA3AF;font-size:.7rem;">target: ' + escapeHtml(a.target_type) + ' ' + escapeHtml((a.target_id || '').slice(0, 8)) + '…</span>' : '')
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PER-USER DRILL-DOWN MODAL (click any account row to open)
+// ═══════════════════════════════════════════════════════════════════
+async function openUserDrillDown(accountId) {
+  if (!accountId) return;
+  let modal = document.getElementById('an-drill-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'an-drill-modal';
+    modal.className = 'up-modal';
+    modal.style.zIndex = '9300';
+    modal.onclick = function(ev) { if (ev.target === modal) closeUserDrillDown(); };
+    modal.innerHTML = '<div class="up-modal-card" style="max-width:880px;">'
+      + '<div class="up-modal-head">'
+      + '<div><div class="up-modal-title" id="an-drill-title">User Drill-Down</div>'
+      + '<div style="font-size:.74rem;color:var(--gray-text);" id="an-drill-sub">Loading…</div></div>'
+      + '<button class="doc-modal-close" onclick="closeUserDrillDown()">×</button>'
+      + '</div>'
+      + '<div class="up-modal-body" id="an-drill-body" style="max-height:75vh;overflow-y:auto;">'
+      + '<div style="text-align:center;color:var(--gray-text);padding:1.5rem;">Loading user timeline…</div>'
+      + '</div>'
+      + '</div>';
+    document.body.appendChild(modal);
+  }
+  modal.classList.add('active');
+  const body = document.getElementById('an-drill-body');
+  body.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:1.5rem;">Loading user timeline…</div>';
+  try {
+    const { data, error } = await sb.rpc('admin_get_user_timeline', { p_account_id: accountId });
+    if (error) throw error;
+    body.innerHTML = renderUserDrillDown(data || {});
+    const a = (data && data.account) || {};
+    document.getElementById('an-drill-title').textContent = '👤 ' + (a.full_name || a.email || 'User');
+    document.getElementById('an-drill-sub').innerHTML = escapeHtml(a.email || '') + ' · ' + escapeHtml(a.role || '—') + ' · ' + _anClassBadge(a.class);
+  } catch (e) {
+    console.error('openUserDrillDown failed:', e);
+    body.innerHTML = '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.9rem 1.1rem;color:#991B1B;font-size:.85rem;"><strong>Could not load timeline.</strong> ' + escapeHtml(e.message || String(e)) + '</div>';
+  }
+}
+window.openUserDrillDown = openUserDrillDown;
+
+function closeUserDrillDown() {
+  const m = document.getElementById('an-drill-modal');
+  if (m) m.classList.remove('active');
+}
+window.closeUserDrillDown = closeUserDrillDown;
+
+function renderUserDrillDown(d) {
+  const a = d.account || {};
+  const au = d.auth || {};
+  const up = d.user_profile;
+  const rp = d.realtor_profile;
+  const groups = d.groups || [];
+  const sigs = d.signatures || [];
+  const timeline = d.timeline || [];
+
+  let html = '';
+
+  // Summary stats
+  html += '<div style="display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1rem;">'
+    + _anStatCard(d.total_events || 0, 'Events', 'lifetime')
+    + _anStatCard(d.total_pageviews || 0, 'Pageviews', 'lifetime')
+    + _anStatCard(d.total_errors || 0, 'Errors', 'lifetime', (d.total_errors > 0 ? '#FEE2E2' : '#fff'), (d.total_errors > 0 ? '#FCA5A5' : '#E5E7EB'))
+    + _anStatCard(groups.length, 'Groups', 'memberships')
+    + _anStatCard(sigs.length, 'Signatures', 'documents signed')
+    + '</div>';
+
+  // Auth status
+  html += '<div style="background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1rem;font-size:.82rem;">'
+    + '<div style="font-weight:700;color:var(--navy);margin-bottom:.4rem;">🔐 Auth</div>'
+    + 'Signed up: <strong>' + (a.created_at ? new Date(a.created_at).toLocaleString() : '—') + '</strong><br>'
+    + 'Last sign-in: <strong>' + (au.last_sign_in_at ? new Date(au.last_sign_in_at).toLocaleString() + ' (' + _anTimeAgo(au.last_sign_in_at) + ')' : 'NEVER') + '</strong><br>'
+    + 'Email confirmed: <strong>' + (au.email_confirmed_at ? new Date(au.email_confirmed_at).toLocaleString() : 'NOT CONFIRMED') + '</strong>'
+    + '</div>';
+
+  // User profile section
+  if (up) {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1rem;font-size:.82rem;">'
+      + '<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;">🏠 Buyer Profile' + (up.profile_completed ? ' <span style="color:#065F46;font-size:.7rem;">✓ COMPLETED</span>' : ' <span style="color:#92400E;font-size:.7rem;">~ INCOMPLETE</span>') + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .8rem;">'
+      + '<div>Current city: <strong>' + escapeHtml(up.current_city || '—') + '</strong></div>'
+      + '<div>Target: <strong>' + escapeHtml((up.target_cities || []).join(', ') || '—') + '</strong></div>'
+      + '<div>Price range: <strong>' + escapeHtml(up.price_range || '—') + '</strong></div>'
+      + '<div>Timeline: <strong>' + escapeHtml(up.timeline || '—') + '</strong></div>'
+      + '<div>Credit: <strong>' + escapeHtml(up.credit_range || '—') + '</strong></div>'
+      + '<div>Income: <strong>' + escapeHtml(up.income_range || '—') + '</strong></div>'
+      + '<div>Employment: <strong>' + escapeHtml(up.employment_status || '—') + '</strong></div>'
+      + '<div>Housing: <strong>' + escapeHtml(up.housing_situation || '—') + '</strong></div>'
+      + '<div>Existing co-buyer: <strong>' + (up.has_existing_coborrower ? 'YES' : 'no') + '</strong></div>'
+      + '<div>Realtor matching consent: <strong>' + (up.consent_to_realtor_matching ? 'YES' : 'no') + '</strong></div>'
+      + '</div>'
+      + '</div>';
+  }
+
+  // Realtor profile section
+  if (rp) {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1rem;font-size:.82rem;">'
+      + '<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;">🏢 Realtor Profile ' + _anStatusBadge(rp.cert_status) + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .8rem;">'
+      + '<div>Brokerage: <strong>' + escapeHtml(rp.brokerage || '—') + '</strong></div>'
+      + '<div>DRE: <strong>' + escapeHtml(rp.dre_number || '—') + '</strong></div>'
+      + '<div>NMLS: <strong>' + escapeHtml(rp.nmls_number || '—') + '</strong></div>'
+      + '<div>Years experience: <strong>' + (rp.years_experience != null ? rp.years_experience : '—') + '</strong></div>'
+      + '<div>Visible: <strong>' + (rp.is_visible ? 'YES' : 'no') + '</strong></div>'
+      + '<div>Profile complete: <strong>' + (rp.profile_completed ? 'YES' : 'no') + '</strong></div>'
+      + '<div>ZIPs: <strong>' + ((rp.selected_zips || []).length) + '</strong></div>'
+      + '<div>Team: <strong>' + escapeHtml(rp.team_name || '—') + '</strong></div>'
+      + '</div>'
+      + '</div>';
+  }
+
+  // Groups
+  if (groups.length > 0) {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1rem;">'
+      + '<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.82rem;">👥 Groups (' + groups.length + ')</div>';
+    groups.forEach(function(g) {
+      html += '<div style="font-size:.78rem;margin-bottom:.3rem;">'
+        + _anStatusBadge(g.status) + ' &nbsp; ' + g.current_size + '/' + g.desired_total + ' members &nbsp;<span style="color:var(--gray-text);font-size:.7rem;font-family:ui-monospace,monospace;">' + escapeHtml(g.id.slice(0, 8)) + '…</span>'
+        + ' &nbsp;<span style="color:var(--gray-text);">' + _anTimeAgo(g.group_created) + '</span>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Signatures
+  if (sigs.length > 0) {
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1rem;">'
+      + '<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.82rem;">✍️ Signatures (' + sigs.length + ')</div>';
+    sigs.forEach(function(s) {
+      html += '<div style="font-size:.78rem;margin-bottom:.3rem;">'
+        + _anStatusBadge(s.status) + ' &nbsp; <strong>' + escapeHtml(s.title) + '</strong>'
+        + ' &nbsp;<span style="color:var(--gray-text);">' + _anTimeAgo(s.signed_at) + '</span>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Timeline
+  html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;">'
+    + '<div style="font-weight:700;color:var(--navy);margin-bottom:.5rem;font-size:.82rem;">📜 Timeline (last 200 events + pageviews)</div>';
+  if (timeline.length === 0) {
+    html += '<div style="color:var(--gray-text);font-size:.78rem;">No tracked activity yet.</div>';
+  } else {
+    html += '<div style="max-height:300px;overflow-y:auto;font-size:.76rem;font-family:ui-monospace,monospace;">';
+    timeline.forEach(function(t) {
+      const kindIcon = t.kind === 'event' ? '⚡' : '👁';
+      const kindColor = t.kind === 'event' ? '#7C3AED' : '#6B7280';
+      html += '<div style="padding:.3rem 0;border-bottom:1px solid #F3F4F6;">'
+        + '<span style="color:var(--gray-text);">' + (t.created_at ? new Date(t.created_at).toLocaleString() : '—') + '</span>'
+        + ' <span style="color:' + kindColor + ';font-weight:800;">' + kindIcon + ' ' + t.kind.toUpperCase() + '</span>'
+        + ' <strong style="color:var(--navy);">' + escapeHtml(t.label || '—') + '</strong>'
+        + (t.category ? ' [' + escapeHtml(t.category) + ']' : '')
+        + (t.view_name ? ' <span style="color:#9CA3AF;">on /' + escapeHtml(t.view_name) + '</span>' : '')
+        + '</div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
 
   return html;
 }
@@ -13169,8 +13521,24 @@ function updatePaywallCta() {
   }
 }
 
-// Set to true when Supabase 'create-checkout' edge function is deployed
-const STRIPE_LIVE = false;
+// Stripe is now live via stripe-checkout / stripe-webhook edge functions.
+// REQUIRES: STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET set in Supabase env.
+const STRIPE_LIVE = true;
+
+// Maps frontend (role + plan key) to backend product slug
+function _planKeyToSlug(role, planKey) {
+  if (role === 'realtor') {
+    if (planKey === 'monthly') return 'nexus_network_monthly';
+    if (planKey === 'quarterly') return 'nexus_network_3mo';
+    if (planKey === 'semiannual') return 'nexus_network_6mo';
+  } else {
+    if (planKey === 'monthly') return 'nexus_home_monthly';
+    if (planKey === 'quarterly') return 'nexus_home_3mo';
+    if (planKey === 'semiannual') return 'nexus_home_6mo';
+    if (planKey === 'one_time') return 'nexus_home_one_time';
+  }
+  return null;
+}
 
 async function handleUpgrade() {
   const role = currentAccount?.role === 'realtor' ? 'realtor' : 'user';
@@ -13182,23 +13550,28 @@ async function handleUpgrade() {
     return;
   }
 
-  // Real Stripe checkout
+  const slug = _planKeyToSlug(role, _selectedPlanKey);
+  if (!slug) {
+    showToast('Unknown plan: ' + role + '/' + _selectedPlanKey, 'error');
+    return;
+  }
+
   const btn = document.getElementById('paywall-cta-btn');
   btn.disabled = true;
   btn.textContent = 'Redirecting to checkout…';
 
   try {
-    const { data, error } = await sb.functions.invoke('create-checkout', {
+    trackEvent('checkout_started', 'payment', { slug: slug, role: role, plan_key: _selectedPlanKey });
+    const { data, error } = await sb.functions.invoke('stripe-checkout', {
       body: {
-        price_id: plan.id,
-        account_id: currentUser.id,
-        role: role,
-        success_url: window.location.origin + '?checkout=success',
-        cancel_url: window.location.origin + '?checkout=cancel'
+        slug: slug,
+        success_url: window.location.origin + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: window.location.origin + '/?checkout=cancel'
       }
     });
     if (error) throw error;
-    if (data?.url) {
+    if (data && data.error) throw new Error(data.error + (data.detail ? ': ' + data.detail : '') + (data.message ? ' — ' + data.message : ''));
+    if (data && data.url) {
       window.location.href = data.url;
     } else {
       throw new Error('No checkout URL returned');
