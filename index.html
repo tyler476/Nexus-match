@@ -7755,6 +7755,16 @@ async function initAuth() {
         history.replaceState(null, '', window.location.pathname);
       }
 
+      // If user landed here from a password-reset email, show the new-password modal
+      // (Supabase already established the session via the recovery token in the URL hash)
+      const _urlHasReset = window.location.search.includes('reset=true') ||
+                           window.location.hash.includes('type=recovery');
+      if (_urlHasReset) {
+        setTimeout(() => openPasswordResetModal(), 200);
+        try { history.replaceState(null, '', window.location.pathname); } catch (_) {}
+        return;
+      }
+
       // Always route logged-in users to their dashboard. The home/landing view
       // is for anonymous visitors. Once you're signed in (especially when admin
       // impersonates a mock account), you should land on the right portal.
@@ -7788,6 +7798,11 @@ async function initAuth() {
 
   sb.auth.onAuthStateChange(async (event, session) => {
     console.log('Auth event:', event);
+    if (event === 'PASSWORD_RECOVERY') {
+      // User clicked the reset-password link in their email; show the change-password modal
+      openPasswordResetModal();
+      return;
+    }
     if (event === 'SIGNED_IN' && session) {
       // Skip if we already handled this in handleLogin (avoids double-routing)
       if (currentUser?.id === session.user.id && currentAccount) {
@@ -8006,6 +8021,60 @@ async function handleForgotPassword() {
   showToast('Password reset email sent! Check your inbox.', 'success');
 }
 window.handleForgotPassword = handleForgotPassword;
+
+// ═══ Password Reset (after clicking email link) ═══
+function openPasswordResetModal() {
+  // Build modal lazily if not in DOM
+  let modal = document.getElementById('pwreset-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'pwreset-modal';
+    modal.className = 'auth-modal active';
+    modal.innerHTML = `
+      <div class="auth-modal-card" style="max-width:420px;">
+        <div class="auth-modal-title">Set a new password</div>
+        <div class="auth-modal-subtitle">You're signed in via the reset link. Choose a new password to finish.</div>
+        <label class="auth-label" for="pwreset-new">New password</label>
+        <input class="auth-input" type="password" id="pwreset-new" placeholder="At least 8 characters" autocomplete="new-password">
+        <label class="auth-label" for="pwreset-confirm">Confirm new password</label>
+        <input class="auth-input" type="password" id="pwreset-confirm" placeholder="Repeat it" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitPasswordReset()">
+        <div class="auth-error" id="pwreset-error" style="display:none;"></div>
+        <button class="auth-btn" style="margin-top:1rem;" onclick="submitPasswordReset()">Update Password</button>
+      </div>`;
+    document.body.appendChild(modal);
+  } else {
+    modal.classList.add('active');
+  }
+  setTimeout(() => { const e = document.getElementById('pwreset-new'); if (e) e.focus(); }, 50);
+}
+window.openPasswordResetModal = openPasswordResetModal;
+
+async function submitPasswordReset() {
+  const newPw = document.getElementById('pwreset-new').value;
+  const conf = document.getElementById('pwreset-confirm').value;
+  const errEl = document.getElementById('pwreset-error');
+  errEl.style.display = 'none';
+  if (!newPw || newPw.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return;
+  }
+  if (!/[a-zA-Z]/.test(newPw) || !/[0-9]/.test(newPw)) {
+    errEl.textContent = 'Password must contain both letters and numbers.'; errEl.style.display = 'block'; return;
+  }
+  if (newPw !== conf) {
+    errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return;
+  }
+  const { error } = await sb.auth.updateUser({ password: newPw });
+  if (error) {
+    errEl.textContent = error.message; errEl.style.display = 'block'; return;
+  }
+  const modal = document.getElementById('pwreset-modal');
+  if (modal) modal.classList.remove('active');
+  showToast('Password updated! You\'re now logged in.', 'success');
+  // Clean the reset param from URL
+  try { history.replaceState(null, '', window.location.pathname); } catch (_) {}
+  setTimeout(() => routeForRole(), 400);
+}
+window.submitPasswordReset = submitPasswordReset;
 
 // ═══ Signup ═══
 async function handleSignup() {
@@ -16675,11 +16744,28 @@ async function changePassword() {
 }
 window.changePassword = changePassword;
 
-function requestDeleteAccount() {
+async function requestDeleteAccount() {
   if (!confirm('Are you sure you want to delete your account?\n\nThis action is PERMANENT. All your data, matches, groups, and profile will be deleted.\n\nType "DELETE" in the next prompt to confirm.')) return;
   const confirmation = prompt('Type DELETE to confirm account deletion:');
   if (confirmation !== 'DELETE') { showToast('Account deletion cancelled', 'info'); return; }
-  showToast('Account deletion requested. Our team will process this within 48 hours and send confirmation to your email.', 'info');
+  const reason = prompt('Optional: tell us why you\'re leaving (helps us improve):') || null;
+  try {
+    const { data, error } = await sb.rpc('request_account_deletion', { p_reason: reason });
+    if (error) throw error;
+    if (data && data.success === false) {
+      showToast('Could not submit request: ' + (data.error || 'unknown'), 'error');
+      return;
+    }
+    if (data && data.message === 'already_pending') {
+      showToast('You already have a pending deletion request. Our team will process it.', 'info');
+      return;
+    }
+    trackEvent('account_deletion_requested', 'account', { reason: reason });
+    showToast('Deletion request submitted. Our team will process within 48 hours and email confirmation. You can keep using your account until then.', 'success');
+  } catch (e) {
+    console.error('requestAccountDeletion failed:', e);
+    showToast('Error submitting request. Please email tyler@citizensfinancial.co directly.', 'error');
+  }
 }
 window.requestDeleteAccount = requestDeleteAccount;
 
