@@ -3334,7 +3334,7 @@ body.is-impersonating .view{padding-top:114px;}
         <button class="admin-tab active" data-admin-tab="mock-data" onclick="switchAdminTab('mock-data')">🎭 Mock Data</button>
         <button class="admin-tab" data-admin-tab="inspector" onclick="switchAdminTab('inspector')">🔍 Inspector</button>
         <button class="admin-tab" data-admin-tab="scenarios" onclick="switchAdminTab('scenarios')">🎬 Test Scenarios</button>
-        <button class="admin-tab" disabled title="Coming soon">📋 Audit Log</button>
+        <button class="admin-tab" data-admin-tab="analytics" onclick="switchAdminTab('analytics')">📊 Analytics</button>
       </nav>
 
       <!-- ─── TAB: Mock Data ─── -->
@@ -3423,6 +3423,24 @@ body.is-impersonating .view{padding-top:114px;}
           <div class="mock-empty">Loading scenarios…</div>
         </div>
         <div id="sc-result" style="margin-top:1.5rem;"></div>
+      </section>
+
+      <!-- ─── TAB: Analytics ─── -->
+      <section id="admin-tab-analytics" class="admin-tab-pane">
+        <div style="display:flex;gap:.65rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <strong style="color:var(--navy);font-size:.95rem;">Window:</strong>
+          <select id="an-window" onchange="loadAdminAnalytics()" style="padding:.45rem .8rem;border:1.5px solid var(--gray);border-radius:8px;font-size:.85rem;background:#fff;color:var(--navy);font-weight:700;">
+            <option value="1">Last 24 hours</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+          <button class="btn-outline" style="padding:.45rem 1rem;font-size:.82rem;border-radius:8px;border-width:1.5px;" onclick="loadAdminAnalytics()">↻ Refresh</button>
+          <span id="an-updated" style="font-size:.75rem;color:var(--gray-text);"></span>
+        </div>
+        <div id="an-body">
+          <div style="text-align:center;color:var(--gray-text);padding:2rem;">Loading analytics…</div>
+        </div>
       </section>
 
     </div>
@@ -6032,7 +6050,64 @@ function showView(viewName) {
     document.getElementById('inv-gate-wrap').style.display = 'flex';
     document.getElementById('inv-dash-wrap').style.display = 'none';
   }
+  // Fire-and-forget pageview tracking (anonymous OK)
+  try { trackPageView(viewName); } catch (_) {}
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// SITE VIEWER TRACKING (anonymous + authenticated)
+// ═══════════════════════════════════════════════════════════════════
+function _getOrCreateSessionId() {
+  try {
+    let sid = localStorage.getItem('nx_session_id');
+    if (sid && sid.length >= 8) return sid;
+    sid = (crypto && crypto.randomUUID)
+      ? crypto.randomUUID().replace(/-/g, '')
+      : (Date.now().toString(36) + Math.random().toString(36).slice(2, 12) + Math.random().toString(36).slice(2, 12));
+    localStorage.setItem('nx_session_id', sid);
+    return sid;
+  } catch (_) {
+    // localStorage unavailable (private mode, etc.) — fall back to in-memory session
+    if (!window._nx_session_mem) {
+      window._nx_session_mem = (Date.now().toString(36) + Math.random().toString(36).slice(2, 14));
+    }
+    return window._nx_session_mem;
+  }
+}
+
+let _lastTrackedView = null;
+let _lastTrackedAt = 0;
+async function trackPageView(viewName) {
+  if (!viewName || !sb || typeof sb.rpc !== 'function') return;
+  // De-dupe rapid identical fires (e.g. multiple showView calls in same tick)
+  const now = Date.now();
+  if (viewName === _lastTrackedView && (now - _lastTrackedAt) < 1500) return;
+  _lastTrackedView = viewName;
+  _lastTrackedAt = now;
+
+  const sid = _getOrCreateSessionId();
+  let ref = '';
+  try { ref = document.referrer || ''; } catch (_) { ref = ''; }
+  // Strip same-origin referrers (internal navigation) — only keep external
+  try {
+    if (ref && ref.indexOf(window.location.origin) === 0) ref = '';
+  } catch (_) {}
+  const ua = (navigator && navigator.userAgent) ? navigator.userAgent.slice(0, 240) : '';
+  const vp = (window.innerWidth || 0) + 'x' + (window.innerHeight || 0);
+  try {
+    await sb.rpc('track_page_view', {
+      p_session_id: sid,
+      p_view_name: viewName,
+      p_referrer: ref || 'direct',
+      p_user_agent: ua,
+      p_viewport: vp
+    });
+  } catch (e) {
+    // Silent — tracking failures should never break the app
+    console.debug('[track] failed', e);
+  }
+}
+window.trackPageView = trackPageView;
 
 // ── ADMIN AUTH ──
 const ADMIN_CODE = 'nexus2026';
@@ -8142,8 +8217,161 @@ function switchAdminTab(tabId) {
   if (tabId === 'mock-data') refreshMockData();
   if (tabId === 'inspector') refreshInspector();
   if (tabId === 'scenarios') renderScenarios();
+  if (tabId === 'analytics') loadAdminAnalytics();
 }
 window.switchAdminTab = switchAdminTab;
+
+// ═══════════════════════════════════════════════════════════════════
+// ADMIN ANALYTICS TAB
+// ═══════════════════════════════════════════════════════════════════
+async function loadAdminAnalytics() {
+  const body = document.getElementById('an-body');
+  const updatedEl = document.getElementById('an-updated');
+  if (!body) return;
+  const windowSel = document.getElementById('an-window');
+  const daysBack = windowSel ? parseInt(windowSel.value, 10) || 7 : 7;
+
+  body.innerHTML = '<div style="text-align:center;color:var(--gray-text);padding:2rem;">Loading analytics…</div>';
+  try {
+    const [siteRes, funnelRes] = await Promise.all([
+      sb.rpc('admin_site_analytics', { p_days_back: daysBack }),
+      sb.rpc('admin_platform_funnel')
+    ]);
+    if (siteRes.error) throw siteRes.error;
+    if (funnelRes.error) throw funnelRes.error;
+
+    const site = siteRes.data || {};
+    const funnel = funnelRes.data || {};
+    body.innerHTML = renderAnalyticsDashboard(site, funnel, daysBack);
+    if (updatedEl) updatedEl.textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    console.error('loadAdminAnalytics failed:', e);
+    body.innerHTML = '<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:.95rem 1.1rem;color:#991B1B;font-size:.88rem;"><strong>Could not load analytics.</strong> ' + escapeHtml(e.message || e.code || JSON.stringify(e)) + ' <button class="btn-outline" style="margin-left:.5rem;padding:.3rem .8rem;font-size:.78rem;border-radius:7px;" onclick="loadAdminAnalytics()">Retry</button></div>';
+  }
+}
+window.loadAdminAnalytics = loadAdminAnalytics;
+
+function _anStatCard(num, label, sub, bg, border) {
+  bg = bg || '#fff';
+  border = border || '#E5E7EB';
+  const subHtml = sub ? '<div style="font-size:.7rem;color:var(--gray-text);margin-top:.25rem;">' + escapeHtml(String(sub)) + '</div>' : '';
+  return '<div style="background:' + bg + ';border:1.5px solid ' + border + ';border-radius:10px;padding:.95rem 1.1rem;min-width:130px;flex:1;">'
+    + '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.65rem;line-height:1.05;">' + escapeHtml(String(num != null ? num : 0)) + '</div>'
+    + '<div style="font-size:.72rem;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:.3rem;">' + escapeHtml(label) + '</div>'
+    + subHtml
+    + '</div>';
+}
+
+function renderAnalyticsDashboard(site, funnel, daysBack) {
+  const totals = site.totals || {};
+  const today = site.today || {};
+  const live = site.live_now || {};
+  const byDay = site.by_day || [];
+  const topViews = site.top_views || [];
+  const topRefs = site.top_referrers || [];
+
+  // ── Site Viewers section ──
+  let html = '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;margin-bottom:.55rem;">🌐 Site Viewers <span style="font-size:.75rem;font-weight:600;color:var(--gray-text);">(last ' + daysBack + 'd)</span></div>';
+  html += '<div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.55rem;">';
+  html += _anStatCard(live.sessions_last_5min, 'Live Now', 'sessions in last 5 min', '#ECFDF5', '#6EE7B7');
+  html += _anStatCard(today.pageviews_today, 'Pageviews Today', today.sessions_today + ' sessions', '#EFF6FF', '#BFDBFE');
+  html += _anStatCard(totals.pageviews, 'Total Pageviews', daysBack + 'd window');
+  html += _anStatCard(totals.unique_sessions, 'Unique Sessions', daysBack + 'd window');
+  html += _anStatCard(totals.unique_authed_users, 'Logged-in Users', daysBack + 'd window');
+  html += _anStatCard((totals.anon_pageviews || 0) + ' / ' + (totals.authed_pageviews || 0), 'Anon / Authed', 'pageview split');
+  html += '</div>';
+
+  // ── Daily sparkline (text-based) ──
+  if (byDay.length > 0) {
+    const maxViews = Math.max.apply(null, byDay.map(function(d) { return d.views; }));
+    const sparkBars = byDay.slice().reverse().map(function(d) {
+      const pct = maxViews > 0 ? Math.max(4, Math.round((d.views / maxViews) * 100)) : 4;
+      return '<div title="' + escapeHtml(d.day) + ': ' + d.views + ' views, ' + d.sessions + ' sessions" '
+        + 'style="flex:1;background:linear-gradient(to top, #2563EB ' + pct + '%, #EFF6FF ' + pct + '%);height:60px;border-radius:3px;min-width:8px;cursor:help;"></div>';
+    }).join('');
+    html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;margin-bottom:1.25rem;">'
+      + '<div style="font-size:.78rem;color:var(--navy);font-weight:700;margin-bottom:.5rem;">Daily Pageviews (hover for details)</div>'
+      + '<div style="display:flex;gap:3px;align-items:flex-end;height:60px;">' + sparkBars + '</div>'
+      + '<div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--gray-text);margin-top:.3rem;">'
+      + '<span>' + escapeHtml((byDay[byDay.length - 1] || {}).day || '') + '</span>'
+      + '<span>' + escapeHtml((byDay[0] || {}).day || '') + '</span>'
+      + '</div></div>';
+  }
+
+  // ── Top views + top referrers (two columns) ──
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">';
+  html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;">'
+    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.55rem;">Top Pages</div>';
+  if (topViews.length === 0) {
+    html += '<div style="font-size:.78rem;color:var(--gray-text);">No data yet.</div>';
+  } else {
+    html += '<table style="width:100%;font-size:.82rem;border-collapse:collapse;">';
+    topViews.forEach(function(v) {
+      html += '<tr><td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;color:var(--navy);font-weight:600;">' + escapeHtml(v.view_name || '—') + '</td>'
+        + '<td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;text-align:right;color:var(--gray-text);font-weight:700;">' + escapeHtml(String(v.views)) + '</td></tr>';
+    });
+    html += '</table>';
+  }
+  html += '</div>';
+
+  html += '<div style="background:#fff;border:1.5px solid #E5E7EB;border-radius:10px;padding:.85rem 1.1rem;">'
+    + '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.55rem;">Top Referrers</div>';
+  if (topRefs.length === 0) {
+    html += '<div style="font-size:.78rem;color:var(--gray-text);">No data yet.</div>';
+  } else {
+    html += '<table style="width:100%;font-size:.82rem;border-collapse:collapse;">';
+    topRefs.forEach(function(r) {
+      const refDisplay = (r.referrer || '—').length > 50 ? (r.referrer.slice(0, 47) + '…') : (r.referrer || '—');
+      html += '<tr><td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;color:var(--navy);font-weight:600;word-break:break-all;">' + escapeHtml(refDisplay) + '</td>'
+        + '<td style="padding:.3rem .1rem;border-bottom:1px solid #F3F4F6;text-align:right;color:var(--gray-text);font-weight:700;">' + escapeHtml(String(r.views)) + '</td></tr>';
+    });
+    html += '</table>';
+  }
+  html += '</div>';
+  html += '</div>';
+
+  // ── Platform Funnel section ──
+  const acct = funnel.accounts || {};
+  const up = funnel.user_profiles || {};
+  const realtors = funnel.realtors || {};
+  const matches = funnel.matches || {};
+  const groups = funnel.groups || {};
+  const docs = funnel.documents || {};
+  const sel = funnel.realtor_selections || {};
+  const pay = funnel.payments || {};
+
+  html += '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;color:var(--navy);font-size:1.05rem;margin:1.5rem 0 .55rem;">📊 Platform Funnel <span style="font-size:.75rem;font-weight:600;color:var(--gray-text);">(real users, lifetime)</span></div>';
+
+  html += '<div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;">';
+  html += _anStatCard(acct.real, 'Real Accounts', acct.mock != null ? (acct.mock + ' mock') : null, '#fff', '#2563EB');
+  html += _anStatCard(acct.last_7d_real, 'New (7d)', acct.last_30d_real + ' in 30d');
+  html += _anStatCard(up.real != null ? up.real : up.total, 'User Profiles', up.total + ' incl. mock');
+  html += _anStatCard(realtors.real != null ? realtors.real : realtors.total, 'Realtor Profiles', realtors.total + ' incl. mock');
+  html += _anStatCard(matches.total, 'Total Matches');
+  html += '</div>';
+
+  html += '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin:1rem 0 .4rem;">Groups by Stage</div>';
+  html += '<div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:.75rem;">';
+  html += _anStatCard(groups.total, 'All Groups');
+  html += _anStatCard(groups.forming, 'Forming', null, '#FEF3C7', '#FCD34D');
+  html += _anStatCard(groups.complete, 'Complete', null, '#DBEAFE', '#93C5FD');
+  html += _anStatCard(groups.seeking_realtor, 'Seeking Realtor');
+  html += _anStatCard(groups.realtor_confirmed, 'Realtor Confirmed', null, '#D1FAE5', '#6EE7B7');
+  html += _anStatCard(groups.active, 'Active', null, '#D1FAE5', '#10B981');
+  html += '</div>';
+
+  html += '<div style="font-size:.85rem;font-weight:700;color:var(--navy);margin:1rem 0 .4rem;">Documents &amp; Conversion</div>';
+  html += '<div style="display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1rem;">';
+  html += _anStatCard(docs.docs_generated, 'Docs Generated');
+  html += _anStatCard(docs.signers_signed, 'Signatures Collected', null, '#D1FAE5', '#6EE7B7');
+  html += _anStatCard(docs.signers_pending, 'Signatures Pending', null, '#FEF3C7', '#FCD34D');
+  html += _anStatCard(docs.signers_declined, 'Declined', null, '#FEE2E2', '#FCA5A5');
+  html += _anStatCard(sel.total, 'Realtor Selections');
+  html += _anStatCard(pay.total, 'Payments', (pay.last_30d || 0) + ' in 30d', '#ECFDF5', '#6EE7B7');
+  html += '</div>';
+
+  return html;
+}
 
 async function refreshMockData() {
   // Stats
@@ -15839,7 +16067,23 @@ showView = function(viewName) {
     if (!currentUser) { openLoginModal(); return; }
     setTimeout(() => loadSettings(), 50);
   }
+  try { if (typeof trackPageView === 'function') trackPageView(viewName); } catch (_) {}
 };
+
+// Track first page load (initial view before any showView call)
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    try {
+      if (typeof trackPageView !== 'function') return;
+      const active = document.querySelector('.view.active');
+      if (active && active.id && active.id.indexOf('view-') === 0) {
+        trackPageView(active.id.slice(5));
+      } else {
+        trackPageView('landing');
+      }
+    } catch (_) {}
+  }, 600);
+});
 
 </script>
 
