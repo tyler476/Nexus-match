@@ -7748,6 +7748,9 @@ async function initAuth() {
       await loadAccount();
       updateNavForAuthed();
 
+      // Handle return from Stripe Checkout (?checkout=success|cancel) — non-blocking
+      try { handleCheckoutReturn(); } catch (_) {}
+
       // Clean any auth-redirect tokens from URL
       if (window.location.hash.includes('access_token') ||
           window.location.hash.includes('type=signup') ||
@@ -7789,6 +7792,8 @@ async function initAuth() {
       } catch (_) {}
       // No session → suppressor wouldn't have been added anyway, but clear just in case
       if (typeof window.__clearBootFlashSuppressor === 'function') window.__clearBootFlashSuppressor();
+      // Still surface a Stripe return message / strip params if user landed here logged out
+      try { handleCheckoutReturn(); } catch (_) {}
     }
   } catch (err) {
     console.error('Auth init error:', err);
@@ -7846,6 +7851,72 @@ async function loadAccount() {
   // Refresh impersonation banner if applicable
   try { if (typeof maybeShowImpersonationBanner === 'function') maybeShowImpersonationBanner(); } catch (_) {}
 }
+
+// ═══ Stripe Checkout return handler ═══
+// Stripe redirects back to /?checkout=success&session_id=... immediately after
+// payment, but the stripe-webhook updates discovery_tier server-side a moment
+// later. So we strip the params, confirm the charge, then poll the account row
+// until the upgrade lands and refresh the portal so paid features unlock live.
+let _checkoutReturnHandled = false;
+async function handleCheckoutReturn() {
+  if (_checkoutReturnHandled) return;
+  let params;
+  try { params = new URLSearchParams(window.location.search); } catch (_) { return; }
+  const checkout = params.get('checkout');
+  if (!checkout) return;
+  _checkoutReturnHandled = true;
+
+  // Strip checkout params from the URL immediately (preserve any unrelated params)
+  try {
+    params.delete('checkout');
+    params.delete('session_id');
+    const qs = params.toString();
+    history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+  } catch (_) {}
+
+  if (checkout === 'cancel') {
+    if (typeof trackEvent === 'function') { try { trackEvent('checkout_canceled', 'payment', {}); } catch (_) {} }
+    showToast('Checkout canceled — you were not charged.', 'info');
+    return;
+  }
+  if (checkout !== 'success') return;
+
+  if (typeof trackEvent === 'function') { try { trackEvent('checkout_completed', 'payment', {}); } catch (_) {} }
+
+  // Not logged in on return (rare — session normally persists through checkout)
+  if (!currentUser) {
+    showToast('Payment received. Please log in to activate your upgrade.', 'success');
+    return;
+  }
+
+  const isPaidNow = () => currentAccount && (currentAccount.discovery_tier === 'paid' || currentAccount.tier === 'paid');
+  if (isPaidNow()) {
+    showToast('You\'re all set — welcome to NEXUS!', 'success');
+    return;
+  }
+
+  showToast('Payment received — activating your upgrade…', 'success');
+
+  // Poll for the webhook to flip the tier (≈10s budget with steady interval)
+  let attempts = 0;
+  const maxAttempts = 7;
+  const poll = async () => {
+    attempts++;
+    try { await loadAccount(); } catch (_) {}
+    if (isPaidNow()) {
+      showToast('You\'re all set — welcome to NEXUS!', 'success');
+      try { if (typeof routeForRole === 'function') routeForRole(); } catch (_) {}
+      return;
+    }
+    if (attempts >= maxAttempts) {
+      showToast('Payment confirmed. If your upgrade isn\'t showing yet, refresh the page in a moment.', 'info');
+      return;
+    }
+    setTimeout(poll, 1500);
+  };
+  setTimeout(poll, 1200); // small head start for the webhook
+}
+window.handleCheckoutReturn = handleCheckoutReturn;
 
 // ═══ Nav UI updates ═══
 function updateNavForAuthed() {
