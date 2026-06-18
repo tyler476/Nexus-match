@@ -12984,48 +12984,94 @@ async function loadDiscoveryStack() {
     extraEl.innerHTML = '';
   }
 
-  const isPaid = currentAccount.discovery_tier === 'paid';
-  if (!isPaid) {
-    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-    const { count } = await sb.from('discovery_likes').select('id', { count: 'exact', head: true }).eq('liker_id', currentUser.id).gte('created_at', todayStart.toISOString());
-    _todayLikesCount = count || 0;
-  }
+  const _ds = ((await sb.rpc('nexus_my_discovery_status')).data) || {};
+  const isPaid = !!_ds.is_paid;
+  _todayLikesCount = _ds.likes_today || 0;
   const counterEl = document.getElementById('disc-likes-counter');
-  if (isPaid) {
-    counterEl.innerHTML = '<span style="color:#10B981;font-weight:700;">⭐ NEXUS Home</span> — Unlimited likes';
-  } else {
-    const rem = Math.max(0, FREE_DAILY_LIKES - _todayLikesCount);
-    counterEl.innerHTML = `<strong>${rem}</strong> / ${FREE_DAILY_LIKES} likes remaining today · <a style="color:var(--blue);cursor:pointer;font-weight:600;" onclick="openPaywall()">Upgrade →</a>`;
+  if (counterEl) {
+    if (isPaid) { counterEl.innerHTML = '<span style="color:#10B981;font-weight:700;">⭐ NEXUS Home</span> — Unlimited likes'; }
+    else { const rem = Math.max(0, FREE_DAILY_LIKES - _todayLikesCount); counterEl.innerHTML = `<strong>${rem}</strong> / ${FREE_DAILY_LIKES} likes remaining today · <a style="color:var(--blue);cursor:pointer;font-weight:600;" onclick="openPaywall()">Upgrade →</a>`; }
   }
 
+  await renderGroupApprovalInbox();
+
   try {
-    const { data: candidates, error } = await sb.rpc('get_discovery_candidates', { p_user_id: currentUser.id, p_limit: 30 });
+    const { data: rows, error } = await sb.rpc('nexus_get_stack', { p_limit: 30 });
     if (error) throw error;
-    if (!candidates || candidates.length === 0) {
+    if (!rows || rows.length === 0) {
       cardArea.innerHTML = discoveryEmptyStateHTML();
       await loadLikesYou(); await loadMyMatches(); return;
     }
-    _discoveryStack = candidates.map(c => {
-      const { score, breakdown } = calcNexusScore(_myProfile, c);
-      return { ...c, nexus_score: score, score_breakdown: breakdown };
+    _discoveryStack = rows.map(function(r){
+      const card = r.card || {};
+      return {
+        kind: r.kind, id: r.id, account_id: r.id,
+        nexus_score: r.nexus_score, is_boosted: r.is_boosted,
+        full_name: card.name, photo_url: card.photo,
+        target_cities: card.cities || [], price_range: card.price,
+        total_coborrowers_desired: card.desired_total, desired_total: card.desired_total,
+        age_range: card.age, current_city: (card.cities && card.cities[0]) || '',
+        story: card.story, interests: card.interests || [],
+        _members: card.members || [], current_size: card.current_size, slots_left: card.slots_left
+      };
     });
     applyDiscoveryFilter();
     _discoveryIndex = 0;
     renderDiscoveryCard();
   } catch (e) {
     console.error('Discovery load failed:', e);
-    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">⚠️</div><div>We couldn\'t load profiles right now.</div><div style="font-size:.82rem;color:var(--gray-text);margin-top:.5rem;">Please check your connection and try again in a moment.</div><button class="btn-primary" style="margin-top:1rem;" onclick="loadDiscoveryStack()">Retry</button></div>';
+    cardArea.innerHTML = '<div class="disc-empty"><div class="disc-empty-icon">⚠️</div><div>We could not load profiles right now.</div><button class="btn-primary" style="margin-top:1rem;" onclick="loadDiscoveryStack()">Retry</button></div>';
   }
   await loadLikesYou(); await loadMyMatches();
 }
 window.loadDiscoveryStack = loadDiscoveryStack;
 
+async function renderGroupApprovalInbox() {
+  let box = document.getElementById('disc-approval-inbox');
+  if (!box) {
+    const anchor = document.getElementById('disc-header-extra') || document.querySelector('.disc-header');
+    if (anchor && anchor.after) { box = document.createElement('div'); box.id = 'disc-approval-inbox'; anchor.after(box); }
+  }
+  if (!box) return;
+  if (!_activeFormingGroup) { box.innerHTML = ''; return; }
+  let inbox;
+  try { inbox = (await sb.rpc('nexus_group_inbox', { p_group_id: _activeFormingGroup.id })).data; }
+  catch (e) { box.innerHTML = ''; return; }
+  const props = (inbox && inbox.pending_proposals) || [];
+  if (!props.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div style="background:#fff;border:1.5px solid rgba(139,92,246,.25);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1rem;">`
+    + `<div style="font-weight:800;color:var(--navy);font-size:.9rem;margin-bottom:.4rem;">🗳️ Co-buyers awaiting your group's approval</div>`
+    + props.map(function(p){
+        const c = p.candidate || {};
+        const ini = (c.name||'?').split(' ').map(function(x){return x[0];}).filter(Boolean).slice(0,2).join('').toUpperCase();
+        const cities = (c.cities||[]).slice(0,2).join(', ');
+        const right = p.i_voted
+          ? `<span style="font-size:.78rem;color:var(--gray-text);font-weight:600;">✓ You voted</span>`
+          : `<button class="rp-btn rp-btn-secondary" style="padding:.3rem .6rem;font-size:.74rem;" onclick="voteMember('${p.proposal_id}',false)">Decline</button> <button class="btn-primary" style="padding:.3rem .7rem;font-size:.74rem;" onclick="voteMember('${p.proposal_id}',true)">Approve</button>`;
+        return `<div style="display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-top:1px solid var(--gray);">`
+          + `<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.78rem;">${escapeHtml(ini)}</div>`
+          + `<div style="flex:1;"><div style="font-weight:700;color:var(--navy);font-size:.88rem;">${escapeHtml(c.name||'Candidate')} <span style="color:#10B981;font-weight:800;">${p.nexus_score||''}/100</span></div>`
+          + `<div style="font-size:.76rem;color:var(--gray-text);">${p.approvals}/${p.needed} approved${cities?(' · '+escapeHtml(cities)):''}</div></div>`
+          + right + `</div>`;
+      }).join('')
+    + `</div>`;
+}
+window.renderGroupApprovalInbox = renderGroupApprovalInbox;
+
+async function voteMember(proposalId, approve) {
+  try {
+    const { data: res } = await sb.rpc('nexus_vote_member', { p_proposal_id: proposalId, p_approve: approve });
+    if (res && res.error) { showToast(res.error, 'error'); return; }
+    if (res && res.resolved === 'added') showToast('Co-buyer added to your group! 🎉', 'success');
+    else if (res && res.resolved === 'declined') showToast('Candidate declined.', 'info');
+    else if (res && res.recorded) showToast('Approval recorded (' + res.approvals + '/' + res.needed + ').', 'success');
+    await loadDiscoveryStack();
+  } catch (e) { showToast('Vote failed.', 'error'); }
+}
+window.voteMember = voteMember;
+
 function applyDiscoveryFilter() {
-  const mc = _myProfile?.target_cities || [];
-  if (_discoveryFilter === 'recommended') _discoveryStack.sort((a,b) => b.nexus_score - a.nexus_score);
-  else if (_discoveryFilter === 'city') _discoveryStack.sort((a,b) => (b.target_cities||[]).filter(c=>mc.includes(c)).length - (a.target_cities||[]).filter(c=>mc.includes(c)).length);
-  else if (_discoveryFilter === 'price') _discoveryStack.sort((a,b) => (b.score_breakdown?.price||0) - (a.score_breakdown?.price||0));
-  else if (_discoveryFilter === 'home') _discoveryStack.sort((a,b) => (b.score_breakdown?.home||0) - (a.score_breakdown?.home||0));
+  _discoveryStack.sort(function(a,b){ return (b.nexus_score||0) - (a.nexus_score||0); });
 }
 
 function setDiscFilter(f) {
@@ -13046,89 +13092,75 @@ function renderDiscoveryCard() {
   if (kbdHint) kbdHint.style.display = 'block';
   const c = _discoveryStack[_discoveryIndex];
   const isPaid = currentAccount?.discovery_tier === 'paid';
-  const initials = (c.full_name||'?').split(' ').map(p=>p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
-  const firstName = (c.full_name||'Unknown').split(' ')[0];
-
-  // Free vs paid display
-  const displayName = isPaid ? escapeHtml(c.full_name||'Unknown') : escapeHtml(firstName);
-  const photoBlur = isPaid ? '' : 'filter:blur(10px);';
-  const photoHtml = c.photo_url
-    ? `<img src="${escapeHtml(c.photo_url)}" alt="" style="${photoBlur}">`
-    : `<div class="disc-initials" style="${photoBlur}">${escapeHtml(initials)}</div>`;
-
-  const targetStr = (c.target_cities||[]).slice(0,3).join(', ')||'—';
-  const homeTypes = (c.home_type_preference||[]).join(', ')||'Any';
-  const totalD = c.total_coborrowers_desired||2;
-  const cbLabel = c.has_existing_coborrower
-    ? '<span class="disc-coborrower-badge disc-cb-pair">👫 With co-borrower</span>'
-    : '<span class="disc-coborrower-badge disc-cb-solo">👤 Solo</span>';
-
-  // NEXUS Score ring color
   const ns = c.nexus_score;
   const scoreColor = ns >= 80 ? '#10B981' : ns >= 60 ? '#3B82F6' : ns >= 40 ? '#F59E0B' : '#9CA3AF';
   const scoreLabel = ns >= 80 ? 'Excellent match' : ns >= 60 ? 'Strong match' : ns >= 40 ? 'Good match' : 'Possible match';
 
-  // What you have in common
-  const bd = c.score_breakdown||{};
+  // ===== GROUP CARD: a forming group re-entering the stack as one combined profile =====
+  if (c.kind === 'group') {
+    const members = c._members || [];
+    const memberChips = members.map(function(m){
+      const ini = (m.name||'?').split(' ').map(function(x){return x[0];}).filter(Boolean).slice(0,2).join('').toUpperCase();
+      const nm = isPaid ? escapeHtml((m.name||'').split(' ')[0]) : '••';
+      return `<div style="display:flex;align-items:center;gap:.4rem;background:rgba(37,99,235,.06);border-radius:20px;padding:.25rem .6rem;"><div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.65rem;">${escapeHtml(ini)}</div><span style="font-size:.78rem;font-weight:600;color:var(--navy);">${nm}</span></div>`;
+    }).join('');
+    const cities = (c.target_cities||[]).slice(0,3).join(', ') || '—';
+    cardArea.innerHTML = `
+      <div class="disc-card" id="disc-current-card">
+        <div class="disc-card-photo" style="background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(37,99,235,.12));display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;"><div style="font-size:2.6rem;">👥</div><div style="font-weight:800;color:var(--navy);margin-top:.3rem;">Group of ${c.current_size}</div></div>
+          <div class="disc-nexus-badge" style="background:${scoreColor};">${ns}<span style="font-size:.65rem;opacity:.8;">/100</span></div>
+        </div>
+        <div class="disc-card-body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div><div class="disc-card-name">An existing co-buyer group</div><div class="disc-card-sub">📍 ${escapeHtml(cities)}</div></div>
+            <div style="text-align:right;"><span class="disc-coborrower-badge disc-cb-pair">${c.slots_left} spot${c.slots_left>1?'s':''} left</span><div style="font-size:.7rem;color:${scoreColor};font-weight:700;margin-top:.25rem;">${scoreLabel}</div></div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem;">${memberChips}</div>
+          <div class="disc-card-stats" style="margin-top:.75rem;">
+            <div class="disc-stat"><div class="disc-stat-label">Looking in</div><div class="disc-stat-val">${isPaid?escapeHtml(cities):'🔒 Locked'}</div></div>
+            <div class="disc-stat"><div class="disc-stat-label">Budget</div><div class="disc-stat-val">${isPaid?escapeHtml(c.price_range||'—'):'🔒 Locked'}</div></div>
+            <div class="disc-stat"><div class="disc-stat-label">Group goal</div><div class="disc-stat-val">${c.desired_total} co-buyers</div></div>
+            <div class="disc-stat"><div class="disc-stat-label">Currently</div><div class="disc-stat-val">${c.current_size} joined</div></div>
+          </div>
+          <div style="margin-top:.7rem;font-size:.8rem;color:var(--gray-text);">If you both like each other, the group's current members vote to approve you before you join.</div>
+        </div>
+        <div class="disc-actions">
+          <button class="disc-action-btn pass" onclick="passCandidate()" title="Pass">✕</button>
+          <button class="disc-action-btn like" onclick="likeCandidate()" title="Like">♡</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // ===== INDIVIDUAL CARD =====
+  const initials = (c.full_name||'?').split(' ').map(function(p){return p[0];}).filter(Boolean).slice(0,2).join('').toUpperCase();
+  const firstName = (c.full_name||'Unknown').split(' ')[0];
+  const displayName = isPaid ? escapeHtml(c.full_name||'Unknown') : escapeHtml(firstName);
+  const photoBlur = isPaid ? '' : 'filter:blur(10px);';
+  const photoHtml = c.photo_url ? `<img src="${escapeHtml(c.photo_url)}" alt="" style="${photoBlur}">` : `<div class="disc-initials" style="${photoBlur}">${escapeHtml(initials)}</div>`;
+  const targetStr = (c.target_cities||[]).slice(0,3).join(', ')||'—';
+  const totalD = c.total_coborrowers_desired||2;
+  const cbLabel = '<span class="disc-coborrower-badge disc-cb-solo">👤 Solo</span>';
   const myCities = _myProfile?.target_cities||[];
-  const commonCities = (c.target_cities||[]).filter(ci => myCities.includes(ci));
+  const commonCities = (c.target_cities||[]).filter(function(ci){return myCities.includes(ci);});
   const samePrice = _myProfile?.price_range === c.price_range;
-  const myTypes = _myProfile?.home_type_preference||[];
-  const commonTypes = (c.home_type_preference||[]).filter(t => myTypes.includes(t));
-
   let commonItems = [];
-  if (commonCities.length > 0) commonItems.push('📍 Both looking in ' + commonCities.join(', '));
+  if (commonCities.length) commonItems.push('📍 Both looking in ' + commonCities.join(', '));
   if (samePrice && c.price_range) commonItems.push('💰 Same price range: ' + c.price_range);
-  if (commonTypes.length > 0) commonItems.push('🏠 Both want: ' + commonTypes.join(', '));
-  if (bd.coborrower >= 10) commonItems.push('🤝 Compatible co-borrower math');
-
-  const commonHtml = !isPaid ? `
-    <div style="margin-top:.75rem;padding:.7rem .85rem;background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.15);border-radius:10px;cursor:pointer;" onclick="openPaywall()">
-      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--blue);margin-bottom:.25rem;">🔒 What you have in common</div>
-      <div style="font-size:.8rem;color:var(--gray-text);">Upgrade to NEXUS Home to see your shared cities, budget &amp; compatibility.</div>
-    </div>`
-    : (commonItems.length > 0 ? `
-    <div style="margin-top:.75rem;padding:.7rem .85rem;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:10px;">
-      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#15803D;margin-bottom:.35rem;">What you have in common</div>
-      ${commonItems.map(it => `<div style="font-size:.82rem;color:#374151;padding:.15rem 0;">${it}</div>`).join('')}
-    </div>` : '');
-
-  // Free tier: lock the sensitive stat cells (target cities + budget)
+  if ((_myProfile?.total_coborrowers_desired) === totalD) commonItems.push('🤝 Both want a group of ' + totalD);
+  const commonHtml = !isPaid
+    ? `<div style="margin-top:.75rem;padding:.7rem .85rem;background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.15);border-radius:10px;cursor:pointer;" onclick="openPaywall()"><div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--blue);margin-bottom:.25rem;">🔒 What you have in common</div><div style="font-size:.8rem;color:var(--gray-text);">Upgrade to NEXUS Home to see your shared cities, budget &amp; compatibility.</div></div>`
+    : (commonItems.length ? `<div style="margin-top:.75rem;padding:.7rem .85rem;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:10px;"><div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#15803D;margin-bottom:.35rem;">What you have in common</div>${commonItems.map(function(it){return `<div style="font-size:.82rem;color:#374151;padding:.15rem 0;">${it}</div>`;}).join('')}</div>` : '');
   const lockedStatCell = '<div class="disc-stat-val" style="color:var(--blue);font-weight:700;cursor:pointer;" onclick="openPaywall()">🔒 Locked</div>';
   const cityCell = isPaid ? `<div class="disc-stat-val">${escapeHtml(targetStr)}</div>` : lockedStatCell;
   const budgetCell = isPaid ? `<div class="disc-stat-val">${escapeHtml(c.price_range||'—')}</div>` : lockedStatCell;
-
-  // Story (only for paid, or first 40 chars blurred for free)
   let storyHtml = '';
   if (c.story) {
-    if (isPaid) {
-      storyHtml = `<div class="disc-card-story">"${escapeHtml(c.story)}"</div>`;
-    } else {
-      storyHtml = `<div class="disc-card-story" style="position:relative;overflow:hidden;">
-        <div style="filter:blur(4px);">"${escapeHtml(c.story.substring(0,60))}…"</div>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-          <span style="background:var(--navy);color:#fff;padding:.35rem .85rem;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;" onclick="openPaywall()">🔓 Upgrade to read</span>
-        </div>
-      </div>`;
-    }
+    storyHtml = isPaid ? `<div class="disc-card-story">"${escapeHtml(c.story)}"</div>`
+      : `<div class="disc-card-story" style="position:relative;overflow:hidden;"><div style="filter:blur(4px);">"${escapeHtml(c.story.substring(0,60))}…"</div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><span style="background:var(--navy);color:#fff;padding:.35rem .85rem;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;" onclick="openPaywall()">🔓 Upgrade to read</span></div></div>`;
   }
-
-  // Score breakdown (paid only)
-  const scoreHtml = isPaid ? `
-    <div class="disc-score-breakdown">
-      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--navy);margin-bottom:.4rem;">Compatibility Breakdown</div>
-      <div class="disc-score-row"><span class="score-label">📍 City overlap</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.city/28)*100}%"></div></div><span class="score-val">${bd.city}/28</span></div>
-      <div class="disc-score-row"><span class="score-label">💰 Price match</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.price/25)*100}%"></div></div><span class="score-val">${bd.price}/25</span></div>
-      <div class="disc-score-row"><span class="score-label">🏠 Home type</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.home/15)*100}%"></div></div><span class="score-val">${bd.home}/15</span></div>
-      <div class="disc-score-row"><span class="score-label">🤝 Group fit</span><div class="disc-score-bar"><div class="disc-score-bar-fill" style="width:${(bd.coborrower/12)*100}%"></div></div><span class="score-val">${bd.coborrower}/12</span></div>
-    </div>` : '';
-
-  // Free tier upgrade nudge
-  const freeNudge = !isPaid ? `
-    <div style="text-align:center;margin-top:.5rem;padding:.6rem;background:rgba(37,99,235,.04);border-radius:8px;cursor:pointer;" onclick="openPaywall()">
-      <span style="font-size:.78rem;color:var(--blue);font-weight:600;">🔓 Upgrade to see full profile, photo & compatibility details</span>
-    </div>` : '';
-
+  const freeNudge = !isPaid ? `<div style="text-align:center;margin-top:.5rem;padding:.6rem;background:rgba(37,99,235,.04);border-radius:8px;cursor:pointer;" onclick="openPaywall()"><span style="font-size:.78rem;color:var(--blue);font-weight:600;">🔓 Upgrade to see full profile, photo & compatibility details</span></div>` : '';
   cardArea.innerHTML = `
     <div class="disc-card" id="disc-current-card">
       <div class="disc-card-photo">
@@ -13138,124 +13170,80 @@ function renderDiscoveryCard() {
       </div>
       <div class="disc-card-body">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-          <div>
-            <div class="disc-card-name">${displayName}</div>
-            <div class="disc-card-sub">${escapeHtml(c.age_range||'')} · 📍 ${escapeHtml(c.current_city||'Unknown')}</div>
-          </div>
-          <div style="text-align:right;">
-            ${cbLabel}
-            <div style="font-size:.7rem;color:${scoreColor};font-weight:700;margin-top:.25rem;">${scoreLabel}</div>
-          </div>
+          <div><div class="disc-card-name">${displayName}</div><div class="disc-card-sub">${escapeHtml(c.age_range||'')} · 📍 ${escapeHtml(c.current_city||'Unknown')}</div></div>
+          <div style="text-align:right;">${cbLabel}<div style="font-size:.7rem;color:${scoreColor};font-weight:700;margin-top:.25rem;">${scoreLabel}</div></div>
         </div>
-
         ${storyHtml}
         ${commonHtml}
-
         <div class="disc-card-stats" style="margin-top:.75rem;">
           <div class="disc-stat"><div class="disc-stat-label">Looking in</div>${cityCell}</div>
           <div class="disc-stat"><div class="disc-stat-label">Budget</div>${budgetCell}</div>
-          <div class="disc-stat"><div class="disc-stat-label">Home type</div><div class="disc-stat-val">${escapeHtml(homeTypes)}</div></div>
           <div class="disc-stat"><div class="disc-stat-label">Group goal</div><div class="disc-stat-val">${totalD} co-buyers</div></div>
+          <div class="disc-stat"><div class="disc-stat-label">Status</div><div class="disc-stat-val">Looking</div></div>
         </div>
-
-        ${scoreHtml}
         ${freeNudge}
       </div>
       <div class="disc-actions">
-        <button class="disc-action-btn pass" onclick="passCandidate('${c.account_id}')" title="Pass">✕</button>
-        <button class="disc-action-btn like" onclick="likeCandidate('${c.account_id}',${ns})" title="Like">♡</button>
+        <button class="disc-action-btn pass" onclick="passCandidate()" title="Pass">✕</button>
+        <button class="disc-action-btn like" onclick="likeCandidate()" title="Like">♡</button>
       </div>
     </div>`;
 }
 
 let _activeFormingGroup = null;
 
-async function likeCandidate(candidateId, nexusScore) {
+async function likeCandidate(arg, maybeScore) {
+  let c;
+  if (arg && typeof arg === 'object') c = arg;
+  else if (typeof arg === 'string') c = { kind:'user', id:arg, account_id:arg, full_name:'your match' };
+  else c = _discoveryStack[_discoveryIndex];
+  if (!c) return;
   const isPaid = currentAccount?.discovery_tier === 'paid';
   if (!isPaid && _todayLikesCount >= FREE_DAILY_LIKES) { openPaywall(); return; }
   const card = document.getElementById('disc-current-card');
   if (card) card.classList.add('swipe-right');
-  const { error } = await sb.from('discovery_likes').insert({ liker_id: currentUser.id, liked_id: candidateId });
-  if (error && error.code !== '23505') { showToast('Error: '+error.message,'error'); return; }
-  _todayLikesCount++;
-
-  // Notify the liked user
-  const likerName = (currentAccount?.full_name || 'Someone').split(' ')[0];
-  queueNotification(candidateId, 'like_received', 'Someone liked your profile', likerName + ' liked your profile on NEXUS Match.', { liker_id: currentUser.id });
-
-  // Check for mutual like
+  let res;
   try {
-    // If we're in a forming group, add the new match to our existing group
-    if (_activeFormingGroup) {
-      // Check if they liked us back
-      const { data: reciprocal } = await sb.from('discovery_likes')
-        .select('id').eq('liker_id', candidateId).eq('liked_id', currentUser.id).maybeSingle();
+    const r = await sb.rpc('nexus_swipe', { p_target_kind: c.kind || 'user', p_target_id: c.id || c.account_id, p_decision: 'like' });
+    if (r.error) throw r.error;
+    res = r.data;
+  } catch (e) { showToast('Like failed: ' + (e.message || e), 'error'); return; }
 
-      if (reciprocal) {
-        // Mutual like! Add to existing group
-        const candProfile = _discoveryStack.find(c => c.account_id === candidateId);
-        const candUnit = candProfile?.has_existing_coborrower ? 2 : 1;
+  if (res && res.error === 'daily_like_limit') { openPaywall(); return; }
+  if (res && res.error) { showToast(res.error, 'info'); _advanceCard(); return; }
 
-        // Add member to group
-        await sb.from('coborrower_group_members').insert({
-          group_id: _activeFormingGroup.id,
-          account_id: candidateId,
-          role: 'member',
-          unit_size: candUnit
-        });
+  _todayLikesCount++;
+  updateLikesCounter();
 
-        // Update group size and status
-        const newSize = _activeFormingGroup.current_size + candUnit;
-        const newStatus = newSize >= _activeFormingGroup.desired_total ? 'complete' : 'forming';
-        await sb.from('coborrower_groups').update({
-          current_size: newSize,
-          status: newStatus,
-          updated_at: new Date().toISOString()
-        }).eq('id', _activeFormingGroup.id);
-
-        // Create match record
-        await sb.from('discovery_matches').insert({
-          group_id: _activeFormingGroup.id,
-          account_a_id: currentUser.id < candidateId ? currentUser.id : candidateId,
-          account_b_id: currentUser.id < candidateId ? candidateId : currentUser.id,
-          nexus_score: nexusScore
-        });
-
-        // System message in group
-        const candName = candProfile?.full_name || 'New member';
-        await sb.from('group_messages').insert({
-          group_id: _activeFormingGroup.id,
-          sender_id: currentUser.id,
-          body: candName + ' has joined the group! NEXUS Score: ' + nexusScore + '/100.' + (newStatus === 'complete' ? ' 🎉 Your co-buyer group is now complete!' : ''),
-          is_system: true
-        });
-
-        showMatchCelebration(candName, nexusScore, _activeFormingGroup.id);
-        updateLikesCounter();
-        return;
-      }
-    } else {
-      // Standard match check (creates new group)
-      const { data: result } = await sb.rpc('check_and_create_match', { p_liker_id: currentUser.id, p_liked_id: candidateId, p_nexus_score: nexusScore });
-      if (result?.matched) {
-        const cand = _discoveryStack.find(c => c.account_id === candidateId);
-        showMatchCelebration(cand?.full_name||'your match', result.nexus_score, result.group_id, result.match_id);
-        updateLikesCounter(); return;
-      }
-    }
-  } catch (e) { console.warn('Match check failed:', e); }
-  showToast('Liked!','success');
-  setTimeout(() => { _discoveryIndex++; renderDiscoveryCard(); updateLikesCounter(); }, 350);
+  if (res && res.action === 'group_formed') {
+    showMatchCelebration(c.full_name || 'your match', res.score, res.group_id);
+    return;
+  }
+  if (res && res.action === 'proposal_created') {
+    showToast('Sent to your group for approval ✓', 'success');
+    await renderGroupApprovalInbox();
+    _advanceCard();
+    return;
+  }
+  showToast('Liked!', 'success');
+  _advanceCard();
 }
 window.likeCandidate = likeCandidate;
 
+function _advanceCard() { setTimeout(function(){ _discoveryIndex++; renderDiscoveryCard(); updateLikesCounter(); }, 300); }
+
 let _lastPass = null;
-async function passCandidate(candidateId) {
+async function passCandidate(arg) {
+  let c;
+  if (arg && typeof arg === 'object') c = arg;
+  else if (typeof arg === 'string') c = { kind:'user', id:arg, account_id:arg };
+  else c = _discoveryStack[_discoveryIndex];
+  if (!c) return;
   const card = document.getElementById('disc-current-card');
   if (card) card.classList.add('swipe-left');
-  _lastPass = { candidateId, index: _discoveryIndex };
-  await sb.from('discovery_passes').insert({ passer_id: currentUser.id, passed_id: candidateId });
-  setTimeout(() => { _discoveryIndex++; renderDiscoveryCard(); updateUndoButton(); }, 350);
+  _lastPass = { kind: c.kind || 'user', id: c.id || c.account_id, index: _discoveryIndex };
+  try { await sb.rpc('nexus_swipe', { p_target_kind: c.kind || 'user', p_target_id: c.id || c.account_id, p_decision: 'pass' }); } catch (e) {}
+  setTimeout(function(){ _discoveryIndex++; renderDiscoveryCard(); updateUndoButton(); }, 300);
 }
 window.passCandidate = passCandidate;
 
@@ -13266,13 +13254,14 @@ function updateUndoButton() {
 
 async function undoLastPass() {
   if (!_lastPass) return;
-  const { candidateId, index } = _lastPass;
-  await sb.from('discovery_passes').delete().eq('passer_id', currentUser.id).eq('passed_id', candidateId);
-  _discoveryIndex = index;
+  let res;
+  try { res = (await sb.rpc('nexus_rewind')).data; } catch (e) { return; }
+  if (res && res.error) { openPaywall(); return; }
+  _discoveryIndex = _lastPass.index;
   _lastPass = null;
   updateUndoButton();
   renderDiscoveryCard();
-  if (typeof showToast === 'function') showToast('Pass undone — they\u2019re back in your stack', 'success');
+  if (typeof showToast === 'function') showToast('Pass undone — they are back in your stack', 'success');
 }
 window.undoLastPass = undoLastPass;
 
@@ -13312,8 +13301,8 @@ document.addEventListener('keydown', function(e) {
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
   const c = _discoveryStack[_discoveryIndex];
   if (!c) return;
-  if (e.key === 'ArrowLeft') { e.preventDefault(); passCandidate(c.account_id); }
-  else if (e.key === 'ArrowRight') { e.preventDefault(); likeCandidate(c.account_id, c.nexus_score); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); passCandidate(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); likeCandidate(); }
 });
 
 function updateLikesCounter() {
@@ -13333,7 +13322,7 @@ function showMatchCelebration(name, score, groupId, matchId) {
   document.getElementById('match-score-ring').textContent = score;
   document.getElementById('match-overlay').style.display = 'flex';
 }
-function closeMatchOverlay() { document.getElementById('match-overlay').style.display = 'none'; _discoveryIndex++; }
+function closeMatchOverlay() { document.getElementById('match-overlay').style.display = 'none'; loadDiscoveryStack(); }
 window.closeMatchOverlay = closeMatchOverlay;
 function goToGroupDashboard() { closeMatchOverlay(); if (_lastMatchGroupId) { _activeGroupId = _lastMatchGroupId; showView('group-dashboard'); } }
 async function goToMatchConv() {
@@ -13518,20 +13507,27 @@ window.goToGroupDashboard = goToGroupDashboard;
 async function loadLikesYou() {
   const section = document.getElementById('likes-you-section');
   const grid = document.getElementById('likes-you-grid');
-  if (!section||!grid) return;
-  const { data: pending } = await sb.rpc('get_my_likes_received');
-  if (!pending||pending.length===0) { section.style.display='none'; return; }
-  section.style.display='block';
-  document.getElementById('likes-you-count').textContent = `${pending.length} pending`;
-  const isPaid = currentAccount?.discovery_tier === 'paid';
-  grid.innerHTML = pending.map(l=>{
-    const a={ full_name: l.liker_name };
-    const p={ photo_url: l.liker_photo, current_city: l.liker_city };
-    const ini=(a.full_name||'?').split(' ').map(x=>x[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
-    const bl=isPaid?'':'blurred';
-    const ph=p.photo_url?`<img src="${escapeHtml(p.photo_url)}">`:ini;
-    const cl=isPaid?`onclick="likeBackFromLikesYou('${l.liker_id}')"`:`onclick="openPaywall()"`;
-    return `<div class="likes-you-card ${bl}" ${cl}><div class="lyc-photo">${ph}</div><div class="lyc-body"><div class="lyc-name">${isPaid?escapeHtml(a.full_name||'?'):'••••••'}</div><div class="lyc-sub">${isPaid?escapeHtml(p.current_city||''):'Upgrade to see'}</div></div></div>`;
+  if (!section || !grid) return;
+  let res;
+  try { res = (await sb.rpc('nexus_who_liked_me', { p_limit: 30 })).data; }
+  catch (e) { section.style.display = 'none'; return; }
+  const count = (res && res.count) || 0;
+  if (!count) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  const countEl = document.getElementById('likes-you-count');
+  if (countEl) countEl.textContent = count + ' pending';
+  if (res.locked) {
+    let cells = '';
+    for (let i = 0; i < Math.min(count, 6); i++) {
+      cells += '<div class="likes-you-card blurred" onclick="openPaywall()"><div class="lyc-photo">★</div><div class="lyc-body"><div class="lyc-name">••••••</div><div class="lyc-sub">Upgrade to see</div></div></div>';
+    }
+    grid.innerHTML = cells;
+    return;
+  }
+  grid.innerHTML = (res.likers || []).map(function(l){
+    const ini = (l.name||'?').split(' ').map(function(x){return x[0];}).filter(Boolean).slice(0,2).join('').toUpperCase();
+    const cl = (l.from_kind === 'user') ? `onclick="likeBackFromLikesYou('${l.from_id}')"` : '';
+    return `<div class="likes-you-card" ${cl}><div class="lyc-photo">${escapeHtml(ini)}</div><div class="lyc-body"><div class="lyc-name">${escapeHtml(l.name||'?')}</div><div class="lyc-sub">${l.score ? ('NEXUS ' + l.score + '/100') : ''}</div></div></div>`;
   }).join('');
 }
 
