@@ -7750,6 +7750,7 @@ async function initAuth() {
 
       // Handle return from Stripe Checkout (?checkout=success|cancel) — non-blocking
       try { handleCheckoutReturn(); } catch (_) {}
+      try { handleVerifyReturn(); } catch (_) {}
 
       // Clean any auth-redirect tokens from URL
       if (window.location.hash.includes('access_token') ||
@@ -7794,6 +7795,7 @@ async function initAuth() {
       if (typeof window.__clearBootFlashSuppressor === 'function') window.__clearBootFlashSuppressor();
       // Still surface a Stripe return message / strip params if user landed here logged out
       try { handleCheckoutReturn(); } catch (_) {}
+      try { handleVerifyReturn(); } catch (_) {}
     }
   } catch (err) {
     console.error('Auth init error:', err);
@@ -7846,6 +7848,7 @@ async function loadAccount() {
     return;
   }
   currentAccount = data;
+  try { await loadVerification(); } catch (_) {}
   // Update last_login_at (fire-and-forget)
   sb.from('accounts').update({ last_login_at: new Date().toISOString() }).eq('id', currentUser.id).then(() => {});
   // Refresh impersonation banner if applicable
@@ -7917,6 +7920,32 @@ async function handleCheckoutReturn() {
   setTimeout(poll, 1200); // small head start for the webhook
 }
 window.handleCheckoutReturn = handleCheckoutReturn;
+
+// ═══ Identity verification return handler (mirrors checkout return) ═══
+let _verifyReturnHandled = false;
+async function handleVerifyReturn(){
+  if(_verifyReturnHandled) return;
+  let params; try{ params = new URLSearchParams(window.location.search); }catch(_){ return; }
+  const v = params.get('verify'); if(!v) return;
+  _verifyReturnHandled = true;
+  try{ params.delete('verify'); const qs=params.toString(); history.replaceState(null,'',window.location.pathname+(qs?'?'+qs:'')); }catch(_){}
+  if(!currentUser){ showToast('Verification submitted. Log in to see your badge.','info'); return; }
+  showToast('Checking your verification…','info');
+  let attempts=0; const maxAttempts=7;
+  const poll = async () => {
+    attempts++;
+    try{ await loadVerification(); }catch(_){}
+    try{ renderVerificationCard(); }catch(_){}
+    if(isVerified()){ showToast('You’re verified! ✓','success'); return; }
+    const st = currentVerification.status;
+    if(st==='requires_input'||st==='canceled'||st==='failed'){ showToast('Verification didn’t complete. You can try again in Settings.','info'); return; }
+    if(attempts>=maxAttempts){ showToast('Verification received — your badge will appear shortly.','info'); return; }
+    setTimeout(poll,1500);
+  };
+  setTimeout(poll,1200);
+}
+window.handleVerifyReturn = handleVerifyReturn;
+
 
 // ═══ Nav UI updates ═══
 function updateNavForAuthed() {
@@ -13015,6 +13044,11 @@ async function loadDiscoveryStack() {
         _members: card.members || [], current_size: card.current_size, slots_left: card.slots_left
       };
     });
+    try{
+      const _vids_in = _discoveryStack.map(function(x){return x.account_id;}).filter(Boolean);
+      window._verifiedIds = new Set();
+      if(_vids_in.length){ const { data: _vids } = await sb.rpc('nexus_verified_account_ids', { p_ids: _vids_in }); (_vids||[]).forEach(function(x){ window._verifiedIds.add(typeof x==='string'?x:(x&&x.nexus_verified_account_ids)); }); }
+    }catch(_){ window._verifiedIds = window._verifiedIds || new Set(); }
     applyDiscoveryFilter();
     _discoveryIndex = 0;
     renderDiscoveryCard();
@@ -13170,7 +13204,7 @@ function renderDiscoveryCard() {
       </div>
       <div class="disc-card-body">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-          <div><div class="disc-card-name">${displayName}</div><div class="disc-card-sub">${escapeHtml(c.age_range||'')} · 📍 ${escapeHtml(c.current_city||'Unknown')}</div></div>
+          <div><div class="disc-card-name">${displayName}${(window._verifiedIds&&window._verifiedIds.has(c.account_id))?verifiedBadgeHTML(17):''}</div><div class="disc-card-sub">${escapeHtml(c.age_range||'')} · 📍 ${escapeHtml(c.current_city||'Unknown')}</div></div>
           <div style="text-align:right;">${cbLabel}<div style="font-size:.7rem;color:${scoreColor};font-weight:700;margin-top:.25rem;">${scoreLabel}</div></div>
         </div>
         ${storyHtml}
@@ -13524,10 +13558,12 @@ async function loadLikesYou() {
     grid.innerHTML = cells;
     return;
   }
+  let _lyVerified = new Set();
+  try { const _lids = (res.likers||[]).filter(function(l){return l.from_kind==='user';}).map(function(l){return l.from_id;}).filter(Boolean); if(_lids.length){ const { data: _lv } = await sb.rpc('nexus_verified_account_ids', { p_ids: _lids }); (_lv||[]).forEach(function(x){ _lyVerified.add(typeof x==='string'?x:(x&&x.nexus_verified_account_ids)); }); } } catch(_){}
   grid.innerHTML = (res.likers || []).map(function(l){
     const ini = (l.name||'?').split(' ').map(function(x){return x[0];}).filter(Boolean).slice(0,2).join('').toUpperCase();
     const cl = (l.from_kind === 'user') ? `onclick="likeBackFromLikesYou('${l.from_id}')"` : '';
-    return `<div class="likes-you-card" ${cl}><div class="lyc-photo">${escapeHtml(ini)}</div><div class="lyc-body"><div class="lyc-name">${escapeHtml(l.name||'?')}</div><div class="lyc-sub">${l.score ? ('NEXUS ' + l.score + '/100') : ''}</div></div></div>`;
+    return `<div class="likes-you-card" ${cl}><div class="lyc-photo">${escapeHtml(ini)}</div><div class="lyc-body"><div class="lyc-name">${escapeHtml(l.name||'?')}${_lyVerified.has(l.from_id)?verifiedBadgeHTML(13):''}</div><div class="lyc-sub">${l.score ? ('NEXUS ' + l.score + '/100') : ''}</div></div></div>`;
   }).join('');
 }
 
@@ -13539,6 +13575,8 @@ async function loadMyMatches() {
   if (!rows||rows.length===0) { section.style.display='none'; return; }
   section.style.display='block';
   const matches = rows.map(r=>({ id: r.match_id, nexus_score: r.nexus_score, matched_at: r.matched_at, _other: r }));
+  let _mVerified = new Set();
+  try { const _mids = matches.map(function(m){return m._other.other_id || m._other.other_account_id;}).filter(Boolean); if(_mids.length){ const { data: _mv } = await sb.rpc('nexus_verified_account_ids', { p_ids: _mids }); (_mv||[]).forEach(function(x){ _mVerified.add(typeof x==='string'?x:(x&&x.nexus_verified_account_ids)); }); } } catch(_){}
   list.innerHTML = matches.map(m=>{
     const a={ full_name: m._other.other_name };
     const p={ photo_url: m._other.other_photo, current_city: m._other.other_city };
@@ -13546,7 +13584,7 @@ async function loadMyMatches() {
     const dt=new Date(m.matched_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
     return `<div style="display:flex;gap:.85rem;align-items:center;padding:.75rem;border:1.5px solid var(--gray);border-radius:10px;background:#fff;margin-bottom:.6rem;cursor:pointer;" onclick="openUserConv('${m.id}')">
       <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">${escapeHtml(ini)}</div>
-      <div style="flex:1;"><div style="font-weight:700;color:var(--navy);font-size:.92rem;">${escapeHtml(a.full_name||'Unknown')}</div><div style="font-size:.78rem;color:var(--gray-text);">Matched ${dt}</div></div>
+      <div style="flex:1;"><div style="font-weight:700;color:var(--navy);font-size:.92rem;display:flex;align-items:center;">${escapeHtml(a.full_name||'Unknown')}${(_mVerified.has(m._other.other_id||m._other.other_account_id))?verifiedBadgeHTML(14):''}</div><div style="font-size:.78rem;color:var(--gray-text);">Matched ${dt}</div></div>
       <div style="background:linear-gradient(135deg,#10B981,#059669);color:#fff;padding:.35rem .75rem;border-radius:14px;font-size:.78rem;font-weight:800;">${m.nexus_score}/100</div>
     </div>`;
   }).join('');
@@ -13661,6 +13699,33 @@ function updatePaywallCta() {
 // REQUIRES: STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET set in Supabase env.
 const STRIPE_LIVE = true;
 
+// ═══ Identity Verification (self-hosted manual review — Bumble/Tinder style) ═══
+// User submits a posed selfie (+ optional government ID) → stored private in the
+// 'identity-docs' bucket → an admin reviews in-app and approves/rejects. The verified
+// badge is written ONLY by nexus_review_verification (admin). No third party involved.
+let currentVerification = { status:'none', age_verified:false, verified_at:null, reject_reason:null };
+
+async function loadVerification(){
+  if(!currentUser){ currentVerification = { status:'none', age_verified:false, verified_at:null, reject_reason:null }; return currentVerification; }
+  try{
+    const { data } = await sb.rpc('nexus_my_verification');
+    const row = Array.isArray(data) ? data[0] : data;
+    currentVerification = row ? { status: row.status||'none', age_verified: !!row.age_verified, verified_at: row.verified_at||null, reject_reason: row.reject_reason||null }
+                              : { status:'none', age_verified:false, verified_at:null, reject_reason:null };
+  }catch(e){ /* offline / not provisioned — treat as unverified */ }
+  return currentVerification;
+}
+window.loadVerification = loadVerification;
+function isVerified(){ return !!(currentVerification && currentVerification.status === 'verified'); }
+
+// Small inline “ID Verified” badge (brand-green check seal)
+function verifiedBadgeHTML(px){
+  px = px || 16;
+  return '<span title="ID Verified" aria-label="ID Verified" style="display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;width:'+px+'px;height:'+px+'px;border-radius:50%;background:#16a34a;color:#fff;font-size:'+Math.round(px*0.62)+'px;font-weight:900;line-height:1;margin-left:.28em;flex-shrink:0;">✓</span>';
+}
+window.verifiedBadgeHTML = verifiedBadgeHTML;
+
+
 // Maps frontend (role + plan key) to backend product slug
 function _planKeyToSlug(role, planKey) {
   if (role === 'realtor') {
@@ -13747,6 +13812,231 @@ function closeMockCheckout() {
   }
 }
 window.closeMockCheckout = closeMockCheckout;
+
+// ═══ Identity Verification flow (submit → admin review) ═══
+// Randomized poses to mimic (liveness intent + gives the reviewer something to match).
+const VERIFY_POSES = [
+  'Hold up TWO fingers (peace sign) next to your face',
+  'Place your right hand flat on top of your head',
+  'Give a thumbs up next to your chin',
+  'Touch your left ear with your left hand',
+  'Make an “OK” sign next to your right eye',
+  'Point upward with one finger',
+  'Rest your chin on the back of your hand',
+  'Hold up THREE fingers beside your face',
+  'Place a hand over your heart',
+  'Give a small wave next to your shoulder'
+];
+let _verifyPose = '';
+let _verifyIdFile = null;
+let _verifySelfieFile = null;
+
+function renderVerificationCard(){
+  const pill = document.getElementById('settings-verify-pill');
+  const body = document.getElementById('settings-verify-body');
+  const actions = document.getElementById('settings-verify-actions');
+  if(!pill||!body||!actions) return;
+  const st = (currentVerification && currentVerification.status) || 'none';
+  if(st === 'verified'){
+    pill.innerHTML = '<span style="background:#D1FAE5;color:#15803D;padding:.2rem .55rem;border-radius:12px;font-size:.72rem;font-weight:800;display:inline-flex;align-items:center;">'+verifiedBadgeHTML(14)+'Verified</span>';
+    body.innerHTML = 'Your identity is verified'+(currentVerification.age_verified?' and you’re confirmed 18+':'')+'. Other members see a verified badge on your profile — it builds trust and gets you more matches.';
+    actions.innerHTML = '';
+  } else if(st === 'pending'){
+    pill.innerHTML = '<span style="background:#FEF3C7;color:#92400E;padding:.2rem .55rem;border-radius:12px;font-size:.72rem;font-weight:800;">In review</span>';
+    body.innerHTML = 'Your submission is in review. Our team checks new verifications by hand, usually within a day. We’ll update your badge as soon as it’s approved.';
+    actions.innerHTML = '<button class="rp-btn rp-btn-secondary" style="font-size:.82rem;" onclick="loadVerification().then(renderVerificationCard)">Refresh status</button>';
+  } else if(st === 'rejected'){
+    pill.innerHTML = '<span style="background:#FEE2E2;color:#B91C1C;padding:.2rem .55rem;border-radius:12px;font-size:.72rem;font-weight:800;">Action needed</span>';
+    body.innerHTML = 'Your last submission wasn’t approved'+(currentVerification.reject_reason?': <b>'+escapeHtml(currentVerification.reject_reason)+'</b>':'.')+' You can try again with clear, well-lit photos.';
+    actions.innerHTML = '<button class="rp-btn" style="font-size:.82rem;background:#16a34a;border-color:#16a34a;" onclick="openVerifyModal()">Try again</button>';
+  } else {
+    pill.innerHTML = '<span style="background:var(--bg);color:var(--gray-text);padding:.2rem .55rem;border-radius:12px;font-size:.72rem;font-weight:800;">Not verified</span>';
+    body.innerHTML = 'Get a verified badge by confirming your identity. Take a quick posed selfie (and optionally add a government ID to confirm you’re 18+). A real person on our team reviews it — it proves you’re genuine and helps you stand out and stay safe.';
+    actions.innerHTML = '<button class="rp-btn" style="font-size:.82rem;background:#16a34a;border-color:#16a34a;" onclick="openVerifyModal()">✓ Get Verified</button>';
+  }
+  try{ renderAdminReviewEntry(); }catch(_){}
+}
+window.renderVerificationCard = renderVerificationCard;
+
+async function renderAdminReviewEntry(){
+  const card=document.getElementById('settings-review-card');
+  if(!card) return;
+  if(!currentAccount || currentAccount.role!=='admin'){ card.style.display='none'; return; }
+  card.style.display='block';
+  try{
+    await loadVerificationQueue();
+    const c=document.getElementById('settings-review-count');
+    if(c) c.textContent = _verifyQueue.length ? '· '+_verifyQueue.length : '';
+  }catch(_){}
+}
+window.renderAdminReviewEntry = renderAdminReviewEntry;
+
+function startIdentityVerification(){ openVerifyModal(); }
+window.startIdentityVerification = startIdentityVerification;
+
+function openVerifyModal(){
+  if(!currentUser){ if(typeof openLoginModal==='function') openLoginModal(); return; }
+  const o = document.getElementById('verify-overlay'); if(!o) return;
+  _verifyPose = VERIFY_POSES[Math.floor(Math.random()*VERIFY_POSES.length)];
+  _verifyIdFile = null; _verifySelfieFile = null;
+  const poseEl = document.getElementById('vf-pose'); if(poseEl) poseEl.textContent = _verifyPose;
+  const sIn=document.getElementById('vf-selfie-input'); if(sIn) sIn.value='';
+  const iIn=document.getElementById('vf-id-input'); if(iIn) iIn.value='';
+  document.getElementById('vf-selfie-preview').style.display='none';
+  document.getElementById('vf-id-preview').style.display='none';
+  document.getElementById('vf-form').style.display='block';
+  document.getElementById('vf-done').style.display='none';
+  updateVerifySubmitState();
+  o.style.display='flex';
+}
+window.openVerifyModal = openVerifyModal;
+function closeVerifyModal(){ const o=document.getElementById('verify-overlay'); if(o) o.style.display='none'; }
+window.closeVerifyModal = closeVerifyModal;
+
+function _previewFile(file, imgId){
+  const img=document.getElementById(imgId); if(!img) return;
+  const r=new FileReader(); r.onload=function(e){ img.src=e.target.result; img.parentElement.style.display='block'; }; r.readAsDataURL(file);
+}
+function onVerifySelfiePick(input){
+  const f=input.files && input.files[0]; if(!f) return;
+  if(!/^image\//.test(f.type)){ showToast('Please choose an image.','error'); input.value=''; return; }
+  _verifySelfieFile=f; _previewFile(f,'vf-selfie-img'); updateVerifySubmitState();
+}
+window.onVerifySelfiePick = onVerifySelfiePick;
+function onVerifyIdPick(input){
+  const f=input.files && input.files[0]; if(!f) return;
+  if(!/^image\//.test(f.type)){ showToast('Please choose an image.','error'); input.value=''; return; }
+  _verifyIdFile=f; _previewFile(f,'vf-id-img'); updateVerifySubmitState();
+}
+window.onVerifyIdPick = onVerifyIdPick;
+function updateVerifySubmitState(){
+  const btn=document.getElementById('vf-submit'); if(!btn) return;
+  btn.disabled = !_verifySelfieFile;
+  btn.style.opacity = _verifySelfieFile ? '1' : '.5';
+  btn.style.cursor = _verifySelfieFile ? 'pointer' : 'not-allowed';
+}
+
+async function submitVerification(){
+  if(!currentUser || !_verifySelfieFile) return;
+  const btn=document.getElementById('vf-submit'); if(btn){ btn.disabled=true; btn.textContent='Uploading…'; }
+  try{
+    const uid = currentUser.id;
+    const ts = Date.now();
+    const ext = (f)=>{ const m=(f.name||'').match(/\.(jpe?g|png|webp|heic|heif)$/i); return m?m[0].toLowerCase():'.jpg'; };
+    const selfiePath = uid + '/selfie_' + ts + ext(_verifySelfieFile);
+    const up1 = await sb.storage.from('identity-docs').upload(selfiePath, _verifySelfieFile, { upsert:true, contentType:_verifySelfieFile.type });
+    if(up1.error) throw up1.error;
+    let idPath = null;
+    if(_verifyIdFile){
+      idPath = uid + '/id_' + ts + ext(_verifyIdFile);
+      const up2 = await sb.storage.from('identity-docs').upload(idPath, _verifyIdFile, { upsert:true, contentType:_verifyIdFile.type });
+      if(up2.error) throw up2.error;
+    }
+    const { data, error } = await sb.rpc('nexus_submit_verification', { p_id_path: idPath, p_selfie_path: selfiePath, p_pose_code: _verifyPose });
+    if(error) throw error;
+    if(data && data.error) throw new Error(data.error);
+    await loadVerification();
+    try{ renderVerificationCard(); }catch(_){}
+    document.getElementById('vf-form').style.display='none';
+    document.getElementById('vf-done').style.display='block';
+  }catch(e){
+    showToast('Could not submit: ' + (e.message||e), 'error');
+    if(btn){ btn.disabled=false; btn.textContent='Submit for review'; }
+  }
+}
+window.submitVerification = submitVerification;
+
+// ═══ Admin review queue ═══
+let _verifyQueue = [];
+async function loadVerificationQueue(){
+  if(!currentAccount || currentAccount.role!=='admin') return [];
+  try{
+    const { data, error } = await sb.rpc('nexus_pending_verifications');
+    if(error) throw error;
+    _verifyQueue = data || [];
+  }catch(e){ _verifyQueue = []; }
+  return _verifyQueue;
+}
+window.loadVerificationQueue = loadVerificationQueue;
+
+async function _signedUrl(path){
+  if(!path) return null;
+  try{ const { data } = await sb.storage.from('identity-docs').createSignedUrl(path, 600); return data && data.signedUrl; }catch(_){ return null; }
+}
+
+async function openReviewQueue(){
+  if(!currentAccount || currentAccount.role!=='admin'){ showToast('Admins only.','error'); return; }
+  const o=document.getElementById('review-overlay'); if(!o) return;
+  o.style.display='flex';
+  const list=document.getElementById('rq-list');
+  list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--gray-text);">Loading…</div>';
+  await loadVerificationQueue();
+  await renderReviewQueue();
+}
+window.openReviewQueue = openReviewQueue;
+function closeReviewQueue(){ const o=document.getElementById('review-overlay'); if(o) o.style.display='none'; }
+window.closeReviewQueue = closeReviewQueue;
+
+async function renderReviewQueue(){
+  const list=document.getElementById('rq-list'); if(!list) return;
+  const cnt=document.getElementById('rq-count'); if(cnt) cnt.textContent=_verifyQueue.length;
+  if(!_verifyQueue.length){ list.innerHTML='<div style="padding:2.5rem 1rem;text-align:center;color:var(--gray-text);">No submissions waiting for review. 🎉</div>'; return; }
+  const rows = await Promise.all(_verifyQueue.map(async function(s){
+    const selfieUrl = await _signedUrl(s.selfie_path);
+    const idUrl = await _signedUrl(s.id_path);
+    const when = s.submitted_at ? new Date(s.submitted_at).toLocaleString() : '';
+    const roleBadge = s.role==='realtor' ? '<span style="background:#EEF2FF;color:#3730A3;padding:.1rem .45rem;border-radius:8px;font-size:.66rem;font-weight:800;">REALTOR</span>' : '<span style="background:#F1F5F9;color:#475569;padding:.1rem .45rem;border-radius:8px;font-size:.66rem;font-weight:800;">USER</span>';
+    return ''+
+    '<div style="border:1px solid var(--border,#E5E7EB);border-radius:14px;padding:1rem;margin-bottom:1rem;background:#fff;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.5rem;">'+
+        '<div><div style="font-weight:800;color:var(--navy);">'+escapeHtml(s.full_name||'(no name)')+' '+roleBadge+'</div>'+
+        '<div style="font-size:.76rem;color:var(--gray-text);">'+escapeHtml(s.email||'')+'</div></div>'+
+        '<div style="font-size:.7rem;color:var(--gray-text);text-align:right;">'+when+'</div>'+
+      '</div>'+
+      '<div style="background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;font-size:.78rem;padding:.4rem .6rem;border-radius:8px;margin-bottom:.6rem;">Pose asked: <b>'+escapeHtml(s.pose_code||'—')+'</b></div>'+
+      '<div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.7rem;">'+
+        '<div style="flex:1;min-width:130px;"><div style="font-size:.68rem;font-weight:800;color:var(--gray-text);margin-bottom:.25rem;">SELFIE</div>'+
+          (selfieUrl?'<a href="'+selfieUrl+'" target="_blank"><img src="'+selfieUrl+'" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;"></a>':'<div style="font-size:.74rem;color:#B91C1C;">missing</div>')+'</div>'+
+        '<div style="flex:1;min-width:130px;"><div style="font-size:.68rem;font-weight:800;color:var(--gray-text);margin-bottom:.25rem;">GOVERNMENT ID</div>'+
+          (idUrl?'<a href="'+idUrl+'" target="_blank"><img src="'+idUrl+'" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;"></a>':'<div style="font-size:.74rem;color:var(--gray-text);">not provided</div>')+'</div>'+
+      '</div>'+
+      (idUrl?'<label style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--navy);margin-bottom:.6rem;cursor:pointer;"><input type="checkbox" id="rq-age-'+s.account_id+'" checked> ID confirms 18 or older</label>':'')+
+      '<div style="display:flex;gap:.5rem;">'+
+        '<button onclick="reviewApprove(\''+s.account_id+'\')" style="flex:1;background:#16a34a;color:#fff;border:none;border-radius:9px;padding:.6rem;font-weight:800;font-size:.85rem;cursor:pointer;">Approve</button>'+
+        '<button onclick="reviewReject(\''+s.account_id+'\')" style="flex:1;background:#fff;color:#B91C1C;border:1.5px solid #FECACA;border-radius:9px;padding:.6rem;font-weight:800;font-size:.85rem;cursor:pointer;">Reject</button>'+
+      '</div>'+
+    '</div>';
+  }));
+  list.innerHTML = rows.join('');
+}
+
+async function reviewApprove(accountId){
+  const ageEl=document.getElementById('rq-age-'+accountId);
+  const ageOk = ageEl ? ageEl.checked : false;
+  try{
+    const { data, error } = await sb.rpc('nexus_review_verification', { p_account_id: accountId, p_approve:true, p_age_ok: ageOk, p_reason:null });
+    if(error) throw error; if(data && data.error) throw new Error(data.error);
+    showToast('Approved — badge granted.','success');
+    _verifyQueue = _verifyQueue.filter(function(s){ return s.account_id!==accountId; });
+    await renderReviewQueue();
+    if(typeof refreshVerifiedBadgeBuckets==='function') refreshVerifiedBadgeBuckets();
+  }catch(e){ showToast('Approve failed: '+(e.message||e),'error'); }
+}
+window.reviewApprove = reviewApprove;
+
+async function reviewReject(accountId){
+  const reason = window.prompt('Reason for rejection (shown to the user):','Photos were unclear — please retake in good lighting');
+  if(reason===null) return;
+  try{
+    const { data, error } = await sb.rpc('nexus_review_verification', { p_account_id: accountId, p_approve:false, p_age_ok:false, p_reason: reason });
+    if(error) throw error; if(data && data.error) throw new Error(data.error);
+    showToast('Rejected — user notified.','info');
+    _verifyQueue = _verifyQueue.filter(function(s){ return s.account_id!==accountId; });
+    await renderReviewQueue();
+  }catch(e){ showToast('Reject failed: '+(e.message||e),'error'); }
+}
+window.reviewReject = reviewReject;
+
 
 async function processMockPayment() {
   const btn = document.getElementById('mc-pay-btn');
@@ -16575,6 +16865,8 @@ async function loadSettings() {
   document.getElementById('settings-name').value = currentAccount.full_name || '';
   document.getElementById('settings-email').value = currentAccount.email || currentUser.email || '';
   document.getElementById('settings-phone').value = currentAccount.phone || '';
+  try { await loadVerification(); } catch (_) {}
+  try { renderVerificationCard(); } catch (_) {}
 
   // D3 — Matching Profile card is for homebuyer accounts only
   const matchCard = document.getElementById('settings-matching-card');
@@ -17011,6 +17303,18 @@ window.addEventListener('load', function() {
       </div>
     </div>
 
+    <!-- Identity Verification -->
+    <div id="settings-verify-card" style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;">Identity Verification <span id="settings-verify-pill"></span></div>
+      <div id="settings-verify-body" style="font-size:.85rem;color:var(--gray-text);line-height:1.5;">—</div>
+      <div id="settings-verify-actions" style="margin-top:.85rem;"></div>
+    </div>
+    <!-- Admin: identity review entry (admins only) -->
+    <div id="settings-review-card" style="display:none;background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.5rem;">Identity Review <span style="font-weight:600;color:var(--gray-text);font-size:.8rem;">· admin</span></div>
+      <div style="font-size:.85rem;color:var(--gray-text);line-height:1.5;">Review member verification submissions — view the posed selfie and ID, then approve or reject.</div>
+      <div style="margin-top:.85rem;"><button class="rp-btn" style="font-size:.82rem;background:#0B1D3E;border-color:#0B1D3E;" onclick="openReviewQueue()">Open review queue<span id="settings-review-count" style="margin-left:.4rem;font-weight:800;"></span></button></div>
+    </div>
     <!-- Edit Matching Profile (D3 — user accounts only) -->
     <div id="settings-matching-card" style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;display:none;">
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.4rem;">Matching Profile</div>
@@ -17479,6 +17783,60 @@ window.addEventListener('load', function() {
 @keyframes mcSpin{to{transform:rotate(360deg)}}
 @keyframes mcBounce{from{transform:scale(0)}50%{transform:scale(1.15)}to{transform:scale(1)}}
 </style>
+
+<!-- ── Identity Verification submission overlay (posed selfie + optional ID) ── -->
+<div id="verify-overlay" style="display:none;position:fixed;inset:0;background:rgba(11,29,62,.85);z-index:10000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px);overflow-y:auto;">
+  <div style="background:#fff;border-radius:14px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.3);overflow:hidden;margin:auto;">
+    <div style="background:linear-gradient(135deg,#0B1D3E,#16a34a);padding:1.25rem 1.5rem;color:#fff;">
+      <div style="display:flex;align-items:center;gap:.45rem;margin-bottom:.6rem;font-size:.8rem;opacity:.9;">Identity Verification</div>
+      <div style="font-size:1.25rem;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;">Get your verified badge</div>
+      <div style="font-size:.8rem;opacity:.85;margin-top:.15rem;">A real person on our team reviews every submission.</div>
+    </div>
+    <div id="vf-form" style="padding:1.5rem;">
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.85rem;margin-bottom:1rem;">
+        <div style="font-size:.72rem;font-weight:800;color:#15803D;letter-spacing:.03em;margin-bottom:.2rem;">STEP 1 · POSE TO MIMIC</div>
+        <div id="vf-pose" style="font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.35;">—</div>
+        <div style="font-size:.72rem;color:#6B7280;margin-top:.35rem;">Take a selfie doing exactly this. It proves you’re a real, live person.</div>
+      </div>
+
+      <label style="display:block;margin-bottom:1rem;cursor:pointer;">
+        <span style="font-size:.78rem;font-weight:700;color:#374151;display:block;margin-bottom:.4rem;">Your posed selfie <span style="color:#DC2626;">*</span></span>
+        <input id="vf-selfie-input" type="file" accept="image/*" capture="user" onchange="onVerifySelfiePick(this)" style="display:none;">
+        <span onclick="this.previousElementSibling.click()" style="display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem;border:1.5px dashed #16a34a;border-radius:10px;color:#15803D;font-weight:700;font-size:.88rem;background:#F0FDF4;">Take / choose selfie</span>
+        <span id="vf-selfie-preview" style="display:none;margin-top:.5rem;"><img id="vf-selfie-img" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;"></span>
+      </label>
+
+      <label style="display:block;margin-bottom:1rem;cursor:pointer;">
+        <span style="font-size:.78rem;font-weight:700;color:#374151;display:block;margin-bottom:.4rem;">Government ID <span style="color:#9CA3AF;font-weight:500;">— optional, adds “18+” confirmation</span></span>
+        <input id="vf-id-input" type="file" accept="image/*" onchange="onVerifyIdPick(this)" style="display:none;">
+        <span onclick="this.previousElementSibling.click()" style="display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem;border:1.5px dashed #CBD5E1;border-radius:10px;color:#475569;font-weight:700;font-size:.88rem;background:#F8FAFC;">Add ID photo (optional)</span>
+        <span id="vf-id-preview" style="display:none;margin-top:.5rem;"><img id="vf-id-img" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;"></span>
+      </label>
+
+      <div style="font-size:.68rem;color:#9CA3AF;margin-bottom:1rem;line-height:1.45;">Your photos are stored privately and are visible only to our review team — never shown on your profile or to other members.</div>
+      <button onclick="submitVerification()" id="vf-submit" disabled style="width:100%;padding:.85rem;background:#16a34a;color:#fff;font-size:1rem;font-weight:700;border:none;border-radius:8px;cursor:not-allowed;opacity:.5;">Submit for review</button>
+      <button onclick="closeVerifyModal()" style="width:100%;padding:.65rem;background:none;border:none;color:#6B7280;font-size:.85rem;cursor:pointer;margin-top:.5rem;">← Cancel</button>
+    </div>
+    <div id="vf-done" style="display:none;padding:2.5rem 1.5rem;text-align:center;">
+      <div style="width:56px;height:56px;border-radius:50%;background:#FEF3C7;color:#92400E;font-size:1.6rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">⏳</div>
+      <div style="font-weight:800;color:var(--navy);font-size:1.15rem;font-family:'Plus Jakarta Sans',sans-serif;">Submitted for review</div>
+      <div style="font-size:.88rem;color:#6B7280;margin:.35rem 0 1.5rem;line-height:1.5;">Our team reviews submissions by hand, usually within a day. Your badge appears as soon as you’re approved.</div>
+      <button onclick="closeVerifyModal()" style="width:100%;padding:.8rem;background:#16a34a;color:#fff;font-size:.95rem;font-weight:700;border:none;border-radius:8px;cursor:pointer;">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Admin: Identity review queue ── -->
+<div id="review-overlay" style="display:none;position:fixed;inset:0;background:rgba(11,29,62,.85);z-index:10001;align-items:flex-start;justify-content:center;padding:1rem;backdrop-filter:blur(6px);overflow-y:auto;">
+  <div style="background:#F8FAFC;border-radius:14px;max-width:560px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.3);overflow:hidden;margin:auto;">
+    <div style="background:#0B1D3E;padding:1.1rem 1.4rem;color:#fff;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;">
+      <div><div style="font-size:1.1rem;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;">Identity review</div>
+      <div style="font-size:.76rem;opacity:.8;"><span id="rq-count">0</span> waiting</div></div>
+      <button onclick="closeReviewQueue()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+    <div id="rq-list" style="padding:1.1rem;"></div>
+  </div>
+</div>
 
 <!-- ── Paywall overlay (role-aware pricing modal) ── -->
 <div id="paywall-overlay" class="paywall-overlay" style="display:none;">
