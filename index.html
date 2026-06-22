@@ -3335,6 +3335,7 @@ body.is-impersonating .view{padding-top:114px;}
         <button class="admin-tab" data-admin-tab="inspector" onclick="switchAdminTab('inspector')">🔍 Inspector</button>
         <button class="admin-tab" data-admin-tab="scenarios" onclick="switchAdminTab('scenarios')">🎬 Test Scenarios</button>
         <button class="admin-tab" data-admin-tab="analytics" onclick="switchAdminTab('analytics')">📊 Analytics</button>
+        <button class="admin-tab" data-admin-tab="verifications" onclick="switchAdminTab('verifications')">✅ Verifications <span id="admin-verify-tab-count" style="background:#16a34a;color:#fff;border-radius:10px;padding:0 .4rem;font-size:.7rem;margin-left:.25rem;display:none;"></span></button>
       </nav>
 
       <!-- ─── TAB: Mock Data ─── -->
@@ -3443,11 +3444,19 @@ body.is-impersonating .view{padding-top:114px;}
         </div>
       </section>
 
+      <!-- ─── TAB: Verifications ─── -->
+      <section id="admin-tab-verifications" class="admin-tab-pane">
+        <div style="display:flex;gap:.65rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <strong style="color:var(--navy);font-size:.95rem;">Pending submissions: <span id="admin-verify-count">0</span></strong>
+          <button class="btn-outline" style="padding:.45rem 1rem;font-size:.82rem;border-radius:8px;border-width:1.5px;" onclick="loadAdminVerifications()">↻ Refresh</button>
+          <span style="font-size:.78rem;color:var(--gray-text);margin-left:auto;">Each person’s posed selfie and (if provided) government ID. Approve to grant the verified badge; reject to send them back with a reason.</span>
+        </div>
+        <div id="admin-verify-list"><div class="mock-empty">Loading submissions…</div></div>
+      </section>
+
     </div>
   </div>
 </div>
-
-<!-- ══════════════════════ VIEW: INVESTOR ══════════════════════ -->
 <div id="view-investor" class="view">
 <style>
 /* ── Investor View Styles ── */
@@ -8431,6 +8440,7 @@ async function initAdminDashboardReal() {
   }
   // Default tab: Mock Data
   switchAdminTab('mock-data');
+  try{ updateVerifyTabCount(); }catch(_){}
 }
 window.initAdminDashboard = initAdminDashboardReal;
 
@@ -8445,6 +8455,7 @@ function switchAdminTab(tabId) {
   if (tabId === 'inspector') refreshInspector();
   if (tabId === 'scenarios') renderScenarios();
   if (tabId === 'analytics') loadAdminAnalytics();
+  if (tabId === 'verifications') loadAdminVerifications();
 }
 window.switchAdminTab = switchAdminTab;
 
@@ -13854,22 +13865,20 @@ function renderVerificationCard(){
     body.innerHTML = 'Get a verified badge by confirming your identity. Take a quick posed selfie (and optionally add a government ID to confirm you’re 18+). A real person on our team reviews it — it proves you’re genuine and helps you stand out and stay safe.';
     actions.innerHTML = '<button class="rp-btn" style="font-size:.82rem;background:#16a34a;border-color:#16a34a;" onclick="openVerifyModal()">✓ Get Verified</button>';
   }
-  try{ renderAdminReviewEntry(); }catch(_){}
 }
 window.renderVerificationCard = renderVerificationCard;
 
-async function renderAdminReviewEntry(){
-  const card=document.getElementById('settings-review-card');
-  if(!card) return;
-  if(!currentAccount || currentAccount.role!=='admin'){ card.style.display='none'; return; }
-  card.style.display='block';
+async function updateVerifyTabCount(){
+  const pill=document.getElementById('admin-verify-tab-count');
+  if(!pill) return;
+  if(!currentAccount || currentAccount.role!=='admin'){ pill.style.display='none'; return; }
   try{
     await loadVerificationQueue();
-    const c=document.getElementById('settings-review-count');
-    if(c) c.textContent = _verifyQueue.length ? '· '+_verifyQueue.length : '';
+    if(_verifyQueue.length){ pill.textContent=_verifyQueue.length; pill.style.display='inline-block'; }
+    else { pill.style.display='none'; }
   }catch(_){}
 }
-window.renderAdminReviewEntry = renderAdminReviewEntry;
+window.updateVerifyTabCount = updateVerifyTabCount;
 
 function startIdentityVerification(){ openVerifyModal(); }
 window.startIdentityVerification = startIdentityVerification;
@@ -13964,51 +13973,48 @@ async function _signedUrl(path){
   try{ const { data } = await sb.storage.from('identity-docs').createSignedUrl(path, 600); return data && data.signedUrl; }catch(_){ return null; }
 }
 
-async function openReviewQueue(){
-  if(!currentAccount || currentAccount.role!=='admin'){ showToast('Admins only.','error'); return; }
-  const o=document.getElementById('review-overlay'); if(!o) return;
-  o.style.display='flex';
-  const list=document.getElementById('rq-list');
-  list.innerHTML='<div style="padding:2rem;text-align:center;color:var(--gray-text);">Loading…</div>';
+async function loadAdminVerifications(){
+  const list=document.getElementById('admin-verify-list'); if(!list) return;
+  if(!currentAccount || currentAccount.role!=='admin'){ list.innerHTML='<div class="mock-empty">Admins only.</div>'; return; }
+  list.innerHTML='<div class="mock-empty">Loading submissions…</div>';
   await loadVerificationQueue();
-  await renderReviewQueue();
+  await renderAdminVerifications();
 }
-window.openReviewQueue = openReviewQueue;
-function closeReviewQueue(){ const o=document.getElementById('review-overlay'); if(o) o.style.display='none'; }
-window.closeReviewQueue = closeReviewQueue;
+window.loadAdminVerifications = loadAdminVerifications;
 
-async function renderReviewQueue(){
-  const list=document.getElementById('rq-list'); if(!list) return;
-  const cnt=document.getElementById('rq-count'); if(cnt) cnt.textContent=_verifyQueue.length;
-  if(!_verifyQueue.length){ list.innerHTML='<div style="padding:2.5rem 1rem;text-align:center;color:var(--gray-text);">No submissions waiting for review. 🎉</div>'; return; }
+async function renderAdminVerifications(){
+  const list=document.getElementById('admin-verify-list'); if(!list) return;
+  const cnt=document.getElementById('admin-verify-count'); if(cnt) cnt.textContent=_verifyQueue.length;
+  if(!_verifyQueue.length){ list.innerHTML='<div style="background:#fff;border:1.5px solid var(--gray);border-radius:12px;padding:2.5rem 1rem;text-align:center;color:var(--gray-text);">No submissions waiting for review. 🎉</div>'; return; }
   const rows = await Promise.all(_verifyQueue.map(async function(s){
     const selfieUrl = await _signedUrl(s.selfie_path);
     const idUrl = await _signedUrl(s.id_path);
     const when = s.submitted_at ? new Date(s.submitted_at).toLocaleString() : '';
     const roleBadge = s.role==='realtor' ? '<span style="background:#EEF2FF;color:#3730A3;padding:.1rem .45rem;border-radius:8px;font-size:.66rem;font-weight:800;">REALTOR</span>' : '<span style="background:#F1F5F9;color:#475569;padding:.1rem .45rem;border-radius:8px;font-size:.66rem;font-weight:800;">USER</span>';
     return ''+
-    '<div style="border:1px solid var(--border,#E5E7EB);border-radius:14px;padding:1rem;margin-bottom:1rem;background:#fff;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.5rem;">'+
-        '<div><div style="font-weight:800;color:var(--navy);">'+escapeHtml(s.full_name||'(no name)')+' '+roleBadge+'</div>'+
-        '<div style="font-size:.76rem;color:var(--gray-text);">'+escapeHtml(s.email||'')+'</div></div>'+
-        '<div style="font-size:.7rem;color:var(--gray-text);text-align:right;">'+when+'</div>'+
+    '<div style="border:1.5px solid var(--gray);border-radius:14px;padding:1.1rem;margin-bottom:1rem;background:#fff;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.6rem;">'+
+        '<div><div style="font-weight:800;color:var(--navy);font-size:1rem;">'+escapeHtml(s.full_name||'(no name)')+' '+roleBadge+'</div>'+
+        '<div style="font-size:.78rem;color:var(--gray-text);">'+escapeHtml(s.email||'')+'</div></div>'+
+        '<div style="font-size:.72rem;color:var(--gray-text);text-align:right;white-space:nowrap;">'+when+'</div>'+
       '</div>'+
-      '<div style="background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;font-size:.78rem;padding:.4rem .6rem;border-radius:8px;margin-bottom:.6rem;">Pose asked: <b>'+escapeHtml(s.pose_code||'—')+'</b></div>'+
-      '<div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.7rem;">'+
-        '<div style="flex:1;min-width:130px;"><div style="font-size:.68rem;font-weight:800;color:var(--gray-text);margin-bottom:.25rem;">SELFIE</div>'+
-          (selfieUrl?'<a href="'+selfieUrl+'" target="_blank"><img src="'+selfieUrl+'" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;"></a>':'<div style="font-size:.74rem;color:#B91C1C;">missing</div>')+'</div>'+
-        '<div style="flex:1;min-width:130px;"><div style="font-size:.68rem;font-weight:800;color:var(--gray-text);margin-bottom:.25rem;">GOVERNMENT ID</div>'+
-          (idUrl?'<a href="'+idUrl+'" target="_blank"><img src="'+idUrl+'" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;"></a>':'<div style="font-size:.74rem;color:var(--gray-text);">not provided</div>')+'</div>'+
+      '<div style="background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;font-size:.8rem;padding:.45rem .7rem;border-radius:8px;margin-bottom:.7rem;">Pose they were asked to mimic: <b>'+escapeHtml(s.pose_code||'—')+'</b></div>'+
+      '<div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.8rem;">'+
+        '<div style="flex:1;min-width:150px;"><div style="font-size:.7rem;font-weight:800;color:var(--gray-text);margin-bottom:.3rem;letter-spacing:.04em;">SUBMITTED SELFIE</div>'+
+          (selfieUrl?'<a href="'+selfieUrl+'" target="_blank" title="Open full size"><img src="'+selfieUrl+'" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;display:block;"></a>':'<div style="font-size:.78rem;color:#B91C1C;padding:1rem;background:#FEF2F2;border-radius:8px;text-align:center;">missing</div>')+'</div>'+
+        '<div style="flex:1;min-width:150px;"><div style="font-size:.7rem;font-weight:800;color:var(--gray-text);margin-bottom:.3rem;letter-spacing:.04em;">GOVERNMENT ID</div>'+
+          (idUrl?'<a href="'+idUrl+'" target="_blank" title="Open full size"><img src="'+idUrl+'" style="width:100%;border-radius:10px;border:1px solid #E5E7EB;display:block;"></a>':'<div style="font-size:.78rem;color:var(--gray-text);padding:1rem;background:#F8FAFC;border-radius:8px;text-align:center;">not provided</div>')+'</div>'+
       '</div>'+
-      (idUrl?'<label style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--navy);margin-bottom:.6rem;cursor:pointer;"><input type="checkbox" id="rq-age-'+s.account_id+'" checked> ID confirms 18 or older</label>':'')+
-      '<div style="display:flex;gap:.5rem;">'+
-        '<button onclick="reviewApprove(\''+s.account_id+'\')" style="flex:1;background:#16a34a;color:#fff;border:none;border-radius:9px;padding:.6rem;font-weight:800;font-size:.85rem;cursor:pointer;">Approve</button>'+
-        '<button onclick="reviewReject(\''+s.account_id+'\')" style="flex:1;background:#fff;color:#B91C1C;border:1.5px solid #FECACA;border-radius:9px;padding:.6rem;font-weight:800;font-size:.85rem;cursor:pointer;">Reject</button>'+
+      (idUrl?'<label style="display:flex;align-items:center;gap:.45rem;font-size:.82rem;color:var(--navy);margin-bottom:.7rem;cursor:pointer;font-weight:600;"><input type="checkbox" id="rq-age-'+s.account_id+'" checked> ID confirms 18 or older</label>':'<div style="font-size:.74rem;color:var(--gray-text);margin-bottom:.7rem;font-style:italic;">No ID provided — approving grants the badge but not an age (18+) confirmation.</div>')+
+      '<div style="display:flex;gap:.6rem;">'+
+        '<button onclick="reviewApprove(\''+s.account_id+'\')" style="flex:1;background:#16a34a;color:#fff;border:none;border-radius:9px;padding:.7rem;font-weight:800;font-size:.88rem;cursor:pointer;">✓ Approve</button>'+
+        '<button onclick="reviewReject(\''+s.account_id+'\')" style="flex:1;background:#fff;color:#B91C1C;border:1.5px solid #FECACA;border-radius:9px;padding:.7rem;font-weight:800;font-size:.88rem;cursor:pointer;">✕ Reject</button>'+
       '</div>'+
     '</div>';
   }));
   list.innerHTML = rows.join('');
 }
+window.renderAdminVerifications = renderAdminVerifications;
 
 async function reviewApprove(accountId){
   const ageEl=document.getElementById('rq-age-'+accountId);
@@ -14018,8 +14024,7 @@ async function reviewApprove(accountId){
     if(error) throw error; if(data && data.error) throw new Error(data.error);
     showToast('Approved — badge granted.','success');
     _verifyQueue = _verifyQueue.filter(function(s){ return s.account_id!==accountId; });
-    await renderReviewQueue();
-    if(typeof refreshVerifiedBadgeBuckets==='function') refreshVerifiedBadgeBuckets();
+    await renderAdminVerifications();
   }catch(e){ showToast('Approve failed: '+(e.message||e),'error'); }
 }
 window.reviewApprove = reviewApprove;
@@ -14032,7 +14037,7 @@ async function reviewReject(accountId){
     if(error) throw error; if(data && data.error) throw new Error(data.error);
     showToast('Rejected — user notified.','info');
     _verifyQueue = _verifyQueue.filter(function(s){ return s.account_id!==accountId; });
-    await renderReviewQueue();
+    await renderAdminVerifications();
   }catch(e){ showToast('Reject failed: '+(e.message||e),'error'); }
 }
 window.reviewReject = reviewReject;
@@ -17309,12 +17314,6 @@ window.addEventListener('load', function() {
       <div id="settings-verify-body" style="font-size:.85rem;color:var(--gray-text);line-height:1.5;">—</div>
       <div id="settings-verify-actions" style="margin-top:.85rem;"></div>
     </div>
-    <!-- Admin: identity review entry (admins only) -->
-    <div id="settings-review-card" style="display:none;background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.5rem;">Identity Review <span style="font-weight:600;color:var(--gray-text);font-size:.8rem;">· admin</span></div>
-      <div style="font-size:.85rem;color:var(--gray-text);line-height:1.5;">Review member verification submissions — view the posed selfie and ID, then approve or reject.</div>
-      <div style="margin-top:.85rem;"><button class="rp-btn" style="font-size:.82rem;background:#0B1D3E;border-color:#0B1D3E;" onclick="openReviewQueue()">Open review queue<span id="settings-review-count" style="margin-left:.4rem;font-weight:800;"></span></button></div>
-    </div>
     <!-- Edit Matching Profile (D3 — user accounts only) -->
     <div id="settings-matching-card" style="background:#fff;border:1.5px solid var(--gray);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1rem;display:none;">
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--navy);font-size:1rem;margin-bottom:.4rem;">Matching Profile</div>
@@ -17823,18 +17822,6 @@ window.addEventListener('load', function() {
       <div style="font-size:.88rem;color:#6B7280;margin:.35rem 0 1.5rem;line-height:1.5;">Our team reviews submissions by hand, usually within a day. Your badge appears as soon as you’re approved.</div>
       <button onclick="closeVerifyModal()" style="width:100%;padding:.8rem;background:#16a34a;color:#fff;font-size:.95rem;font-weight:700;border:none;border-radius:8px;cursor:pointer;">Done</button>
     </div>
-  </div>
-</div>
-
-<!-- ── Admin: Identity review queue ── -->
-<div id="review-overlay" style="display:none;position:fixed;inset:0;background:rgba(11,29,62,.85);z-index:10001;align-items:flex-start;justify-content:center;padding:1rem;backdrop-filter:blur(6px);overflow-y:auto;">
-  <div style="background:#F8FAFC;border-radius:14px;max-width:560px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.3);overflow:hidden;margin:auto;">
-    <div style="background:#0B1D3E;padding:1.1rem 1.4rem;color:#fff;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;">
-      <div><div style="font-size:1.1rem;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;">Identity review</div>
-      <div style="font-size:.76rem;opacity:.8;"><span id="rq-count">0</span> waiting</div></div>
-      <button onclick="closeReviewQueue()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:1rem;cursor:pointer;">✕</button>
-    </div>
-    <div id="rq-list" style="padding:1.1rem;"></div>
   </div>
 </div>
 
