@@ -12079,17 +12079,39 @@ function pickRealtorInterval(key) {
 }
 window.pickRealtorInterval = pickRealtorInterval;
 
-function subscribeRealtorTier() {
-  const plan = STRIPE_PRICES.realtor_per_zip[_selectedRealtorInterval];
-  if (!plan) return;
-  // Create a modified plan with total amount for the selected quantity
-  const totalPlan = {
-    ...plan,
-    amount: parseFloat((_realtorZipQty * plan.amount).toFixed(2)),
-    perMonth: parseFloat((_realtorZipQty * plan.perMonth).toFixed(2)),
-    label: plan.label + ' — ' + _realtorZipQty + ' ZIP' + (_realtorZipQty > 1 ? 's' : '')
-  };
-  openMockCheckout(totalPlan, 'realtor');
+async function subscribeRealtorTier() {
+  const cap = (typeof MAX_REALTOR_ZIPS !== 'undefined') ? MAX_REALTOR_ZIPS : 9;
+  const qty = Math.max(1, Math.min(cap, _realtorZipQty || 1));
+  // Fallback to mock only if live billing is disabled
+  if (typeof STRIPE_LIVE === 'undefined' || !STRIPE_LIVE) {
+    const plan = STRIPE_PRICES.realtor_per_zip[_selectedRealtorInterval] || STRIPE_PRICES.realtor_per_zip.monthly;
+    const totalPlan = { ...plan, amount: parseFloat((qty * plan.amount).toFixed(2)),
+      label: qty + ' ZIP' + (qty > 1 ? 's' : '') + ' × $' + plan.amount + '/mo' };
+    openMockCheckout(totalPlan, 'realtor');
+    return;
+  }
+  try {
+    // Persist ZIP selection so the charged quantity matches their ZIPs
+    if (Array.isArray(realtorState.selectedZips) && realtorState.selectedZips.length) {
+      await saveRealtorZips();
+    }
+    if (typeof trackEvent === 'function') trackEvent('checkout_started', 'payment', { slug: 'nexus_network_monthly', role: 'realtor', quantity: qty });
+    const { data, error } = await sb.functions.invoke('stripe-checkout', {
+      body: {
+        slug: 'nexus_network_monthly',
+        quantity: qty,
+        success_url: window.location.origin + '/?checkout=success&session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: window.location.origin + '/?checkout=cancel'
+      }
+    });
+    if (error) throw error;
+    if (data && data.error) throw new Error(data.error + (data.detail ? ': ' + data.detail : ''));
+    if (data && data.url) { window.location.href = data.url; return; }
+    throw new Error('No checkout URL returned');
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('Checkout error: ' + e.message, 'error');
+    else alert('Checkout error: ' + e.message);
+  }
 }
 window.subscribeRealtorTier = subscribeRealtorTier;
 
