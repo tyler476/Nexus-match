@@ -1215,6 +1215,124 @@ body.is-impersonating .view{padding-top:114px;}
   .calc-vs-row{grid-template-columns:1fr;}
 }
 </style>
+<style id="press-styles">
+/* ══════════════════ PRESS / NEWSROOM ══════════════════ */
+.pr-bar{background:var(--navy);color:#fff;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.12);}
+.pr-bar .pr-mark{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;letter-spacing:.5px;font-size:.95rem;}
+.pr-bar .pr-mark span{color:var(--sky);font-weight:700;}
+.pr-meta{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.68rem;letter-spacing:.09em;color:rgba(255,255,255,.55);text-transform:uppercase;font-weight:600;}
+.pr-meta b{color:#fff;font-weight:700;}
+.pr-bar-cta{margin-left:auto;display:flex;gap:.6rem;flex-wrap:wrap;}
+.pr-btn{display:inline-block;background:var(--blue);color:#fff;font-size:.78rem;font-weight:700;padding:.5rem 1rem;border-radius:7px;text-decoration:none;border:1.5px solid var(--blue);cursor:pointer;transition:background .18s;}
+.pr-btn:hover{background:#1a4fcc;}
+.pr-btn.ghost{background:transparent;border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.9);}
+.pr-btn.ghost:hover{background:rgba(255,255,255,.1);}
+
+.pr-hero{background:linear-gradient(135deg,var(--navy) 0%,#132C55 100%);color:#fff;padding:4rem 1.5rem 3.5rem;}
+.pr-hero-in{max-width:1100px;margin:0 auto;}
+.pr-eyebrow{font-size:.7rem;letter-spacing:.28em;color:var(--sky);font-weight:700;text-transform:uppercase;margin-bottom:1.3rem;}
+.pr-hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(1.9rem,4.4vw,3.1rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;max-width:16ch;}
+.pr-thesis{font-size:clamp(1rem,1.7vw,1.2rem);color:rgba(255,255,255,.8);line-height:1.55;max-width:62ch;margin-top:1.4rem;font-weight:400;}
+.pr-thesis b{color:#fff;font-weight:700;}
+.pr-contact{display:flex;gap:2.6rem;flex-wrap:wrap;margin-top:2.4rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.15);}
+.pr-contact h4{font-size:.65rem;letter-spacing:.2em;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;margin-bottom:.4rem;}
+.pr-contact p{font-size:.94rem;color:#fff;font-weight:600;margin:0;}
+.pr-contact a{color:#fff;border-bottom:1px solid var(--sky);text-decoration:none;}
+.pr-contact small{display:block;color:rgba(255,255,255,.55);font-size:.78rem;font-weight:400;margin-top:.2rem;}
+
+.pr-sec{max-width:1100px;margin:0 auto;padding:3.4rem 1.5rem;}
+.pr-head{display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;border-bottom:2px solid var(--navy);padding-bottom:.5rem;margin-bottom:.7rem;}
+.pr-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:var(--navy);letter-spacing:-.01em;}
+.pr-tag{font-size:.66rem;letter-spacing:.16em;color:var(--gray-text);font-weight:700;text-transform:uppercase;}
+.pr-dek{color:var(--gray-text);font-size:.92rem;max-width:66ch;margin-bottom:1.5rem;}
+
+.pr-fact{display:grid;grid-template-columns:1fr auto;gap:.25rem 1.5rem;align-items:baseline;padding:.85rem 0;border-bottom:1px solid var(--gray);}
+.pr-fact .l{font-size:.94rem;font-weight:600;color:#222;}
+.pr-fact .v{font-size:1.3rem;font-weight:800;color:var(--blue);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.pr-fact .s{grid-column:1/-1;font-size:.72rem;color:var(--gray-text);display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+.pr-copy{font-size:.63rem;letter-spacing:.1em;font-weight:800;background:none;border:1.5px solid var(--gray);color:var(--gray-text);padding:.15rem .5rem;border-radius:5px;cursor:pointer;transition:.15s;}
+.pr-copy:hover{border-color:var(--blue);color:var(--blue);}
+.pr-copy.done{border-color:var(--gold);color:var(--gold);}
+
+.pr-note{background:rgba(37,99,235,.05);border-left:3px solid var(--blue);padding:.9rem 1.1rem;border-radius:0 8px 8px 0;font-size:.88rem;margin-top:1.3rem;}
+.pr-note b{color:var(--navy);}
+.pr-warn{background:rgba(22,163,74,.06);border-left:3px solid var(--gold);}
+
+.pr-two{display:grid;grid-template-columns:1.15fr .85fr;gap:2.6rem;}
+.pr-pull{border-left:3px solid var(--blue);padding-left:1.1rem;font-size:1.1rem;line-height:1.45;color:var(--navy);font-weight:600;}
+.pr-angle{list-style:none;padding:0;margin:.4rem 0 0;border-top:1px solid var(--gray);}
+.pr-angle li{display:grid;grid-template-columns:100px 1fr;gap:.9rem;padding:.7rem 0;border-bottom:1px solid var(--gray);font-size:.86rem;}
+.pr-angle .d{font-size:.65rem;letter-spacing:.1em;font-weight:800;color:var(--blue);text-transform:uppercase;padding-top:.2rem;}
+
+.pr-job{margin-bottom:1.9rem;}
+.pr-job h3{font-size:.68rem;letter-spacing:.18em;color:var(--gray-text);font-weight:800;text-transform:uppercase;padding-bottom:.5rem;border-bottom:1px solid var(--gray);margin-bottom:.9rem;}
+.pr-grid{display:grid;gap:.85rem;}
+.pr-g4{grid-template-columns:repeat(4,1fr);}
+.pr-g3{grid-template-columns:repeat(3,1fr);}
+.pr-card{background:var(--white);border:1.5px solid var(--gray);border-radius:12px;padding:1rem 1.05rem;display:flex;flex-direction:column;gap:.3rem;text-decoration:none;transition:.18s;}
+a.pr-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:var(--shadow);}
+.pr-card .t{font-weight:700;font-size:.9rem;color:var(--navy);line-height:1.3;}
+.pr-card .d{font-size:.78rem;color:var(--gray-text);line-height:1.4;}
+.pr-card .f{font-size:.65rem;letter-spacing:.07em;color:var(--gray-text);font-weight:700;margin-top:auto;padding-top:.6rem;text-transform:uppercase;}
+.pr-card[data-status="pending"]{background:#FAFBFD;border-style:dashed;}
+.pr-card[data-status="pending"] .t:after{content:"NOT YET AVAILABLE";display:block;font-size:.6rem;letter-spacing:.12em;color:#B45309;font-weight:800;margin-top:.35rem;}
+
+.pr-logo{background:var(--white);border:1.5px solid var(--gray);border-radius:12px;overflow:hidden;}
+.pr-stage{height:120px;display:flex;align-items:center;justify-content:center;padding:1.2rem;}
+.pr-stage.light{background:var(--bg);border-bottom:1px solid var(--gray);}
+.pr-stage.dark{background:var(--navy);}
+.pr-stage.photo{background:linear-gradient(135deg,#3D4A63,#6B7B96);}
+.pr-mk{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;letter-spacing:-.5px;font-size:1.6rem;line-height:1;}
+.pr-mk.stack{font-size:1.35rem;text-align:center;}
+.pr-mk.stack span{display:block;font-size:.6rem;letter-spacing:.22em;font-weight:700;margin-top:.25rem;}
+.pr-mk.icon{width:54px;height:54px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.pr-logo-meta{padding:.75rem .95rem;font-size:.76rem;color:var(--gray-text);display:flex;justify-content:space-between;gap:.6rem;align-items:center;}
+.pr-logo-meta b{display:block;color:var(--navy);font-size:.84rem;}
+.pr-logo-meta .fmt{font-size:.62rem;letter-spacing:.08em;font-weight:800;white-space:nowrap;}
+
+.pr-vid{background:var(--white);border:1.5px solid var(--gray);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
+.pr-frame{aspect-ratio:16/9;background:#132C55;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:.68rem;letter-spacing:.14em;font-weight:700;text-align:center;padding:1rem;}
+.pr-vid .b{padding:.9rem 1rem;display:flex;flex-direction:column;gap:.3rem;flex:1;}
+.pr-vid .b .t{font-weight:700;font-size:.9rem;color:var(--navy);}
+.pr-vid .b .d{font-size:.78rem;color:var(--gray-text);}
+.pr-links{display:flex;gap:.9rem;flex-wrap:wrap;margin-top:auto;padding-top:.65rem;font-size:.65rem;letter-spacing:.07em;font-weight:800;text-transform:uppercase;}
+.pr-links a{color:var(--blue);text-decoration:none;cursor:pointer;}
+
+.pr-gfx{background:var(--white);border:1.5px solid var(--gray);border-radius:12px;overflow:hidden;}
+.pr-gfx img{width:100%;display:block;background:var(--navy);}
+.pr-gfx .b{padding:.75rem .9rem;font-size:.76rem;color:var(--gray-text);}
+.pr-gfx .b b{display:block;color:var(--navy);font-size:.85rem;margin-bottom:.15rem;}
+.pr-gfx .b a{color:var(--blue);font-weight:700;text-decoration:none;}
+
+.pr-topics{columns:2;column-gap:1.6rem;list-style:none;padding:0;margin:.4rem 0 0;}
+.pr-topics li{font-size:.86rem;padding:.35rem 0 .35rem .9rem;position:relative;break-inside:avoid;}
+.pr-topics li:before{content:"";position:absolute;left:0;top:.85rem;width:5px;height:1.5px;background:var(--blue);}
+.pr-bio{font-size:.62rem;letter-spacing:.15em;font-weight:800;color:var(--blue);text-transform:uppercase;margin:1rem 0 .35rem;}
+
+.pr-acc{background:var(--navy);color:rgba(255,255,255,.78);}
+.pr-acc .pr-head{border-bottom-color:rgba(255,255,255,.25);}
+.pr-acc .pr-head h2{color:#fff;}
+.pr-acc .pr-tag{color:var(--sky);}
+.pr-acc .pr-dek{color:rgba(255,255,255,.6);}
+.pr-rules{display:grid;grid-template-columns:repeat(2,1fr);gap:.85rem;}
+.pr-rule{border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:1rem 1.1rem;}
+.pr-rule h4{color:#fff;font-size:.9rem;margin-bottom:.35rem;font-weight:700;}
+.pr-rule p{font-size:.82rem;color:rgba(255,255,255,.65);line-height:1.5;margin:0;}
+.pr-disc{margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,.15);font-size:.75rem;color:rgba(255,255,255,.5);line-height:1.6;}
+
+@media(max-width:900px){
+  .pr-two{grid-template-columns:1fr;gap:1.8rem;}
+  .pr-g4,.pr-g3{grid-template-columns:repeat(2,1fr);}
+  .pr-rules{grid-template-columns:1fr;}
+  .pr-topics{columns:1;}
+  .pr-bar-cta{margin-left:0;width:100%;}
+}
+@media(max-width:600px){
+  .pr-g4,.pr-g3{grid-template-columns:1fr;}
+  .pr-angle li{grid-template-columns:1fr;gap:.15rem;}
+  .pr-sec{padding:2.4rem 1.2rem;}
+}
+</style>
 </head>
 <body>
 
@@ -1277,6 +1395,7 @@ body.is-impersonating .view{padding-top:114px;}
 <nav id="main-nav">
   <span class="nav-tab" id="nav-how" onclick="showView('learn');setNavActive('nav-how')">How It Works</span>
   <span class="nav-tab" id="nav-why" onclick="showView('learn');setNavActive('nav-why');setTimeout(()=>{const el=document.getElementById('why-nexus-anchor');if(el)el.scrollIntoView({behavior:'smooth'})},80)">Why NEXUS.</span>
+  <span class="nav-tab" id="nav-press" onclick="showView('press');setNavActive('nav-press')">Press</span>
   <!-- Logged-out: shows Login + Find My Co-Owner -->
   <span class="nav-tab" id="nav-login" onclick="openLoginModal()" style="display:none;">Log In</span>
   <span class="nav-tab nav-tab-cta" id="nav-cta" onclick="handleFindCoOwnerClick()">Find My Co-Owner →</span>
@@ -1679,6 +1798,7 @@ body.is-impersonating .view{padding-top:114px;}
           <a onclick="showView('terms');window.scrollTo(0,0)" style="cursor:pointer;">Terms of Service</a>
           <a href="https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2503947" target="_blank" rel="noopener noreferrer">NMLS Consumer Access</a>
           <span style="cursor:pointer;color:rgba(255,255,255,.6);" onclick="showView('learn');setNavActive('nav-how');window.scrollTo(0,0)">How It Works</span>
+          <span style="cursor:pointer;" onclick="showView('press');setNavActive('nav-press');window.scrollTo(0,0)">Press &amp; Media</span>
           <a href="https://citizensfinancial.co" target="_blank">citizensfinancial.co</a>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);" onclick="showView('admin')">Admin</span>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('investor')">Investor</span>
@@ -2181,6 +2301,7 @@ body.is-impersonating .view{padding-top:114px;}
           <a onclick="showView('privacy');window.scrollTo(0,0)" style="cursor:pointer;">Privacy Policy</a>
           <a onclick="showView('terms');window.scrollTo(0,0)" style="cursor:pointer;">Terms of Service</a>
           <a href="https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2503947" target="_blank" rel="noopener noreferrer">NMLS Consumer Access</a>
+          <span style="cursor:pointer;" onclick="showView('press');setNavActive('nav-press');window.scrollTo(0,0)">Press &amp; Media</span>
           <a href="https://citizensfinancial.co" target="_blank">citizensfinancial.co</a>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);" onclick="showView('admin')">Admin</span>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('investor')">Investor</span>
@@ -2195,6 +2316,256 @@ body.is-impersonating .view{padding-top:114px;}
   </footer>
 
 </div><!-- end view-learn -->
+<!-- ══════════════════════ VIEW: PRESS / NEWSROOM ══════════════════════ -->
+<div id="view-press" class="view">
+
+  <div class="pr-bar">
+    <div class="pr-mark">NEXUS. <span>/ Newsroom</span></div>
+    <div class="pr-meta">
+      <span>Updated <b id="pr-updated">27 Jul 2026</b></span>
+      <span>Data vintage <b>C.A.R. Q1 2026</b></span>
+      <span>Status <b>Invite-only launch</b></span>
+    </div>
+    <div class="pr-bar-cta">
+      <a class="pr-btn ghost" href="mailto:media@nexushomesca.com">Email the media desk</a>
+      <a class="pr-btn" href="/press/downloads/NEXUS-Press-Kit.zip">Download everything</a>
+    </div>
+  </div>
+
+  <header class="pr-hero">
+    <div class="pr-hero-in">
+      <div class="pr-eyebrow">For journalists &middot; same-day response</div>
+      <h1>A new category of California homebuyer.</h1>
+      <p class="pr-thesis">California's affordability wall is producing something the market hasn't had a name for: <b>unrelated people buying one home together to divide the cost and build equity.</b> NEXUS. matches financially compatible co-buyers and takes them through joint mortgage readiness and a documented co-ownership structure.</p>
+      <div class="pr-contact">
+        <div>
+          <h4>Media contact</h4>
+          <p><a href="mailto:media@nexushomesca.com">media@nexushomesca.com</a>
+          <small>Response the same business day whenever possible</small></p>
+        </div>
+        <div>
+          <h4>Interview subject</h4>
+          <p>Gregory Ritchie, Founder
+          <small>Licensed CA broker &middot; Vacaville &middot; TV, radio, print, podcast</small></p>
+        </div>
+        <div>
+          <h4>Licensing</h4>
+          <p>NMLS #2503947 &middot; CA DRE #01746163
+          <small>Citizens Financial Group, Inc. &middot; Equal Housing Opportunity</small></p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="pr-sec">
+    <div class="pr-head"><h2>Fast facts</h2><span class="pr-tag">Sourced &middot; dated &middot; copy-ready</span></div>
+    <p class="pr-dek">Every figure carries its source and vintage. Click <b>COPY</b> on any row to put the stat and its full attribution on your clipboard.</p>
+    <div id="pr-facts" style="border-top:2px solid var(--navy);"></div>
+    <div class="pr-note">
+      <b>Analysis, not source data.</b> The county figures are Citizens Financial's own analysis of C.A.R. data and should be attributed that way, not to C.A.R. &mdash; a median-income California household qualifies for a median-priced home <b>alone in 15 of 53 counties, and as a pair in 36 of 53.</b> Full county table available on request.
+    </div>
+  </section>
+
+  <section class="pr-sec" style="background:var(--white);max-width:none;">
+   <div style="max-width:1100px;margin:0 auto;">
+    <div class="pr-head"><h2>The story in one page</h2><span class="pr-tag">Background</span></div>
+    <div class="pr-two">
+      <div>
+        <p class="pr-pull">Californians are already splitting rent. The payments just build equity for someone else.</p>
+        <p style="margin-top:1.1rem;">Co-buying is not a lifestyle trend. It's what happens when the qualifying income for a median home reaches $204,800 and roughly four in five households can't clear it. Nationally, co-buyers are already involved in about a third of home purchases.</p>
+        <p>The failure isn't demand &mdash; it's structure. Most people who intend to co-buy never get there: they can't find a compatible partner, can't get underwritten jointly, and can't get the co-ownership agreement papered.</p>
+        <p>Matching considers financial readiness, purchase timeline, preferred locations, property preferences and homeownership objectives. From there the process moves to joint mortgage readiness, a documented ownership framework with defined exit terms, and referral to independent legal and tax counsel.</p>
+        <p style="font-size:.85rem;color:var(--gray-text);">NEXUS. does not provide legal, tax or investment advice, and a match does not guarantee compatibility, mortgage approval, or a completed purchase. Every participant must independently qualify.</p>
+      </div>
+      <div>
+        <h3 class="pr-tag" style="display:block;margin-bottom:.5rem;">Angles by desk</h3>
+        <ul class="pr-angle">
+          <li><span class="d">Housing</span><span>A practical path to ownership for Californians priced out of buying alone.</span></li>
+          <li><span class="d">Consumer $</span><span>What to understand before buying property with a friend, colleague or matched co-buyer.</span></li>
+          <li><span class="d">Mortgage</span><span>How lenders actually treat unmarried, unrelated co-borrowers &mdash; and where it breaks.</span></li>
+          <li><span class="d">Military</span><span>Service members, educators, first responders and clinicians combining resources instead of renting separately.</span></li>
+          <li><span class="d">Television</span><span>Two California renters compare renting separately against buying one home together.</span></li>
+          <li><span class="d">Local</span><span>A Vacaville broker builds a platform aimed at the state's affordability wall.</span></li>
+          <li><span class="d">Trends</span><span>Has the California Dream shifted from buying alone to building wealth together?</span></li>
+        </ul>
+      </div>
+    </div>
+   </div>
+  </section>
+
+  <section class="pr-sec">
+    <div class="pr-head"><h2>Downloads</h2><span class="pr-tag">Grouped by what you're making</span></div>
+    <p class="pr-dek">Nothing here requires an email first. Items marked <b>not yet available</b> are in production &mdash; email the media desk and we'll send what exists.</p>
+
+    <div class="pr-job">
+      <h3>Writing a story</h3>
+      <div class="pr-grid pr-g4">
+        <a class="pr-card" href="/press/downloads/01_NEXUS-Media-Kit.pdf"><span class="t">Media kit</span><span class="d">Full background, model, market data, disclosures.</span><span class="f">PDF &middot; 12 pp</span></a>
+        <a class="pr-card" href="/press/downloads/02_NEXUS-Fact-Sheet.pdf"><span class="t">One-page fact sheet</span><span class="d">Company, model, status, licensing, contact.</span><span class="f">PDF &middot; 1 p</span></a>
+        <a class="pr-card" href="/press/downloads/07_Co-Ownership-Explainer.pdf"><span class="t">Co-ownership explainer</span><span class="d">Title, vesting, liability, exit and buyout mechanics.</span><span class="f">PDF &middot; 4 pp</span></a>
+        <a class="pr-card" href="/press/downloads/06_NEXUS-FAQ.pdf"><span class="t">Reporter FAQ</span><span class="d">Twenty questions answered plainly &mdash; including the hard ones.</span><span class="f">PDF &middot; 5 pp</span></a>
+        <a class="pr-card" href="/press/downloads/09_Research-and-Sources.xlsx"><span class="t">Source table</span><span class="d">Every claim, source, publication date and data period.</span><span class="f">XLSX</span></a>
+        <a class="pr-card" href="/press/downloads/04_Greg-Ritchie-Bios.docx"><span class="t">Founder bios</span><span class="d">50, 150 and 300-word versions.</span><span class="f">DOCX</span></a>
+        <a class="pr-card" href="/press/downloads/03_Press-Release-Latest.pdf" data-status="pending"><span class="t">Latest press release</span><span class="d">Issued per news event, not on a schedule.</span><span class="f">PDF</span></a>
+        <a class="pr-card" href="/press/downloads/08_Case-Studies.pdf" data-status="pending"><span class="t">Case studies</span><span class="d">Consented co-buyers available for interview, with accurate status labels.</span><span class="f">PDF</span></a>
+      </div>
+    </div>
+
+    <div class="pr-job">
+      <h3>Publishing online</h3>
+      <div class="pr-grid pr-g4">
+        <a class="pr-card" href="/press/downloads/10_Logos.zip"><span class="t">Logo package</span><span class="d">All lockups and colorways, SVG + PNG + JPG, with usage guide.</span><span class="f">ZIP</span></a>
+        <a class="pr-card" href="/press/downloads/graphics.zip"><span class="t">Static stat graphics</span><span class="d">Sourced data cards, square and wide.</span><span class="f">ZIP &middot; PNG @2x</span></a>
+        <a class="pr-card" href="/press/downloads/11_Founder-Photos.zip" data-status="pending"><span class="t">Founder photography</span><span class="d">Horizontal, vertical, on-location, presenting. High-res and web-res.</span><span class="f">ZIP &middot; JPG</span></a>
+        <a class="pr-card" href="/press/downloads/12_Platform-Screenshots.zip" data-status="pending"><span class="t">Platform screenshots</span><span class="d">Desktop and mobile. Sample data only &mdash; never real consumer records.</span><span class="f">ZIP &middot; PNG</span></a>
+      </div>
+    </div>
+
+    <div class="pr-job">
+      <h3>Making a broadcast</h3>
+      <div class="pr-grid pr-g4">
+        <a class="pr-card" href="/press/downloads/13_B-Roll.zip" data-status="pending"><span class="t">B-roll package</span><span class="d">Homes, neighborhoods, buyer education. Clean &mdash; no captions, no music.</span><span class="f">ZIP &middot; ProRes + H.264</span></a>
+        <a class="pr-card" href="/press/downloads/founder-interview-2min.mp4" data-status="pending"><span class="t">Founder interview</span><span class="d">Two minutes, clean feed, lower-third information supplied separately.</span><span class="f">MP4 &middot; 1080p</span></a>
+        <a class="pr-card" href="/press/downloads/14_Captions-and-Credits.docx" data-status="pending"><span class="t">Captions &amp; credits</span><span class="d">Suggested captions, photographer credit, names and titles of everyone identifiable.</span><span class="f">DOCX</span></a>
+        <a class="pr-card" href="/press/downloads/producer-brief.pdf" data-status="pending"><span class="t">Producer brief</span><span class="d">Segment concepts, availability, remote setup, what we can and can't say on air.</span><span class="f">PDF</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="pr-sec" style="background:var(--white);max-width:none;">
+   <div style="max-width:1100px;margin:0 auto;">
+    <div class="pr-head"><h2>Logos</h2><span class="pr-tag">SVG &middot; PNG (transparent) &middot; JPG</span></div>
+    <p class="pr-dek">Use the version with the most contrast against your background. Don't recolor, stretch, rotate, add effects to, or place the mark on a busy image without the solid-fill container.</p>
+    <div class="pr-grid pr-g3">
+      <div class="pr-logo">
+        <div class="pr-stage light"><div class="pr-mk" style="color:var(--navy)">NEXUS.</div></div>
+        <div class="pr-logo-meta"><span><b>Primary &middot; full color</b>Light backgrounds.</span><span class="fmt">SVG PNG JPG</span></div>
+      </div>
+      <div class="pr-logo">
+        <div class="pr-stage dark"><div class="pr-mk" style="color:#fff">NEXUS<span style="color:var(--sky)">.</span></div></div>
+        <div class="pr-logo-meta"><span><b>Reversed</b>Dark backgrounds and video.</span><span class="fmt">SVG PNG</span></div>
+      </div>
+      <div class="pr-logo">
+        <div class="pr-stage photo"><div class="pr-mk" style="color:#fff">NEXUS.</div></div>
+        <div class="pr-logo-meta"><span><b>White &middot; 1-color</b>Over photography.</span><span class="fmt">SVG PNG</span></div>
+      </div>
+      <div class="pr-logo">
+        <div class="pr-stage light"><div class="pr-mk stack" style="color:var(--navy)">NEXUS.<span>CO-OWNERSHIP</span></div></div>
+        <div class="pr-logo-meta"><span><b>Stacked lockup</b>Square and narrow placements.</span><span class="fmt">SVG PNG JPG</span></div>
+      </div>
+      <div class="pr-logo">
+        <div class="pr-stage light"><div class="pr-mk" style="color:#000">NEXUS.</div></div>
+        <div class="pr-logo-meta"><span><b>Black &middot; 1-color</b>Print, single-ink.</span><span class="fmt">SVG PNG EPS</span></div>
+      </div>
+      <div class="pr-logo">
+        <div class="pr-stage light"><div class="pr-mk icon" style="background:var(--navy);color:#fff">N</div></div>
+        <div class="pr-logo-meta"><span><b>Icon / app mark</b>Avatars, favicons, 32px and up.</span><span class="fmt">SVG PNG ICO</span></div>
+      </div>
+    </div>
+   </div>
+  </section>
+
+  <section class="pr-sec">
+    <div class="pr-head"><h2>Video</h2><span class="pr-tag">Watch &middot; embed &middot; download</span></div>
+    <p class="pr-dek">Broadcast versions are clean &mdash; no captions, no music, no lower thirds. Social versions are captioned and cut vertical. Say which you need and we'll send a direct link.</p>
+    <div class="pr-grid pr-g3">
+      <div class="pr-vid">
+        <div class="pr-frame">EMBED &middot; 60-SECOND FOUNDER EXPLAINER</div>
+        <div class="b"><span class="t">What co-ownership actually is</span><span class="d">Greg Ritchie, 60 seconds. The model, the risks, who it's not for.</span>
+        <div class="pr-links"><a>Watch</a><a>Embed code</a><a>Download &middot; broadcast</a></div></div>
+      </div>
+      <div class="pr-vid">
+        <div class="pr-frame">EMBED &middot; 30-SECOND OVERVIEW</div>
+        <div class="b"><span class="t">NEXUS. in 30 seconds</span><span class="d">Platform overview for online use.</span>
+        <div class="pr-links"><a>Watch</a><a>Embed code</a><a>Download &middot; social</a></div></div>
+      </div>
+      <div class="pr-vid">
+        <div class="pr-frame">VERTICAL &middot; POSTED TO @NEXUSHOMESCA_</div>
+        <div class="b"><span class="t">Published social cuts</span><span class="d">Everything live on Instagram and TikTok, with captioned download versions.</span>
+        <div class="pr-links"><a href="https://www.instagram.com/nexushomesca_/" target="_blank" rel="noopener">View all</a><a>Download pack</a></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pr-sec" style="background:var(--white);max-width:none;">
+   <div style="max-width:1100px;margin:0 auto;">
+    <div class="pr-head"><h2>Static graphics</h2><span class="pr-tag">Free to publish with attribution</span></div>
+    <p class="pr-dek">Sourced data cards, 1080&times;1080 and 1200&times;630, PNG at 2&times;. Attribution is printed on each card &mdash; please keep it visible.</p>
+    <div class="pr-grid pr-g4" id="pr-gfx"></div>
+   </div>
+  </section>
+
+  <section class="pr-sec">
+    <div class="pr-head"><h2>Founder &amp; interview topics</h2><span class="pr-tag">Available for TV &middot; radio &middot; print &middot; podcast</span></div>
+    <div class="pr-two">
+      <div>
+        <div class="pr-bio">50-word bio</div>
+        <p style="font-size:.92rem;">Gregory Ritchie is the founder of NEXUS. and Citizens Financial, a California mortgage brokerage in Vacaville. He has more than a decade in mortgage and real-estate finance, with a practice focused on first responders, correctional officers, educators, military members, healthcare professionals and self-employed borrowers.</p>
+        <div class="pr-bio">Also available</div>
+        <p style="font-size:.86rem;color:var(--gray-text);">150-word and 300-word versions, plus a founder origin story, in the bio download above.</p>
+        <div class="pr-bio">Note for editors</div>
+        <p style="font-size:.86rem;color:var(--gray-text);">Mr. Ritchie also holds elected office in Vacaville. That role is entirely separate from NEXUS., and no public agency endorses the company.</p>
+      </div>
+      <div>
+        <h3 class="pr-tag" style="display:block;margin-bottom:.4rem;">Topics he can speak to</h3>
+        <ul class="pr-topics">
+          <li>California housing affordability</li>
+          <li>Co-buying with unrelated buyers</li>
+          <li>Mortgage qualification with multiple borrowers</li>
+          <li>Co-ownership agreements and exit planning</li>
+          <li>What goes wrong in informal co-buying</li>
+          <li>Military BAH and shared ownership</li>
+          <li>Housing for educators and first responders</li>
+          <li>First-time buyer readiness</li>
+          <li>Down-payment assistance programs</li>
+          <li>Renting versus building equity</li>
+          <li>Fair housing and matching</li>
+          <li>Mortgage-rate and market developments</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pr-acc" style="padding:3.4rem 1.5rem;">
+   <div style="max-width:1100px;margin:0 auto;">
+    <div class="pr-head"><h2>Accuracy &amp; disclosure</h2><span class="pr-tag">Please read before publishing</span></div>
+    <p class="pr-dek">We would rather correct you before publication than after.</p>
+    <div class="pr-rules">
+      <div class="pr-rule"><h4>Nobody is a "NEXUS. homeowner" until a transaction has closed</h4><p>People in our materials are labeled applicant, matched user, approved borrower or closed buyer. Please use the label as given.</p></div>
+      <div class="pr-rule"><h4>We are in an invite-only launch</h4><p>We won't inflate user or match counts. If you need a number for your story, ask and we'll give you the real one with its as-of date.</p></div>
+      <div class="pr-rule"><h4>NEXUS. is not a lender, and does not give legal or tax advice</h4><p>Citizens Financial Group, Inc., a licensed California mortgage broker under common ownership, may provide mortgage services where permitted. That relationship is disclosed to every user.</p></div>
+      <div class="pr-rule"><h4>Financial examples are illustrative</h4><p>No approval, savings, appreciation or wealth outcome is guaranteed. Splitting a payment does not by itself create a proportional ownership interest &mdash; that depends on title and the written agreement.</p></div>
+    </div>
+    <p class="pr-disc">NEXUS. is a co-ownership candidate matching service operated by Citizens Financial Group, Inc. (NMLS #2503947), a licensed mortgage broker in the State of California. Creating a profile or receiving a match does not constitute a mortgage pre-approval, pre-qualification, commitment to lend, or guarantee of homeownership eligibility, appreciation or investment return. All participants must independently qualify and all loan applications are subject to underwriting review, credit approval and applicable lending guidelines. Participants are encouraged to retain independent legal, tax and insurance counsel before entering any co-ownership arrangement. Matching considers financial readiness, purchase timeline, location and property preferences, and homeownership objectives; it does not consider race, color, religion, sex, familial status, national origin, disability, or any other protected characteristic. Equal Housing Opportunity.</p>
+   </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;letter-spacing:1.5px;font-size:1.25rem;">NEXUS</div>
+          <div>Powered by Citizens Financial Group, Inc.</div>
+          <div>NMLS #2503947 &middot; Vacaville, California</div>
+          <div style="margin-top:.6rem;">
+            <span onclick="showView('home');setNavActive(null);window.scrollTo(0,0)" style="color:var(--gold);font-weight:700;font-size:.85rem;cursor:pointer;">&larr; Back to NEXUS.</span>
+          </div>
+        </div>
+        <div class="footer-links">
+          <a href="mailto:media@nexushomesca.com">media@nexushomesca.com</a>
+          <a onclick="showView('privacy');window.scrollTo(0,0)" style="cursor:pointer;">Privacy Policy</a>
+          <a onclick="showView('terms');window.scrollTo(0,0)" style="cursor:pointer;">Terms of Service</a>
+          <a href="https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/2503947" target="_blank" rel="noopener noreferrer">NMLS Consumer Access</a>
+        </div>
+      </div>
+      <hr class="footer-divider">
+      <div class="footer-compliance">
+        NEXUS. is a co-ownership candidate matching service operated by Citizens Financial Group, Inc. (NMLS #2503947), a licensed mortgage broker in the State of California. Matching on this platform does not constitute a mortgage pre-approval, pre-qualification, commitment to lend, or guarantee of homeownership eligibility. Co-ownership is presented as an option and not a guarantee of homeownership outcome. All loan applications are subject to underwriting review, credit approval, and applicable lending guidelines. Equal Housing Opportunity.
+      </div>
+    </div>
+  </footer>
+
+</div><!-- end view-press -->
 
 <!-- ══════════════════════ VIEW: REGISTER ══════════════════════ -->
 <div id="view-register" class="view">
@@ -6046,7 +6417,8 @@ function showView(viewName) {
     window.scrollTo(0, 0);
   }
   // Sync nav active state
-  const navMap = { learn: 'nav-how', register: 'nav-cta' };
+  const navMap = { learn: 'nav-how', register: 'nav-cta', press: 'nav-press' };
+  if (viewName === 'press') { try { renderPressRoom(); } catch (_) {} }
   setNavActive(navMap[viewName] || null);
   if (viewName === 'admin' && !state.adminAuthed) {
     document.getElementById('admin-gate-wrap').style.display = 'block';
@@ -8391,7 +8763,8 @@ showView = function(viewName) {
     target.classList.add('active');
     window.scrollTo(0, 0);
   }
-  const navMap = { learn: 'nav-how', register: 'nav-cta' };
+  const navMap = { learn: 'nav-how', register: 'nav-cta', press: 'nav-press' };
+  if (viewName === 'press') { try { renderPressRoom(); } catch (_) {} }
   setNavActive(navMap[viewName] || null);
 
   if (viewName === 'admin') {
@@ -18130,5 +18503,58 @@ window.addEventListener('load', function() {
   </div>
 </div>
 
+<script id="press-js">
+/* ══════════════════ PRESS ROOM ══════════════════ */
+const PRESS_FACTS=[
+ {l:"California households who can afford a median-priced single-family home",v:"22%",s:"C.A.R. Traditional Housing Affordability Index, Q1 2026 (released May 7, 2026)"},
+ {l:"Minimum annual income required to qualify",v:"$204,800",s:"C.A.R. Housing Affordability Index, Q1 2026 \u2014 monthly PITI $5,120 at 6.24%"},
+ {l:"Median existing single-family price used in that index",v:"$843,390",s:"C.A.R. Housing Affordability Index, Q1 2026"},
+ {l:"California statewide median price, most recent",v:"$904,640",s:"C.A.R., June 2026 \u2014 down from a record $930,260 in May 2026"},
+ {l:"Condo / townhome affordability share",v:"32%",s:"C.A.R. Housing Affordability Index, Q1 2026 \u2014 $648,000 median, $157,200 qualifying income"},
+ {l:"30-year fixed mortgage rate",v:"~6.7%",s:"Bankrate, late July 2026"},
+ {l:"U.S. home purchases that involve co-buyers",v:"31.5%",s:"CoBuy 2026 National Report"},
+ {l:"Americans who co-own a home with someone they aren't married to",v:"64M",s:"CoBuy 2026 National Report \u2014 up from 61 million in 2025"},
+ {l:"Co-buyers who plan to buy with friends",v:"61%",s:"CoBuy 2026 National Report"},
+ {l:"Co-owner groups that actually include friends",v:"46%",s:"CoBuy 2026 National Report \u2014 a 15-point drop between intent and ownership"},
+ {l:"Co-buyers who report needing help with the co-ownership agreement",v:"96%",s:"CoBuy 2026 National Report"},
+ {l:"Growth in co-buyers with different last names, 2014\u20132021",v:"+771%",s:"ATTOM Data Solutions"},
+ {l:"First-time buyer share of all buyers",v:"21%",s:"National Association of Realtors, 2025 profile \u2014 lowest share since 1981"},
+ {l:"Median age of a first-time buyer",v:"40",s:"National Association of Realtors, 2025 profile \u2014 up from 38"}
+];
+const PRESS_GFX=[
+ {f:'01_intent-gap',t:'Intent vs. outcome',d:'61% \u2192 46%. The 15-point drop.'},
+ {f:'02_co-buyer-share',t:'The co-buying market',d:'31.5% of U.S. purchases.'},
+ {f:'03_county-flip',t:'Counties that flip',d:'15 alone \u2192 36 as a pair.'},
+ {f:'04_qualifying-wall',t:'The qualifying wall',d:'$204,800 to buy the median.'}
+];
+let _pressRendered=false;
+function renderPressRoom(){
+  if(_pressRendered) return;
+  var fx=document.getElementById('pr-facts');
+  if(!fx) return;
+  fx.innerHTML=PRESS_FACTS.map(function(f,i){
+    return '<div class="pr-fact"><span class="l">'+f.l+'</span><span class="v">'+f.v+'</span>'+
+      '<span class="s"><button class="pr-copy" data-i="'+i+'">COPY</button><span>'+f.s+'</span></span></div>';
+  }).join('');
+  fx.addEventListener('click',function(e){
+    var b=e.target.closest('.pr-copy'); if(!b) return;
+    var f=PRESS_FACTS[+b.dataset.i];
+    var txt=f.v+' \u2014 '+f.l+'. Source: '+f.s+'.';
+    (navigator.clipboard? navigator.clipboard.writeText(txt): Promise.reject()).then(function(){
+      b.textContent='COPIED'; b.classList.add('done');
+      setTimeout(function(){b.textContent='COPY'; b.classList.remove('done');},1800);
+    }).catch(function(){ b.textContent='COPY FAILED'; setTimeout(function(){b.textContent='COPY';},1800); });
+  });
+  var g=document.getElementById('pr-gfx');
+  if(g) g.innerHTML=PRESS_GFX.map(function(x){
+    var base='/press/graphics/NEXUS_Stat_'+x.f;
+    return '<div class="pr-gfx"><img src="'+base+'_1080x1080.png" alt="'+x.t+'" loading="lazy">'+
+      '<div class="b"><b>'+x.t+'</b>'+x.d+'<br>'+
+      '<a href="'+base+'_1080x1080.png" download>1080\u00b2</a> &middot; '+
+      '<a href="'+base+'_1200x630.png" download>1200\u00d7630</a></div></div>';
+  }).join('');
+  _pressRendered=true;
+}
+</script>
 </body>
 </html>
