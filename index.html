@@ -6436,6 +6436,7 @@ function showView(viewName) {
   const navMap = { learn: 'nav-how', register: 'nav-cta', press: 'nav-press' };
   if (viewName === 'press') { try { renderPressRoom(); } catch (_) {} }
   setNavActive(navMap[viewName] || null);
+  if (typeof syncDeepLinkHash === 'function') syncDeepLinkHash(viewName);
   if (viewName === 'admin' && !state.adminAuthed) {
     document.getElementById('admin-gate-wrap').style.display = 'block';
     document.getElementById('admin-dashboard-wrap').style.display = 'none';
@@ -8158,6 +8159,20 @@ function consumeDeepLink() {
 // If someone clicks a #press link while the page is already open in a tab
 window.addEventListener('hashchange', () => { consumeDeepLink(); });
 
+// Write the hash to the URL bar when navigating public views, so the link is copyable.
+// Uses replaceState (no hashchange event fires → no loop with the listener above).
+function syncDeepLinkHash(viewName) {
+  try {
+    const base = window.location.pathname + window.location.search;
+    if (viewName === 'press')      history.replaceState(null, '', base + '#press');
+    else if (viewName === 'learn') history.replaceState(null, '', base + '#learn');
+    else if (window.location.hash && !window.location.hash.includes('=')) {
+      // Leaving a public deep-linked view → clean the hash (but never touch auth-token hashes)
+      history.replaceState(null, '', base);
+    }
+  } catch (_) {}
+}
+
 // ═══ Page load: check session + subscribe to auth changes ═══
 async function initAuth() {
   try {
@@ -8810,6 +8825,7 @@ showView = function(viewName) {
   const navMap = { learn: 'nav-how', register: 'nav-cta', press: 'nav-press' };
   if (viewName === 'press') { try { renderPressRoom(); } catch (_) {} }
   setNavActive(navMap[viewName] || null);
+  if (typeof syncDeepLinkHash === 'function') syncDeepLinkHash(viewName);
 
   if (viewName === 'admin') {
     if (currentAccount?.role === 'admin') {
