@@ -8133,6 +8133,31 @@ let currentUser = null;       // Supabase auth.user object
 let currentAccount = null;    // accounts table row (with role, tier, etc.)
 let signupRole = 'user';      // selected role at signup time
 
+// ═══ Deep links: shareable URLs like nexushomesca.com/#press ═══
+// Supported: #press, #newsroom, ?view=press (public views only — never dashboards).
+// Returns true if a deep link was consumed (caller should skip default routing).
+function consumeDeepLink() {
+  try {
+    const h = (window.location.hash || '').replace('#', '').toLowerCase();
+    // Ignore Supabase auth-token hashes (access_token, type=signup, etc.)
+    if (h.includes('=')) return false;
+    let view = null;
+    if (h === 'press' || h === 'newsroom' || h === 'media') view = 'press';
+    else if (h === 'learn' || h === 'how') view = 'learn';
+    if (!view) {
+      const params = new URLSearchParams(window.location.search);
+      const v = (params.get('view') || '').toLowerCase();
+      if (v === 'press' || v === 'newsroom') view = 'press';
+      else if (v === 'learn') view = 'learn';
+    }
+    if (!view) return false;
+    showView(view);
+    return true;
+  } catch (_) { return false; }
+}
+// If someone clicks a #press link while the page is already open in a tab
+window.addEventListener('hashchange', () => { consumeDeepLink(); });
+
 // ═══ Page load: check session + subscribe to auth changes ═══
 async function initAuth() {
   try {
@@ -8167,12 +8192,15 @@ async function initAuth() {
       // is for anonymous visitors. Once you're signed in (especially when admin
       // impersonates a mock account), you should land on the right portal.
       setTimeout(() => {
-        routeForRole();
+        // Deep link (e.g. #press) wins over default dashboard routing
+        if (!consumeDeepLink()) routeForRole();
         // Clear the boot-flash suppressor (if present) AFTER routing has set the right view active
         setTimeout(() => { if (typeof window.__clearBootFlashSuppressor === 'function') window.__clearBootFlashSuppressor(); }, 50);
       }, 100);
     } else {
       updateNavForLoggedOut();
+      // Deep link (e.g. #press) — land media visitors directly on the newsroom
+      setTimeout(() => { consumeDeepLink(); }, 50);
       // Switch User flow: if returning flag is set, auto-open login pre-filled with admin email
       try {
         if (localStorage.getItem('nexus_admin_returning') === '1') {
