@@ -1861,7 +1861,6 @@ a.pr-card{cursor:pointer;}
           <span style="cursor:pointer;" onclick="showView('press');setNavActive('nav-press');window.scrollTo(0,0)">Press &amp; Media</span>
           <a href="https://citizensfinancial.co" target="_blank">citizensfinancial.co</a>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);" onclick="showView('admin')">Admin</span>
-          <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('investor')">Investor</span>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('revenue-model')">Revenue Model</span>
         </div>
       </div>
@@ -2364,7 +2363,6 @@ a.pr-card{cursor:pointer;}
           <span style="cursor:pointer;" onclick="showView('press');setNavActive('nav-press');window.scrollTo(0,0)">Press &amp; Media</span>
           <a href="https://citizensfinancial.co" target="_blank">citizensfinancial.co</a>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);" onclick="showView('admin')">Admin</span>
-          <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('investor')">Investor</span>
           <span style="cursor:pointer;color:rgba(255,255,255,.4);margin-left:1rem;" onclick="showView('revenue-model')">Revenue Model</span>
         </div>
       </div>
@@ -3844,499 +3842,7 @@ a.pr-card{cursor:pointer;}
     </div>
   </div>
 </div>
-<div id="view-investor" class="view">
-<style>
-/* ── Investor View Styles ── */
-.inv-gate { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; background:linear-gradient(135deg,#0d2245 0%,#1B3A6B 60%,#1D6FA4 100%); }
-.inv-gate-box { background:#fff; border-radius:16px; padding:3rem 2.5rem; max-width:420px; width:90%; text-align:center; box-shadow:0 24px 64px rgba(0,0,0,.35); }
-.inv-gate-box h2 { font-size:1.6rem; color:#1B3A6B; margin-bottom:.5rem; }
-.inv-gate-box p { color:#667085; font-size:.95rem; margin-bottom:1.75rem; }
-.inv-gate-box input { width:100%; padding:.85rem 1rem; border:1.5px solid #D0D5DD; border-radius:8px; font-size:1rem; margin-bottom:1rem; box-sizing:border-box; }
-.inv-gate-box .btn-primary { width:100%; }
-.inv-logo-mark { font-size:2.5rem; font-weight:900; margin-bottom:1rem; }
-.inv-logo-mark span:first-child { color:#1B3A6B; }
-.inv-logo-mark span:last-child { color:#1D6FA4; }
 
-/* Investor dashboard layout */
-#inv-dash-wrap { padding:0; background:#F8FAFC; min-height:100vh; }
-.inv-header { background:linear-gradient(135deg,#0d2245 0%,#1B3A6B 100%); color:#fff; padding:2.5rem 2rem 2rem; }
-.inv-header h1 { font-size:1.85rem; font-weight:800; margin:0 0 .35rem; }
-.inv-header p { opacity:.75; font-size:.95rem; margin:0; }
-.inv-header-meta { display:flex; gap:1.5rem; margin-top:1.25rem; flex-wrap:wrap; }
-.inv-kpi { background:rgba(255,255,255,.1); border-radius:10px; padding:.75rem 1.25rem; text-align:center; }
-.inv-kpi .kv { font-size:1.45rem; font-weight:800; }
-.inv-kpi .kl { font-size:.75rem; opacity:.7; margin-top:.15rem; }
-
-/* Tab nav */
-.inv-tabs { background:#fff; border-bottom:2px solid #E4E9F0; display:flex; overflow-x:auto; padding:0 2rem; gap:.25rem; }
-.inv-tab-btn { padding:.85rem 1.25rem; font-size:.88rem; font-weight:600; color:#667085; background:none; border:none; border-bottom:3px solid transparent; cursor:pointer; white-space:nowrap; margin-bottom:-2px; transition:all .2s; }
-.inv-tab-btn:hover { color:#1D6FA4; }
-.inv-tab-btn.active { color:#1B3A6B; border-bottom-color:#1B3A6B; }
-
-/* Tab panels */
-.inv-tab-panel { display:none; padding:2rem; }
-.inv-tab-panel.active { display:block; }
-.inv-section { background:#fff; border-radius:14px; padding:1.75rem; margin-bottom:1.5rem; box-shadow:0 1px 6px rgba(0,0,0,.07); }
-.inv-section h2 { font-size:1.15rem; font-weight:700; color:#1B3A6B; margin:0 0 .35rem; }
-.inv-section .sub { font-size:.85rem; color:#667085; margin-bottom:1.25rem; }
-.inv-chart-wrap { position:relative; height:280px; }
-.inv-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-@media(max-width:700px){ .inv-grid-2 { grid-template-columns:1fr; } }
-
-/* Investor tables */
-.inv-table { width:100%; border-collapse:collapse; font-size:.85rem; }
-.inv-table th { background:#1B3A6B; color:#fff; padding:.65rem .9rem; text-align:left; }
-.inv-table td { padding:.6rem .9rem; border-bottom:1px solid #E4E9F0; }
-.inv-table tr:nth-child(even) td { background:#F8FAFC; }
-.inv-table tr:hover td { background:#EBF4FB; }
-.inv-table .num { text-align:right; font-variant-numeric:tabular-nums; }
-.inv-table .bold { font-weight:700; }
-.inv-table .green { color:#3A8A2E; font-weight:700; }
-.inv-table .navy { color:#1B3A6B; font-weight:700; }
-.inv-table .total-row td { background:#1B3A6B; color:#fff; font-weight:700; }
-.inv-table .highlight-row td { background:#EBF4FB; font-weight:600; }
-
-/* Metric cards */
-.inv-metric-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; }
-.inv-metric { background:#F2F4F7; border-radius:10px; padding:1.1rem 1.25rem; }
-.inv-metric .mv { font-size:1.55rem; font-weight:800; color:#1B3A6B; }
-.inv-metric .ml { font-size:.78rem; color:#667085; margin-top:.2rem; }
-.inv-metric.green .mv { color:#3A8A2E; }
-.inv-metric.blue .mv { color:#1D6FA4; }
-
-/* Scenario badges */
-.inv-scenario { border-radius:10px; padding:1.25rem 1.5rem; margin-bottom:1rem; border-left:4px solid; }
-.inv-scenario.conv { background:#EBF4FB; border-color:#1D6FA4; }
-.inv-scenario.fha { background:#E8F5E3; border-color:#3A8A2E; }
-.inv-scenario.va { background:#F0EBFB; border-color:#6941C6; }
-.inv-scenario h3 { font-size:.95rem; font-weight:700; margin:0 0 .5rem; }
-.inv-scenario .sc-row { display:flex; justify-content:space-between; font-size:.85rem; margin:.25rem 0; }
-.inv-scenario .sc-total { font-size:1.2rem; font-weight:800; margin-top:.75rem; }
-
-/* IRR callout */
-.inv-callout { background:linear-gradient(135deg,#1B3A6B,#1D6FA4); color:#fff; border-radius:14px; padding:2rem; text-align:center; }
-.inv-callout .big { font-size:2.5rem; font-weight:900; }
-.inv-callout .label { font-size:.85rem; opacity:.8; margin-top:.25rem; }
-.inv-callout-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem; }
-.inv-callout-grid .item { background:rgba(255,255,255,.12); border-radius:10px; padding:1rem; }
-.inv-callout-grid .item .v { font-size:1.4rem; font-weight:800; }
-.inv-callout-grid .item .l { font-size:.75rem; opacity:.7; }
-
-.inv-funnel-bar { display:flex; align-items:center; gap:.75rem; margin:.5rem 0; }
-.inv-funnel-bar .stage { width:160px; font-size:.82rem; color:#344054; text-align:right; flex-shrink:0; }
-.inv-funnel-bar .bar-track { flex:1; background:#E4E9F0; border-radius:6px; height:28px; position:relative; }
-.inv-funnel-bar .bar-fill { height:100%; border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:.5rem; font-size:.78rem; color:#fff; font-weight:700; }
-</style>
-
-<!-- Gate -->
-<div id="inv-gate-wrap" style="display:flex;">
-  <div class="inv-gate">
-    <div class="inv-gate-box">
-      <div class="inv-logo-mark"><span>Nexus</span><span>Match</span></div>
-      <h2>Investor Access</h2>
-      <p>Confidential financial package. Authorized investors and advisors only.</p>
-      <input type="password" id="inv-pass" placeholder="Enter investor access code" onkeydown="if(event.key==='Enter')checkInvPass()">
-      <button class="btn-primary" onclick="checkInvPass()">View Investor Package</button>
-      <div style="font-size:.78rem;color:#667085;margin-top:.75rem;">Contact Greg Ritchie · gritchie@citizensfinancial.co</div>
-    </div>
-  </div>
-</div>
-
-<!-- Dashboard (shown post-auth) -->
-<div id="inv-dash-wrap" style="display:none;">
-
-  <!-- Header -->
-  <div class="inv-header">
-    <div style="max-width:1200px;margin:0 auto;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
-        <div>
-          <div style="font-size:.8rem;opacity:.6;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.35rem;">Investor Financial Package · Confidential</div>
-          <h1>NEXUS. · Investor Dashboard</h1>
-          <p>Citizens Financial Group, Inc. · NMLS #2503947 · April 2026</p>
-        </div>
-        <button class="btn-sm btn-secondary" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);" onclick="showView('home')">← Back to Platform</button>
-      </div>
-      <div class="inv-header-meta">
-        <div class="inv-kpi"><div class="kv">$320M+</div><div class="kl">Year 1 Revenue TAM</div></div>
-        <div class="inv-kpi"><div class="kv">$1.94B</div><div class="kl">5-Year Cumulative TAM</div></div>
-        <div class="inv-kpi"><div class="kv">18,315</div><div class="kl">Annual Co-Buy Transactions (Y1)</div></div>
-        <div class="inv-kpi"><div class="kv">38–62%</div><div class="kl">Illustrative IRR Range</div></div>
-        <div class="inv-kpi"><div class="kv">$0</div><div class="kl">Direct Competitors</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab Nav -->
-  <div class="inv-tabs">
-    <button class="inv-tab-btn active" id="itab-tam" onclick="invTab('tam')">TAM Overview</button>
-    <button class="inv-tab-btn" id="itab-seg" onclick="invTab('seg')">Segmentation</button>
-    <button class="inv-tab-btn" id="itab-income" onclick="invTab('income')">Income Stacking</button>
-    <button class="inv-tab-btn" id="itab-funnel" onclick="invTab('funnel')">Funnel Model</button>
-    <button class="inv-tab-btn" id="itab-geo" onclick="invTab('geo')">Geographic TAM</button>
-    <button class="inv-tab-btn" id="itab-proforma" onclick="invTab('proforma')">Pro Forma</button>
-    <button class="inv-tab-btn" id="itab-irr" onclick="invTab('irr')">IRR &amp; Returns</button>
-  </div>
-
-  <!-- ── TAM OVERVIEW ── -->
-  <div class="inv-tab-panel active" id="ipanel-tam" style="max-width:1200px;margin:0 auto;">
-    <div class="inv-metric-grid" style="margin-bottom:1.5rem;">
-      <div class="inv-metric"><div class="mv">18,315</div><div class="ml">Year 1 Annual Co-Buy Transactions</div></div>
-      <div class="inv-metric blue"><div class="mv">$320M</div><div class="ml">Year 1 Revenue TAM (Age 21–35)</div></div>
-      <div class="inv-metric"><div class="mv">$472M</div><div class="ml">Expanded All-Age Annual TAM</div></div>
-      <div class="inv-metric green"><div class="mv">$1.94B</div><div class="ml">5-Year Cumulative TAM</div></div>
-    </div>
-    <div class="inv-grid-2">
-      <div class="inv-section">
-        <h2>5-Year Revenue TAM Growth</h2>
-        <div class="sub">Co-buy adoption rate rising from 37% → 52% as housing affordability constraints persist and Gen Z household formation accelerates.</div>
-        <div class="inv-chart-wrap"><canvas id="chart-tam"></canvas></div>
-      </div>
-      <div class="inv-section">
-        <h2>Annual Co-Buy Transaction Volume</h2>
-        <div class="sub">Projected CA co-ownership transactions. Driven by rising prices, Gen Z household formation, and normalization of shared ownership models.</div>
-        <div class="inv-chart-wrap"><canvas id="chart-transactions"></canvas></div>
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>5-Year TAM Forecast</h2>
-      <div class="sub">Core driver assumptions: housing affordability constraints persist · co-buying adoption increases · Gen Z household formation accelerates · shared ownership normalizes like the roommate rental model</div>
-      <table class="inv-table">
-        <thead><tr><th>Year</th><th>Co-Buy Adoption Rate</th><th>Annual CA Co-Buy Transactions</th><th class="num">Revenue TAM</th></tr></thead>
-        <tbody>
-          <tr><td>Year 1</td><td>37%</td><td>18,315</td><td class="num">$320M</td></tr>
-          <tr><td>Year 2</td><td>40%</td><td>19,800</td><td class="num">$353M</td></tr>
-          <tr><td>Year 3</td><td>44%</td><td>21,780</td><td class="num">$388M</td></tr>
-          <tr><td>Year 4</td><td>48%</td><td>23,760</td><td class="num">$424M</td></tr>
-          <tr><td>Year 5</td><td>52%</td><td>25,740</td><td class="num">$459M</td></tr>
-          <tr class="total-row"><td colspan="3">5-Year Cumulative TAM</td><td class="num">≈ $1.94B</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="inv-section">
-      <h2>TAM Calculation — Age 21–35 Co-Buyer Segment</h2>
-      <table class="inv-table">
-        <thead><tr><th>Step</th><th>Description</th><th class="num">Figure</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>Estimated annual CA first-time buyers (midpoint)</td><td class="num">≈ 90,000</td></tr>
-          <tr><td>2</td><td>Age 21–35 share (Gen Z + younger millennials)</td><td class="num">55% → 49,500</td></tr>
-          <tr><td>3</td><td>Apply co-buy adoption rate (37%)</td><td class="num">49,500 × 37% = 18,315</td></tr>
-          <tr><td>4</td><td>Revenue per transaction (blended)</td><td class="num">$17,500</td></tr>
-          <tr class="total-row"><td colspan="2">Annual Revenue TAM — Age 21–35 Core Segment</td><td class="num">≈ $320M</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:1.25rem;">
-        <table class="inv-table">
-          <thead><tr><th>Segment</th><th class="num">Annual Transactions</th><th class="num">Revenue Opportunity</th></tr></thead>
-          <tbody>
-            <tr><td>Age 21–35 Co-buy buyers</td><td class="num">18,315</td><td class="num">$320M</td></tr>
-            <tr><td>All-age co-buy buyers (30% of first-timers)</td><td class="num">27,000</td><td class="num">$472M</td></tr>
-            <tr><td>Total first-time buyer pool</td><td class="num">90,000</td><td class="num green">$1.57B potential</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>Market Capture Scenarios</h2>
-      <div class="sub">Even modest adoption produces meaningful scale. Nexus Match is the only platform purpose-built for this segment in California.</div>
-      <table class="inv-table">
-        <thead><tr><th>Market Capture</th><th class="num">Annual Units</th><th class="num">Revenue</th></tr></thead>
-        <tbody>
-          <tr><td>1% TAM capture</td><td class="num">183 transactions</td><td class="num">$3.2M</td></tr>
-          <tr><td>3% TAM capture</td><td class="num">549 transactions</td><td class="num">$9.6M</td></tr>
-          <tr><td>5% TAM capture</td><td class="num">915 transactions</td><td class="num">$16.0M</td></tr>
-          <tr class="highlight-row"><td>10% TAM capture</td><td class="num">1,831 transactions</td><td class="num">$32.0M</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ── SEGMENTATION ── -->
-  <div class="inv-tab-panel" id="ipanel-seg" style="max-width:1200px;margin:0 auto;">
-    <div class="inv-grid-2">
-      <div class="inv-section">
-        <h2>Buyer Segmentation Profile</h2>
-        <div class="sub">Share of first-time buyers and co-buy propensity by generation.</div>
-        <div class="inv-chart-wrap"><canvas id="chart-segment"></canvas></div>
-      </div>
-      <div class="inv-section">
-        <h2>Annual Co-Buy Transactions by Segment</h2>
-        <div class="sub">Primary adoption concentration in Gen Z early household formation and affordability-constrained younger millennials.</div>
-        <div class="inv-chart-wrap"><canvas id="chart-cobuy-seg"></canvas></div>
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>Generational Segmentation Detail</h2>
-      <table class="inv-table">
-        <thead><tr><th>Segment</th><th>Age Range</th><th class="num">Share of First-Time Buyers</th><th class="num">Co-Buy Propensity</th></tr></thead>
-        <tbody>
-          <tr><td class="bold">Gen Z</td><td>21–27</td><td class="num">28%</td><td class="num green">42%</td></tr>
-          <tr><td class="bold">Younger Millennials</td><td>28–35</td><td class="num">54%</td><td class="num">35%</td></tr>
-          <tr><td class="bold">Older Millennials</td><td>36–44</td><td class="num">18%</td><td class="num">22%</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:1.25rem;">
-        <table class="inv-table">
-          <thead><tr><th>Segment</th><th class="num">Annual Buyers</th><th class="num">Co-Buy Share</th><th class="num">Co-Buy Transactions</th></tr></thead>
-          <tbody>
-            <tr><td>Gen Z</td><td class="num">13,860</td><td class="num">42%</td><td class="num green">5,821</td></tr>
-            <tr><td>Younger Millennial</td><td class="num">26,730</td><td class="num">35%</td><td class="num">9,356</td></tr>
-            <tr><td>Older Millennial</td><td class="num">8,910</td><td class="num">22%</td><td class="num">1,960</td></tr>
-            <tr class="total-row"><td>Total</td><td class="num">49,500</td><td class="num">—</td><td class="num">17,137</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── INCOME STACKING ── -->
-  <div class="inv-tab-panel" id="ipanel-income" style="max-width:1200px;margin:0 auto;">
-    <div class="inv-grid-2">
-      <div class="inv-section">
-        <h2>Co-Buy Income Stacking Model</h2>
-        <div class="sub">Avg individual income $85,000 · Max housing DTI 45%</div>
-        <table class="inv-table">
-          <thead><tr><th>Buyers</th><th class="num">Combined Income</th><th class="num">Est. Purchasing Power</th></tr></thead>
-          <tbody>
-            <tr><td>1 buyer</td><td class="num">$85,000</td><td class="num">$325K – $375K</td></tr>
-            <tr><td>2 buyers</td><td class="num">$170,000</td><td class="num">$575K – $650K</td></tr>
-            <tr><td>3 buyers</td><td class="num">$255,000</td><td class="num">$725K – $850K</td></tr>
-            <tr class="highlight-row"><td>4 buyers</td><td class="num">$340,000</td><td class="num green">$900K – $1.1M</td></tr>
-          </tbody>
-        </table>
-        <div style="margin-top:1rem;background:#EBF4FB;border-radius:8px;padding:1rem;font-size:.88rem;color:#1B3A6B;"><strong>Key Insight:</strong> Co-buying expands purchasing capacity by <strong>2.2x – 3.0x</strong> without requiring higher individual income.</div>
-      </div>
-      <div class="inv-section">
-        <h2>Affordability Index — Monthly Payment</h2>
-        <div class="sub">Purchase price $700,000 · 6.75% interest · Est. PITI $5,250/month</div>
-        <table class="inv-table">
-          <thead><tr><th>Buyers</th><th class="num">Monthly Payment Per Person</th></tr></thead>
-          <tbody>
-            <tr><td>1 buyer</td><td class="num">$5,250</td></tr>
-            <tr><td>2 buyers</td><td class="num green">$2,625</td></tr>
-            <tr><td>3 buyers</td><td class="num green">$1,750</td></tr>
-            <tr class="highlight-row"><td>4 buyers</td><td class="num green">$1,312</td></tr>
-          </tbody>
-        </table>
-        <div style="margin-top:1rem;background:#E8F5E3;border-radius:8px;padding:1rem;font-size:.88rem;color:#2D6A20;"><strong>Rental Parity:</strong> Avg CA rent per person (shared housing): $1,400 – $1,900/mo. Co-buy structure creates <strong>near parity with rental costs</strong>.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── FUNNEL MODEL ── -->
-  <div class="inv-tab-panel" id="ipanel-funnel" style="max-width:1200px;margin:0 auto;">
-    <div class="inv-section">
-      <h2>Probability-Adjusted Funnel Model</h2>
-      <div class="sub">Starting with 100,000 annual website visitors. Each stage represents the conversion rate from the previous step.</div>
-      <div class="inv-chart-wrap" style="height:340px;"><canvas id="chart-funnel"></canvas></div>
-    </div>
-    <div class="inv-section">
-      <h2>Funnel Stage Detail</h2>
-      <table class="inv-table">
-        <thead><tr><th>Stage</th><th class="num">Conversion Rate</th><th class="num">Users (from 100K)</th><th class="num">Cumulative Drop</th></tr></thead>
-        <tbody>
-          <tr><td>Website Visitors</td><td class="num">100%</td><td class="num">100,000</td><td class="num">—</td></tr>
-          <tr><td>Pre-Match Profile Created</td><td class="num">18%</td><td class="num">18,000</td><td class="num">82K lost</td></tr>
-          <tr><td>Matched Co-Buy Group</td><td class="num">42%</td><td class="num">7,560</td><td class="num">10.4K lost</td></tr>
-          <tr><td>Pre-Approval Issued (&lt;60 sec)</td><td class="num">68%</td><td class="num">5,140</td><td class="num">2.4K lost</td></tr>
-          <tr><td>Purchase Contract Executed</td><td class="num">54%</td><td class="num">2,775</td><td class="num">2.4K lost</td></tr>
-          <tr class="highlight-row"><td>Closed Transaction</td><td class="num">83%</td><td class="num green">2,303</td><td class="num">472 lost</td></tr>
-        </tbody>
-      </table>
-      <div class="inv-metric-grid" style="margin-top:1.25rem;">
-        <div class="inv-metric green"><div class="mv">2,303</div><div class="ml">Annual Closings (100K visitors)</div></div>
-        <div class="inv-metric blue"><div class="mv">$40.3M</div><div class="ml">Revenue at $17,500/transaction</div></div>
-        <div class="inv-metric"><div class="mv">2.3%</div><div class="ml">Visitor-to-Close Rate</div></div>
-        <div class="inv-metric"><div class="mv">$43.43</div><div class="ml">Revenue Per Website Visitor</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── GEOGRAPHIC TAM ── -->
-  <div class="inv-tab-panel" id="ipanel-geo" style="max-width:1200px;margin:0 auto;">
-    <div class="inv-section">
-      <h2>Geographic TAM by County</h2>
-      <div class="sub">Highest concentration opportunity in Southern California with significant secondary markets across the Bay Area, Sacramento Valley, and Inland Empire.</div>
-      <div class="inv-chart-wrap" style="height:380px;"><canvas id="chart-geo"></canvas></div>
-    </div>
-    <div class="inv-grid-2">
-      <div class="inv-section">
-        <h2>Top 10 Counties</h2>
-        <table class="inv-table">
-          <thead><tr><th>County</th><th class="num">Est. Annual Co-Buy Transactions</th></tr></thead>
-          <tbody>
-            <tr><td class="bold">Los Angeles County</td><td class="num green">3,850</td></tr>
-            <tr><td>Riverside County</td><td class="num">1,980</td></tr>
-            <tr><td>San Bernardino County</td><td class="num">1,760</td></tr>
-            <tr><td>Orange County</td><td class="num">1,620</td></tr>
-            <tr><td>San Diego County</td><td class="num">1,410</td></tr>
-            <tr><td>Santa Clara County</td><td class="num">1,050</td></tr>
-            <tr><td>Alameda County</td><td class="num">980</td></tr>
-            <tr><td>Sacramento County</td><td class="num">920</td></tr>
-            <tr><td>Contra Costa County</td><td class="num">710</td></tr>
-            <tr><td>San Mateo County</td><td class="num">520</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="inv-section">
-        <h2>Secondary Expansion Markets</h2>
-        <div class="sub" style="margin-bottom:1rem;">Phase 2 expansion targets with strong affordability-gap dynamics and underserved buyer populations.</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
-          <span style="background:#EBF4FB;color:#1B3A6B;border-radius:20px;padding:.4rem .9rem;font-size:.85rem;font-weight:600;">Fresno County</span>
-          <span style="background:#EBF4FB;color:#1B3A6B;border-radius:20px;padding:.4rem .9rem;font-size:.85rem;font-weight:600;">Kern County</span>
-          <span style="background:#EBF4FB;color:#1B3A6B;border-radius:20px;padding:.4rem .9rem;font-size:.85rem;font-weight:600;">San Joaquin County</span>
-          <span style="background:#EBF4FB;color:#1B3A6B;border-radius:20px;padding:.4rem .9rem;font-size:.85rem;font-weight:600;">Solano County</span>
-          <span style="background:#EBF4FB;color:#1B3A6B;border-radius:20px;padding:.4rem .9rem;font-size:.85rem;font-weight:600;">Stanislaus County</span>
-        </div>
-        <div style="margin-top:1.25rem;background:#F2F4F7;border-radius:10px;padding:1.25rem;">
-          <div style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.5rem;">All 58 CA Counties in Platform</div>
-          <div style="font-size:.85rem;color:#667085;">NEXUS. covers all 58 California counties and 1,038+ cities &amp; communities from launch. Geographic coverage is a key differentiator — no competitor has attempted this scope.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── PRO FORMA ── -->
-  <div class="inv-tab-panel" id="ipanel-proforma" style="max-width:1200px;margin:0 auto;">
-    <div class="inv-section">
-      <h2>Revenue Per Transaction — Three Financing Scenarios</h2>
-      <div class="sub">Avg CA co-buy home: $700,000 · 175 bps mortgage compensation (Conv/FHA) · 100 bps VA · 100 bps buyer rep fee · $29.99 Nexus Match certification fee</div>
-      <div class="inv-grid-2" style="margin-bottom:1.5rem;">
-        <div class="inv-scenario conv">
-          <h3>Scenario A — Conventional</h3>
-          <div class="sc-row"><span>LTV</span><span>95%</span></div>
-          <div class="sc-row"><span>Loan Amount</span><span>$665,000</span></div>
-          <div class="sc-row"><span>Mortgage Revenue (175 bps)</span><span>$11,637.50</span></div>
-          <div class="sc-row"><span>Buyer Rep Fee (100 bps)</span><span>$7,000</span></div>
-          <div class="sc-row"><span>NEXUS. Cert Fee</span><span>$29.99</span></div>
-          <div class="sc-total" style="color:#1D6FA4;">$18,667.49 / transaction</div>
-        </div>
-        <div class="inv-scenario fha">
-          <h3>Scenario B — FHA + DPA</h3>
-          <div class="sc-row"><span>LTV</span><span>96.5%</span></div>
-          <div class="sc-row"><span>Loan Amount</span><span>$675,500</span></div>
-          <div class="sc-row"><span>Mortgage Revenue (175 bps)</span><span>$11,821.25</span></div>
-          <div class="sc-row"><span>Buyer Rep Fee (100 bps)</span><span>$7,000</span></div>
-          <div class="sc-row"><span>NEXUS. Cert Fee</span><span>$29.99</span></div>
-          <div class="sc-total" style="color:#3A8A2E;">$18,851.24 / transaction</div>
-        </div>
-      </div>
-      <div class="inv-scenario va" style="max-width:480px;">
-        <h3>Scenario C — VA</h3>
-        <div class="sc-row"><span>LTV</span><span>100%</span></div>
-        <div class="sc-row"><span>Loan Amount</span><span>$700,000</span></div>
-        <div class="sc-row"><span>Mortgage Revenue (100 bps)</span><span>$7,000</span></div>
-        <div class="sc-row"><span>Buyer Rep Fee (100 bps)</span><span>$7,000</span></div>
-        <div class="sc-row"><span>NEXUS. Cert Fee</span><span>$29.99</span></div>
-        <div class="sc-total" style="color:#6941C6;">$14,029.99 / transaction</div>
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>Revenue Sensitivity — Purchase Price vs. Scenario</h2>
-      <div class="sub">Revenue at 7 purchase price points across all three financing scenarios.</div>
-      <div class="inv-chart-wrap"><canvas id="chart-sensitivity"></canvas></div>
-      <div style="margin-top:1.25rem;">
-        <table class="inv-table">
-          <thead><tr><th>Purchase Price</th><th class="num">Conventional</th><th class="num">FHA / DPA</th><th class="num">VA</th></tr></thead>
-          <tbody>
-            <tr><td>$600,000</td><td class="num">$16,001</td><td class="num">$16,156</td><td class="num">$12,029</td></tr>
-            <tr><td>$650,000</td><td class="num">$17,334</td><td class="num">$17,502</td><td class="num">$13,029</td></tr>
-            <tr class="highlight-row"><td><strong>$700,000</strong> (base)</td><td class="num bold">$18,667</td><td class="num bold">$18,851</td><td class="num bold">$14,029</td></tr>
-            <tr><td>$750,000</td><td class="num">$20,000</td><td class="num">$20,199</td><td class="num">$15,029</td></tr>
-            <tr><td>$800,000</td><td class="num">$21,334</td><td class="num">$21,547</td><td class="num">$16,029</td></tr>
-            <tr><td>$850,000</td><td class="num">$22,667</td><td class="num">$22,896</td><td class="num">$17,029</td></tr>
-            <tr><td>$900,000</td><td class="num">$24,001</td><td class="num">$24,244</td><td class="num">$18,029</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>Annual Production Scenarios</h2>
-      <div class="inv-chart-wrap"><canvas id="chart-rev"></canvas></div>
-      <div style="margin-top:1.25rem;">
-        <table class="inv-table">
-          <thead><tr><th>Volume</th><th class="num">All Conv.</th><th class="num">All FHA/DPA</th><th class="num">All VA</th><th class="num">40/40/20 Blend</th></tr></thead>
-          <tbody>
-            <tr><td>250 transactions</td><td class="num">$4,666,872</td><td class="num">$4,712,810</td><td class="num">$3,507,498</td><td class="num">$4,453,572</td></tr>
-            <tr><td>500 transactions</td><td class="num">$9,333,745</td><td class="num">$9,425,620</td><td class="num">$7,014,995</td><td class="num">$8,907,144</td></tr>
-            <tr class="highlight-row"><td>1,000 transactions</td><td class="num">$18,667,490</td><td class="num">$18,851,240</td><td class="num">$14,029,990</td><td class="num green">$17,814,288</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>LO Commission Split Scenarios</h2>
-      <div class="sub">Based on Conventional transaction revenue of $18,667 per closed transaction.</div>
-      <table class="inv-table">
-        <thead><tr><th>Split Model</th><th class="num">Transaction Revenue</th><th class="num">LO Earns</th><th class="num">Brokerage Earns</th></tr></thead>
-        <tbody>
-          <tr><td>Option 1 — 80/20 split</td><td class="num">$18,667</td><td class="num">$14,934</td><td class="num">$3,733</td></tr>
-          <tr><td>Option 2 — 85/15 split</td><td class="num">$18,667</td><td class="num">$15,867</td><td class="num">$2,800</td></tr>
-          <tr><td>Option 3 — 90/10 split</td><td class="num">$18,667</td><td class="num">$16,800</td><td class="num">$1,867</td></tr>
-          <tr class="highlight-row"><td>Option 4 — Flat Fee ($888/mo)</td><td class="num">$18,667</td><td class="num green">100% commission</td><td class="num">Fee + 25bps holdback</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ── IRR & RETURNS ── -->
-  <div class="inv-tab-panel" id="ipanel-irr" style="max-width:1200px;margin:0 auto;">
-    <div class="inv-callout" style="margin-bottom:1.5rem;">
-      <div class="big">38% – 62%</div>
-      <div class="label">Illustrative Annualized IRR Range — Depending on Execution Velocity</div>
-      <div class="inv-callout-grid">
-        <div class="item"><div class="v">$500K</div><div class="l">Initial Platform Investment</div></div>
-        <div class="item"><div class="v">$80.3M</div><div class="l">5-Year Revenue Total</div></div>
-        <div class="item"><div class="v">~$16M</div><div class="l">20% Equity Stake Return Potential</div></div>
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>5-Year Revenue Ramp</h2>
-      <div class="sub">Scaling assumption based on conservative transaction growth. Cumulative revenue reflects compounding volume and agent certification network effects.</div>
-      <div class="inv-chart-wrap"><canvas id="chart-irr"></canvas></div>
-      <table class="inv-table" style="margin-top:1.25rem;">
-        <thead><tr><th>Year</th><th class="num">Transactions</th><th class="num">Annual Revenue</th><th class="num">Cumulative Revenue</th></tr></thead>
-        <tbody>
-          <tr><td>Year 1</td><td class="num">150</td><td class="num">$2.7M</td><td class="num">$2.7M</td></tr>
-          <tr><td>Year 2</td><td class="num">350</td><td class="num">$6.2M</td><td class="num">$8.9M</td></tr>
-          <tr><td>Year 3</td><td class="num">750</td><td class="num">$13.4M</td><td class="num">$22.3M</td></tr>
-          <tr><td>Year 4</td><td class="num">1,250</td><td class="num">$22.3M</td><td class="num">$44.6M</td></tr>
-          <tr class="total-row"><td>Year 5</td><td class="num">2,000</td><td class="num">$35.7M</td><td class="num">$80.3M</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="inv-section">
-      <h2>Illustrative Equity Structure</h2>
-      <div class="inv-metric-grid">
-        <div class="inv-metric"><div class="mv">$500K</div><div class="ml">Assumed startup capital requirement</div></div>
-        <div class="inv-metric blue"><div class="mv">20%</div><div class="ml">Illustrative investor equity stake</div></div>
-        <div class="inv-metric green"><div class="mv">≈$16M</div><div class="ml">Potential investor value share (5-year)</div></div>
-        <div class="inv-metric"><div class="mv">32x</div><div class="ml">Illustrative return multiple on $500K</div></div>
-      </div>
-      <div style="margin-top:1.25rem;background:#FEF3C7;border-radius:10px;padding:1rem;font-size:.83rem;color:#92400E;">
-        <strong>Disclaimer:</strong> IRR range, revenue projections, and equity return figures are illustrative only and based on internal modeling assumptions. They do not constitute a guarantee, prediction, or offer of any securities. Past performance of comparable platforms is not indicative of future results. All projections are subject to market conditions, regulatory environment, and execution. This material is for qualified investors only and constitutes confidential information of Citizens Financial Group, Inc.
-      </div>
-    </div>
-    <div class="inv-section">
-      <h2>Strategic Moat — Why First Mover Cannot Be Displaced</h2>
-      <table class="inv-table">
-        <thead><tr><th>Moat Layer</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td class="bold" style="white-space:nowrap;">Layer 1 — The Network</td><td>Every new co-buyer profile strengthens matching quality for all existing users. Better matches → more sign-ups → better matches. This self-reinforcing loop cannot be purchased — only built over time.</td></tr>
-          <tr><td class="bold" style="white-space:nowrap;">Layer 2 — Certified Agents</td><td>NEXUS. Certified agents trained in co-ownership law, TIC structures, and exit strategies become platform advocates. They are incentivized to drive clients to NEXUS. because that is where co-ownership buyers live.</td></tr>
-          <tr><td class="bold" style="white-space:nowrap;">Layer 3 — Financing Infrastructure</td><td>Citizens Financial's ability to originate co-ownership mortgages using FHA, CRA, DPA, and municipal bond programs is not easily replicated. A tech startup, traditional lender, or brokerage alone cannot duplicate this combination.</td></tr>
-          <tr><td class="bold" style="white-space:nowrap;">Competitive Position</td><td>No direct competitor identified in California co-owner matching. This is a true blue ocean opportunity. The addressable segment has been underserved by every major platform.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div style="background:#1B3A6B;color:rgba(255,255,255,.5);text-align:center;padding:1.5rem;font-size:.78rem;margin-top:2rem;">
-    Citizens Financial Group, Inc. · NMLS #2503947 · gritchie@citizensfinancial.co · April 2026 · CONFIDENTIAL — For authorized investors only
-  </div>
-
-</div><!-- end inv-dash-wrap -->
-</div><!-- end view-investor -->
 
 <!-- ══════════════════════ MODALS ══════════════════════ -->
 
@@ -4720,7 +4226,7 @@ a.pr-card{cursor:pointer;}
       </div>
 
       <div class="rp-info-banner">
-        <strong>Pick 1 to 9 ZIP codes at $29.99 each per month.</strong> You're only billed for the ZIPs you hold (no charges yet — billing launches separately). ZIP codes can be swapped once every 30 days after activation.
+        <strong>Pick 1 to 9 ZIP codes at $9.99 each per month.</strong> You're only billed for the ZIPs you hold (no charges yet — billing launches separately). ZIP codes can be swapped once every 30 days after activation.
       </div>
 
       <div class="rp-row">
@@ -4733,7 +4239,7 @@ a.pr-card{cursor:pointer;}
       <div class="rp-row" style="background:#f9fafb;padding:1rem 1.25rem;border-radius:10px;border:1px dashed var(--gray);">
         <label class="rp-label" style="margin-bottom:.5rem;">Your monthly total</label>
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.05rem;color:var(--navy);">
-          <span id="ro-zip-billed">0</span> ZIP code(s) &times; $29.99 = $<span id="ro-zip-cost">0.00</span>/mo
+          <span id="ro-zip-billed">0</span> ZIP code(s) &times; $9.99 = $<span id="ro-zip-cost">0.00</span>/mo
         </div>
         <div class="rp-helper" style="margin-top:.5rem;">Maximum <strong>9</strong> ZIP codes. Quarterly and 6-month intervals are discounted &mdash; you'll pick your interval at checkout.</div>
       </div>
@@ -4876,8 +4382,8 @@ a.pr-card{cursor:pointer;}
         <div class="rp-tier-card selected" id="rp-tier-network" onclick="selectPaymentModel('network')">
           <span class="rp-tier-tag" style="background:var(--blue);">Pay per ZIP code</span>
           <div class="rp-tier-name">NEXUS Network</div>
-          <div class="rp-tier-price">$29.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/ zip / month</span></div>
-          <div class="rp-tier-price-sub">Or $79.99/zip/3mo &middot; $149.99/zip/6mo &middot; 1 to 9 ZIP codes</div>
+          <div class="rp-tier-price">$9.99<span style="font-size:.95rem;font-weight:600;color:var(--gray-text);">/ zip / month</span></div>
+          <div class="rp-tier-price-sub">Founding rate for your first year, then $29.99 &middot; 1 to 9 ZIP codes</div>
           <ul class="rp-tier-features">
             <li>Visibility unlocked (with cert)</li>
             <li>Boosted placement in every ZIP you hold</li>
@@ -4955,7 +4461,7 @@ a.pr-card{cursor:pointer;}
         <div class="rp-card-head">
           <div>
             <h3 class="rp-card-title">Your Active Markets</h3>
-            <div class="rp-card-sub">Manage your ZIP code territories. $29.99 per ZIP code per month, up to 9.</div>
+            <div class="rp-card-sub">Manage your ZIP code territories. $9.99 per ZIP code per month for your first year, then $29.99. Up to 9.</div>
           </div>
         </div>
 
@@ -5147,8 +4653,8 @@ a.pr-card{cursor:pointer;}
       <div id="rd-billing-status-banner" style="background:linear-gradient(135deg,#0B1D3E,#1B3A6B);border-radius:14px;padding:1.4rem 1.6rem;color:#fff;margin-bottom:1.25rem;position:relative;overflow:hidden;">
         <div style="position:absolute;top:-30%;right:-5%;width:180px;height:180px;background:rgba(255,255,255,.03);border-radius:50%;"></div>
         <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.6;margin-bottom:.3rem;">Current Plan</div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;" id="rd-billing-current-plan">Partner Agent · Free</div>
-        <div style="font-size:.85rem;opacity:.75;margin-top:.15rem;" id="rd-billing-current-detail">Choose 1-9 ZIP codes at $29.99/zip/month</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:1.3rem;" id="rd-billing-current-plan">No subscription · Select your ZIPs to get started</div>
+        <div style="font-size:.85rem;opacity:.75;margin-top:.15rem;" id="rd-billing-current-detail">Choose 1-9 ZIP codes at $9.99/zip/month</div>
       </div>
 
       <!-- Unified NEXUS Network pricing -->
@@ -5161,10 +4667,10 @@ a.pr-card{cursor:pointer;}
           </div>
           <div style="padding:1.5rem;">
             <div style="display:flex;align-items:baseline;gap:.3rem;margin-bottom:.15rem;">
-              <div style="font-size:2.2rem;font-weight:900;color:var(--navy);">$29.99</div>
+              <div style="font-size:2.2rem;font-weight:900;color:var(--navy);">$9.99</div>
               <div style="font-size:.92rem;color:var(--gray-text);">/ zip / month</div>
             </div>
-            <div style="font-size:.82rem;color:var(--gray-text);">Or $79.99/zip/3mo &middot; $149.99/zip/6mo</div>
+            <div style="font-size:.82rem;color:var(--gray-text);">Founding rate for your first year &middot; then $29.99/zip/month</div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1.25rem;">
               <div style="font-size:.85rem;color:#374151;line-height:1.7;">
@@ -5241,7 +4747,7 @@ a.pr-card{cursor:pointer;}
           <div style="color:#374151;padding:.4rem 0;">Monthly cost per ZIP</div>
           <div style="text-align:center;padding:.4rem 0;color:#B91C1C;font-weight:600;">$150–$1,000+</div>
           <div style="text-align:center;padding:.4rem 0;">$0</div>
-          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">$29.99</div>
+          <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">$9.99</div>
 
           <div style="color:#374151;padding:.4rem 0;">Commission share</div>
           <div style="text-align:center;padding:.4rem 0;">0%</div>
@@ -5253,7 +4759,7 @@ a.pr-card{cursor:pointer;}
           <div style="text-align:center;padding:.4rem 0;">Invite only</div>
           <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">Open</div>
 
-          <div style="color:#374151;padding:.4rem 0;">Free tier available</div>
+          <div style="color:#374151;padding:.4rem 0;">Co-ownership certification</div>
           <div style="text-align:center;padding:.4rem 0;">❌</div>
           <div style="text-align:center;padding:.4rem 0;">❌</div>
           <div style="text-align:center;padding:.4rem 0;color:#15803D;font-weight:700;">✅</div>
@@ -5593,15 +5099,9 @@ a.pr-card{cursor:pointer;}
         <td style="padding:.7rem 1rem;border:1px solid var(--gray);">Profile creation, match count visibility, basic browsing</td>
       </tr>
       <tr>
-        <td style="padding:.7rem 1rem;border:1px solid var(--gray);" rowspan="3"><strong>NEXUS Home</strong></td>
-        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$19.99 / month</td>
-        <td style="padding:.7rem 1rem;border:1px solid var(--gray);" rowspan="3">Full match details, contact co-buyers, browse realtors, select realtors, document tab access</td>
-      </tr>
-      <tr>
-        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$54.99 / 3 months</td>
-      </tr>
-      <tr>
-        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$99.99 / 6 months</td>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);" ><strong>NEXUS Home</strong></td>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">$9.99 / month — founding rate for your first year, then $19.99</td>
+        <td style="padding:.7rem 1rem;border:1px solid var(--gray);">Full match details, contact co-buyers, browse realtors, select realtors, document tab access</td>
       </tr>
     </table>
 
@@ -5611,10 +5111,10 @@ a.pr-card{cursor:pointer;}
     <p style="font-size:.95rem;line-height:1.6;color:var(--text);margin-bottom:1rem;">Realtor pricing is structured around two ideas: <strong>(1) you only pay to be visible</strong>, and <strong>(2) you only pay a commission when you actually close a deal</strong> with a NEXUS-introduced buyer. Realtors can engage with one or both.</p>
 
     <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy);margin:1.25rem 0 .5rem;">Visibility tier (required)</h3>
-    <p style="font-size:.92rem;line-height:1.55;color:var(--text);">Realtors must complete certification to appear in user searches. A free Partner Profile covers 1 ZIP code without boosted placement; paid ZIP codes are $29.99 each per month.</p>
+    <p style="font-size:.92rem;line-height:1.55;color:var(--text);">There is no free realtor visibility on NEXUS. Realtors must complete certification AND hold at least one paid ZIP code to appear in user searches.</p>
     <ul style="line-height:1.7;font-size:.92rem;margin:.5rem 0 1rem 1.5rem;">
-      <li><strong>$29.99 per ZIP code, per month</strong> — hold 1 to 9 ZIP codes of service area</li>
-      <li><strong>Discounted intervals</strong> — $79.99/zip/3mo, $149.99/zip/6mo</li>
+      <li><strong>$9.99 per ZIP code, per month</strong> — founding rate for your first year, then $29.99</li>
+      <li>Hold 1 to 9 ZIP codes of service area</li>
       <li>ZIPs can be swapped once every 30 days</li>
     </ul>
 
@@ -5661,7 +5161,7 @@ a.pr-card{cursor:pointer;}
       <div class="rp-card" style="margin:0;">
         <h3 class="rp-card-title">Why realtors choose NEXUS</h3>
         <ul style="line-height:1.7;font-size:.9rem;margin:.5rem 0 0 1.2rem;color:var(--text);">
-          <li>$29.99/zip/mo entry vs Premier Platform $600-$3,000/zip</li>
+          <li>$9.99/zip/mo founding rate vs Premier Platform $600-$3,000/zip</li>
           <li>10% on close vs Flex Platform 35-40%</li>
           <li>Pre-vetted, pre-matched buyers — not cold leads</li>
           <li>Co-ownership market positioning is differentiated</li>
@@ -6406,10 +5906,6 @@ function showView(viewName) {
     document.getElementById('admin-gate-wrap').style.display = 'block';
     document.getElementById('admin-dashboard-wrap').style.display = 'none';
   }
-  if (viewName === 'investor' && !invAuthed) {
-    document.getElementById('inv-gate-wrap').style.display = 'flex';
-    document.getElementById('inv-dash-wrap').style.display = 'none';
-  }
   // Fire-and-forget pageview tracking (anonymous OK)
   try { trackPageView(viewName); } catch (_) {}
 }
@@ -6978,182 +6474,6 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 
-// ── INVESTOR VIEW ──────────────────────────────────────────────────────────
-const INV_CODE = 'nexus2026inv';
-let invAuthed = false;
-let invChartsInit = false;
-
-function checkInvPass() {
-  const val = document.getElementById('inv-pass').value;
-  if (val === INV_CODE) {
-    invAuthed = true;
-    document.getElementById('inv-gate-wrap').style.display = 'none';
-    document.getElementById('inv-dash-wrap').style.display = 'block';
-    if (!invChartsInit) { initInvestorCharts(); invChartsInit = true; }
-  } else {
-    showToast('Incorrect investor access code', 'error');
-    document.getElementById('inv-pass').value = '';
-  }
-}
-
-function invTab(id) {
-  document.querySelectorAll('.inv-tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.inv-tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('itab-' + id).classList.add('active');
-  document.getElementById('ipanel-' + id).classList.add('active');
-}
-
-function initInvestorCharts() {
-  // TAM Growth Chart
-  new Chart(document.getElementById('chart-tam'), {
-    type: 'bar',
-    data: {
-      labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-      datasets: [{
-        label: 'Annual Revenue TAM ($M)',
-        data: [320, 353, 388, 424, 459],
-        backgroundColor: ['#1B3A6B','#1D6FA4','#3A8A2E','#1D6FA4','#1B3A6B'],
-        borderRadius: 6
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, min: 280, ticks: { callback: v => '$' + v + 'M' } } } }
-  });
-
-  // Co-buy transactions growth
-  new Chart(document.getElementById('chart-transactions'), {
-    type: 'line',
-    data: {
-      labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-      datasets: [{
-        label: 'Annual Co-Buy Transactions',
-        data: [18315, 19800, 21780, 23760, 25740],
-        borderColor: '#1D6FA4',
-        backgroundColor: 'rgba(29,111,164,0.12)',
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#1B3A6B',
-        pointRadius: 6
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => v.toLocaleString() } } } }
-  });
-
-  // Revenue projections (Nexus Match)
-  new Chart(document.getElementById('chart-rev'), {
-    type: 'bar',
-    data: {
-      labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-      datasets: [
-        { label: 'Conservative', data: [2.7, 6.2, 13.4, 22.3, 35.7], backgroundColor: '#94C5E8', borderRadius: 4 },
-        { label: 'Blended (40% Conv / 40% FHA / 20% VA)', data: [4.45, 8.9, 17.8, 29.6, 47.2], backgroundColor: '#1D6FA4', borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v + 'M' } } },
-      plugins: { legend: { position: 'top' } }
-    }
-  });
-
-  // Funnel chart
-  new Chart(document.getElementById('chart-funnel'), {
-    type: 'bar',
-    data: {
-      labels: ['Website Visitors', 'Profile Created', 'Matched', 'Pre-Approved', 'Under Contract', 'Closed'],
-      datasets: [{
-        label: 'Users (from 100,000)',
-        data: [100000, 18000, 7560, 5140, 2775, 2303],
-        backgroundColor: ['#E8EEF7','#BCD4F0','#94C5E8','#1D6FA4','#1B3A6B','#3A8A2E'],
-        borderRadius: 6
-      }]
-    },
-    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => v.toLocaleString() } } } }
-  });
-
-  // Segment donut
-  new Chart(document.getElementById('chart-segment'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Gen Z (21–27)', 'Younger Millennials (28–35)', 'Older Millennials (36–44)'],
-      datasets: [{
-        data: [28, 54, 18],
-        backgroundColor: ['#3A8A2E', '#1D6FA4', '#1B3A6B'],
-        borderWidth: 0
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-  });
-
-  // Co-buy transactions by segment
-  new Chart(document.getElementById('chart-cobuy-seg'), {
-    type: 'bar',
-    data: {
-      labels: ['Gen Z', 'Younger Millennials', 'Older Millennials'],
-      datasets: [{
-        label: 'Annual Co-Buy Transactions',
-        data: [5821, 9356, 1960],
-        backgroundColor: ['#3A8A2E', '#1D6FA4', '#1B3A6B'],
-        borderRadius: 6
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => v.toLocaleString() } } } }
-  });
-
-  // Geographic TAM
-  new Chart(document.getElementById('chart-geo'), {
-    type: 'bar',
-    data: {
-      labels: ['Los Angeles', 'Riverside', 'San Bernardino', 'Orange', 'San Diego', 'Santa Clara', 'Alameda', 'Sacramento', 'Contra Costa', 'San Mateo'],
-      datasets: [{
-        label: 'Est. Annual Co-Buy Transactions',
-        data: [3850, 1980, 1760, 1620, 1410, 1050, 980, 920, 710, 520],
-        backgroundColor: '#1D6FA4',
-        borderRadius: 5
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: { x: { ticks: { callback: v => v.toLocaleString() } } }
-    }
-  });
-
-  // Sensitivity table visualization
-  new Chart(document.getElementById('chart-sensitivity'), {
-    type: 'line',
-    data: {
-      labels: ['$600K', '$650K', '$700K', '$750K', '$800K', '$850K', '$900K'],
-      datasets: [
-        { label: 'Conventional', data: [16001, 17334, 18667, 20000, 21334, 22667, 24001], borderColor: '#1B3A6B', tension: 0.3, pointRadius: 5 },
-        { label: 'FHA / DPA', data: [16156, 17502, 18851, 20199, 21547, 22896, 24244], borderColor: '#1D6FA4', tension: 0.3, pointRadius: 5 },
-        { label: 'VA', data: [12029, 13029, 14029, 15029, 16029, 17029, 18029], borderColor: '#3A8A2E', tension: 0.3, pointRadius: 5 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'top' } },
-      scales: { y: { ticks: { callback: v => '$' + v.toLocaleString() } } }
-    }
-  });
-
-  // IRR investor return
-  new Chart(document.getElementById('chart-irr'), {
-    type: 'bar',
-    data: {
-      labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-      datasets: [{
-        label: 'Cumulative Revenue ($M)',
-        data: [2.7, 8.9, 22.3, 44.6, 80.3],
-        backgroundColor: ['#E8EEF7','#BCD4F0','#94C5E8','#1D6FA4','#1B3A6B'],
-        borderRadius: 6
-      }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '$' + v + 'M' } } } }
-  });
-}
-
-// ════════════════════════════════════════════════════
 // NEXUS. LOAN ENGINE — FNMA 1084 / DU / LP / FHA
 // ════════════════════════════════════════════════════
 
@@ -8810,10 +8130,6 @@ showView = function(viewName) {
       document.getElementById('view-home').classList.add('active');
       return;
     }
-  }
-  if (viewName === 'investor' && typeof invAuthed !== 'undefined' && !invAuthed) {
-    document.getElementById('inv-gate-wrap').style.display = 'flex';
-    document.getElementById('inv-dash-wrap').style.display = 'none';
   }
 };
 
@@ -10607,7 +9923,7 @@ const CERT_MODULES = [
       <p>Violations result in immediate certification revocation, broker notification, and potential breach of contract claims under your NEXUS realtor terms.</p>
 
       <h3>The Marketing Services Agreement (MSA) framework</h3>
-      <p>NEXUS subscriptions ($29.99/mo per ZIP code, 1 to 9 ZIPs) are paid by you to NEXUS. Under RESPA Section 8(c)(2), these payments are permitted as long as they are <strong>compensation for actual services rendered at fair market value</strong>. Specifically, NEXUS provides:</p>
+      <p>NEXUS subscriptions ($9.99/mo per ZIP code for your first year, then $29.99; 1 to 9 ZIPs) are paid by you to NEXUS. Under RESPA Section 8(c)(2), these payments are permitted as long as they are <strong>compensation for actual services rendered at fair market value</strong>. Specifically, NEXUS provides:</p>
       <ul>
         <li>Profile placement and visibility within your selected ZIP coverage areas.</li>
         <li>Match introductions based on buyer working-style and specialty alignment.</li>
@@ -11734,7 +11050,7 @@ function renderZipChips(prefix) {
     const billedEl = document.getElementById('ro-zip-billed');
     const costEl = document.getElementById('ro-zip-cost');
     if (billedEl) billedEl.textContent = realtorState.selectedZips.length;
-    if (costEl) costEl.textContent = (realtorState.selectedZips.length * 29.99).toFixed(2);
+    if (costEl) costEl.textContent = (realtorState.selectedZips.length * 9.99).toFixed(2);
   }
   if (realtorState.selectedZips.length === 0) {
     container.innerHTML = '<span style="color:var(--gray-text);font-size:.86rem;font-style:italic;">No ZIPs selected yet</span>';
@@ -11751,7 +11067,7 @@ function removeZip(idx, prefix) {
   renderZipChips(prefix);
 }
 
-// ZIP add-on packs removed — realtors now buy ZIP codes individually at $29.99/mo each.
+// ZIP add-on packs removed — realtors now buy ZIP codes individually at $9.99/mo intro ($29.99 standard).
 // ─────────────────── PAYMENT MODEL ───────────────────
 function selectPaymentModel(model) {
   realtorState.paymentModel = 'network';
@@ -11990,7 +11306,7 @@ async function loadRealtorDashboard() {
   if (stepsEl) {
     const steps = [];
     if (profile.cert_status !== 'certified') steps.push('Complete certification');
-    if (currentAccount.tier !== 'paid' && !profile.test_visibility_override) steps.push('Activate paid subscription ($29.99/ZIP/mo)');
+    if (currentAccount.tier !== 'paid' && !profile.test_visibility_override) steps.push('Activate paid subscription ($9.99/ZIP/mo)');
     if (!realtorState.paymentModel) steps.push('Choose a billing interval');
     if ((profile.selected_zips || []).length === 0) steps.push('Add at least one ZIP code');
     if ((profile.interests || []).length === 0) steps.push('Pick at least one personal interest');
@@ -12214,7 +11530,7 @@ async function respondToSelection(selectionId, newStatus) {
 window.respondToSelection = respondToSelection;
 
 function paymentModelLabel(model) {
-  if (model) return '<span class="rp-badge rp-badge-network">NEXUS Network</span> $29.99/ZIP/mo · 10% on close';
+  if (model) return '<span class="rp-badge rp-badge-network">NEXUS Network</span> $9.99/ZIP/mo · 10% on close';
   return '<span style="color:var(--gray-text);">Not selected</span>';
 }
 
@@ -12236,7 +11552,7 @@ const CA_ZIP_LOOKUP = typeof CA_ZIPS !== 'undefined' ? CA_ZIPS : {};
 function renderMyMarkets() {
   const zips = realtorState.selectedZips || [];
   const isPaid = currentAccount?.tier === 'paid' || currentAccount?.discovery_tier === 'paid';
-  const maxZips = isPaid ? MAX_REALTOR_ZIPS : 1; // Free = 1 ZIP, paid = up to 9
+  const maxZips = MAX_REALTOR_ZIPS; // Up to 9 ZIPs; visibility requires at least one PAID ZIP
 
   // ZIP allocation dots
   const dotsEl = document.getElementById('rd-zip-dots');
@@ -12380,7 +11696,7 @@ window.openRealtorUpgrade = openRealtorUpgrade;
 
 // ═══ BILLING TAB — Three-tier model (Partner / Network / Network+) ═══
 let _selectedRealtorTier = null;
-let _selectedRealtorInterval = 'semiannual';
+let _selectedRealtorInterval = 'monthly';
 
 function renderBillingTab() {
   const isPaid = currentAccount?.tier === 'paid' || currentAccount?.discovery_tier === 'paid';
@@ -12393,7 +11709,7 @@ function renderBillingTab() {
       bannerDetail.textContent = zipCount + ' ZIP code' + (zipCount !== 1 ? 's' : '') + ' · 10% commission on close';
     } else {
       bannerPlan.textContent = 'No subscription · Select your ZIPs to get started';
-      bannerDetail.textContent = 'Choose 1-9 ZIP codes at $29.99/zip/month';
+      bannerDetail.textContent = 'Choose 1-9 ZIP codes at $9.99/zip/month';
     }
   }
   // Initialize ZIP qty display
@@ -12436,7 +11752,7 @@ function selectRealtorTier(tier) {
   const titleEl=document.getElementById('rd-billing-interval-title');
   const prices = STRIPE_PRICES.realtor_per_zip;
   titleEl.textContent = `NEXUS Network — ${_realtorZipQty} ZIP${_realtorZipQty>1?'s':''} — Choose Billing`;
-  _selectedRealtorInterval='semiannual';
+  _selectedRealtorInterval='monthly';
   const cardsEl=document.getElementById('rd-billing-interval-cards');
   cardsEl.innerHTML = Object.entries(prices).map(([key,plan])=>{
     const sel=key===_selectedRealtorInterval?'selected':'';
@@ -14012,14 +13328,10 @@ window.closePaywall = closePaywall;
 // ═══ STRIPE PRICE IDS — Replace these with your real Stripe Price IDs ═══
 const STRIPE_PRICES = {
   user: {
-    monthly:     { id: 'price_1TUsdQRBoWt1VxZ3DSdzgqiT', label: 'Monthly',   amount: 19.99,  interval: 'month',    perMonth: 19.99, savings: null },
-    quarterly:   { id: 'price_1TUsdjRBoWt1VxZ36vlA3eCA', label: 'Quarterly',  amount: 54.99,  interval: '3 months', perMonth: 18.33, savings: 'Save 8%' },
-    semiannual:  { id: 'price_1TUsdzRBoWt1VxZ3CUK1vseD', label: '6 Months',   amount: 99.99, interval: '6 months', perMonth: 16.67, savings: 'Save 17%', bestValue: true }
+    monthly:     { id: 'price_1UB0UxRBoWt1VxZ3tCoRPsh5', label: 'Monthly',   amount: 9.99,  interval: 'month',    perMonth: 9.99, savings: 'Intro price' }
   },
   realtor_per_zip: {
-    monthly:     { id: 'price_1TUseSRBoWt1VxZ3QleA2gZr', label: 'Monthly',   amount: 29.99,  interval: 'month',    perMonth: 29.99, savings: null },
-    quarterly:   { id: 'price_1TUsfbRBoWt1VxZ3Req1pnT9', label: 'Quarterly',  amount: 79.99, interval: '3 months', perMonth: 26.66, savings: 'Save 11%' },
-    semiannual:  { id: 'price_1TUsg7RBoWt1VxZ3nn89vUrv', label: '6 Months',   amount: 149.99, interval: '6 months', perMonth: 25.00, savings: 'Save 17%', bestValue: true }
+    monthly:     { id: 'price_1UB0UaRBoWt1VxZ3Wosk5P1S', label: 'Monthly',   amount: 9.99,  interval: 'month',    perMonth: 9.99, savings: 'Intro price' }
   },
   // Legacy keys for backward compat
   get realtor() { return this.realtor_per_zip; },
@@ -17302,10 +16614,10 @@ async function loadSettings() {
   if (currentAccount.role === 'realtor') {
     statusEl.innerHTML = isPaid
       ? '<span style="background:#D1FAE5;color:#15803D;padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">NEXUS Network · Active</span><span style="font-size:.85rem;color:var(--gray-text);">3+ ZIP codes · Flat 10% on close</span>'
-      : '<span style="background:#FEF3C7;color:#92400E;padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">Partner Agent · Free</span><span style="font-size:.85rem;color:var(--gray-text);">1 ZIP code · 10% commission on close</span>';
+      : '<span style="background:#FEF3C7;color:#92400E;padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">Not visible</span><span style="font-size:.85rem;color:var(--gray-text);">Activate at least one ZIP code to appear in search</span>';
     actionsEl.innerHTML = isPaid
       ? '<button class="rp-btn rp-btn-secondary" style="font-size:.82rem;" onclick="rdTab(\'billing\');showView(\'realtor-dashboard\')">Manage Subscription →</button>'
-      : '<button class="rp-btn" style="font-size:.82rem;" onclick="rdTab(\'billing\');showView(\'realtor-dashboard\')">Upgrade to Network →</button>';
+      : '<button class="rp-btn" style="font-size:.82rem;" onclick="rdTab(\'billing\');showView(\'realtor-dashboard\')">Activate a ZIP code →</button>';
   } else {
     statusEl.innerHTML = isPaid
       ? '<span style="background:#D1FAE5;color:#15803D;padding:.3rem .75rem;border-radius:14px;font-size:.78rem;font-weight:700;">NEXUS Home · Active</span><span style="font-size:.85rem;color:var(--gray-text);">Unlimited likes · Full profiles</span>'
@@ -18133,7 +17445,7 @@ window.addEventListener('load', function() {
         <span style="font-size:.82rem;opacity:.8;">Powered by Stripe</span>
       </div>
       <div style="font-size:.82rem;opacity:.7;">Pay <span style="font-weight:700;" id="mc-business">NEXUS Match</span></div>
-      <div style="font-size:1.6rem;font-weight:800;margin-top:.1rem;" id="mc-amount">$149.99</div>
+      <div style="font-size:1.6rem;font-weight:800;margin-top:.1rem;" id="mc-amount">$9.99</div>
       <div style="font-size:.78rem;opacity:.7;" id="mc-interval">every 6 months</div>
     </div>
 
@@ -18385,7 +17697,7 @@ window.addEventListener('load', function() {
 
       <div class="support-faq-item" onclick="this.classList.toggle('open')">
         <div class="support-faq-q">Is NEXUS Match free? <span style="font-size:.7rem;">▼</span></div>
-        <div class="support-faq-a">Creating a profile is free. Free users get 5 likes per day. NEXUS Home ($29.99/mo) unlocks unlimited likes, full profiles, and who liked you. You're never charged until you choose to upgrade.</div>
+        <div class="support-faq-a">Creating a profile is free. Free users get 5 likes per day. NEXUS Home ($9.99/mo for your first year, then $19.99) unlocks unlimited likes, full profiles, and who liked you. You're never charged until you choose to upgrade.</div>
       </div>
 
       <div class="support-faq-item" onclick="this.classList.toggle('open')">
@@ -18395,7 +17707,7 @@ window.addEventListener('load', function() {
 
       <div class="support-faq-item" onclick="this.classList.toggle('open')">
         <div class="support-faq-q">How do I become a NEXUS realtor? <span style="font-size:.7rem;">▼</span></div>
-        <div class="support-faq-a">Sign up as a realtor, complete your profile, and pass the NEXUS certification course. You can start with a free Partner Agent profile (1 ZIP, no boosted placement) or hold paid NEXUS Network ZIP codes at $29.99 each per month, up to 9. Either way, a flat 10% performance commission applies on a close from a NEXUS-introduced buyer.</div>
+        <div class="support-faq-a">Sign up as a realtor, complete your profile, and pass the NEXUS certification course. To appear in user searches you must hold at least one ZIP code at $29.99 per month (up to 9). There is no free visibility tier. Either way, a flat 10% performance commission applies on a close from a NEXUS-introduced buyer.</div>
       </div>
 
       <div class="support-faq-item" onclick="this.classList.toggle('open')">
