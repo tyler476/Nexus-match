@@ -4241,7 +4241,7 @@ a.pr-card{cursor:pointer;}
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.05rem;color:var(--navy);">
           <span id="ro-zip-billed">0</span> ZIP code(s) &times; $9.99 = $<span id="ro-zip-cost">0.00</span>/mo
         </div>
-        <div class="rp-helper" style="margin-top:.5rem;">Maximum <strong>9</strong> ZIP codes. Quarterly and 6-month intervals are discounted &mdash; you'll pick your interval at checkout.</div>
+        <div class="rp-helper" style="margin-top:.5rem;">Maximum <strong>9</strong> ZIP codes. Billed monthly &mdash; cancel or change ZIPs any time.</div>
       </div>
 
       <div class="rp-btn-bar">
@@ -4726,8 +4726,8 @@ a.pr-card{cursor:pointer;}
         <div class="rp-card">
           <div class="rp-card-head">
             <div>
-              <h3 class="rp-card-title" id="rd-billing-interval-title">Choose Billing Interval</h3>
-              <div class="rp-card-sub">Save more with longer commitments.</div>
+              <h3 class="rp-card-title" id="rd-billing-interval-title">Billing</h3>
+              <div class="rp-card-sub">Billed monthly at your founding rate. Cancel any time.</div>
             </div>
           </div>
           <div id="rd-billing-interval-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;"></div>
@@ -4789,7 +4789,7 @@ a.pr-card{cursor:pointer;}
           </div>
         </div>
         <div style="margin-top:.85rem;font-size:.78rem;color:var(--gray-text);line-height:1.5;">
-          24-month attribution window from first group contact. 15% with Citizens Financial lending, 20% with outside lender.
+          24-month attribution window from first group contact. Flat 10% regardless of lender.
         </div>
       </div>
     </div>
@@ -11307,7 +11307,7 @@ async function loadRealtorDashboard() {
     const steps = [];
     if (profile.cert_status !== 'certified') steps.push('Complete certification');
     if (currentAccount.tier !== 'paid' && !profile.test_visibility_override) steps.push('Activate paid subscription ($9.99/ZIP/mo)');
-    if (!realtorState.paymentModel) steps.push('Choose a billing interval');
+    if (!realtorState.paymentModel) steps.push('Confirm your plan');
     if ((profile.selected_zips || []).length === 0) steps.push('Add at least one ZIP code');
     if ((profile.interests || []).length === 0) steps.push('Pick at least one personal interest');
     if (!profile.bio || profile.bio.length < 80) steps.push('Write a bio (80+ characters)');
@@ -17446,7 +17446,7 @@ window.addEventListener('load', function() {
       </div>
       <div style="font-size:.82rem;opacity:.7;">Pay <span style="font-weight:700;" id="mc-business">NEXUS Match</span></div>
       <div style="font-size:1.6rem;font-weight:800;margin-top:.1rem;" id="mc-amount">$9.99</div>
-      <div style="font-size:.78rem;opacity:.7;" id="mc-interval">every 6 months</div>
+      <div style="font-size:.78rem;opacity:.7;" id="mc-interval">every month</div>
     </div>
 
     <!-- Card form -->
