@@ -2131,41 +2131,35 @@ a.pr-card{cursor:pointer;}
           <div class="calc-tl-card">
             <div class="calc-tl-period">3 Years</div>
             <div class="calc-tl-label">Home Value</div>
-            <div class="calc-tl-value" id="calc-tl-hv3">$865,280</div>
-            <div class="calc-tl-label">Your Share Value</div>
-            <div class="calc-tl-value" id="calc-tl-sv3">$288,427</div>
+            <div class="calc-tl-value" id="calc-tl-hv3">$899,891</div>
             <div class="calc-tl-equity">
-              <div class="tl-eq-label">Equity Gained</div>
-              <div class="tl-eq-val" id="calc-tl-eq3">+$27,373</div>
+              <div class="tl-eq-label">Equity Gained Per Person</div>
+              <div class="tl-eq-val" id="calc-tl-eq3">+$42,025</div>
             </div>
-            <div class="calc-tl-rent">vs. renting 3 yrs: <strong id="calc-tl-rs3">$86,400 spent</strong></div>
+            <div class="calc-tl-rent">vs. renting 3 yrs: <strong id="calc-tl-rs3">$68,400 spent</strong></div>
           </div>
-          <!-- 5 Years -->
+          <!-- 4 Years -->
           <div class="calc-tl-card popular">
             <div class="calc-tl-badge">Most Popular</div>
+            <div class="calc-tl-period">4 Years</div>
+            <div class="calc-tl-label">Home Value</div>
+            <div class="calc-tl-value" id="calc-tl-hv4">$935,887</div>
+            <div class="calc-tl-equity">
+              <div class="tl-eq-label">Equity Gained Per Person</div>
+              <div class="tl-eq-val" id="calc-tl-eq4">+$57,363</div>
+            </div>
+            <div class="calc-tl-rent">vs. renting 4 yrs: <strong id="calc-tl-rs4">$91,200 spent</strong></div>
+          </div>
+          <!-- 5 Years -->
+          <div class="calc-tl-card">
             <div class="calc-tl-period">5 Years</div>
             <div class="calc-tl-label">Home Value</div>
             <div class="calc-tl-value" id="calc-tl-hv5">$973,322</div>
-            <div class="calc-tl-label">Your Share Value</div>
-            <div class="calc-tl-value" id="calc-tl-sv5">$324,441</div>
             <div class="calc-tl-equity">
-              <div class="tl-eq-label">Equity Gained</div>
+              <div class="tl-eq-label">Equity Gained Per Person</div>
               <div class="tl-eq-val" id="calc-tl-eq5">+$73,423</div>
             </div>
-            <div class="calc-tl-rent">vs. renting 5 yrs: <strong id="calc-tl-rs5">$144,000 spent</strong></div>
-          </div>
-          <!-- 10 Years -->
-          <div class="calc-tl-card">
-            <div class="calc-tl-period">10 Years</div>
-            <div class="calc-tl-label">Home Value</div>
-            <div class="calc-tl-value" id="calc-tl-hv10">$1,184,195</div>
-            <div class="calc-tl-label">Your Share Value</div>
-            <div class="calc-tl-value" id="calc-tl-sv10">$394,732</div>
-            <div class="calc-tl-equity">
-              <div class="tl-eq-label">Equity Gained</div>
-              <div class="tl-eq-val" id="calc-tl-eq10">+$165,899</div>
-            </div>
-            <div class="calc-tl-rent">vs. renting 10 yrs: <strong id="calc-tl-rs10">$288,000 spent</strong></div>
+            <div class="calc-tl-rent">vs. renting 5 yrs: <strong id="calc-tl-rs5">$114,000 spent</strong></div>
           </div>
         </div>
       </div>
@@ -2173,14 +2167,14 @@ a.pr-card{cursor:pointer;}
       <!-- Bottom CTA -->
       <div class="calc-bottom-cta">
         <div class="calc-cta-left">
-          <div class="calc-cta-label">5-Year Total Advantage vs. Renting</div>
-          <div class="calc-cta-val" id="calc-5yr-advantage">$247,423</div>
+          <div class="calc-cta-label">4-Year Total Advantage vs. Renting</div>
+          <div class="calc-cta-val" id="calc-4yr-advantage">$57,363</div>
           <div class="calc-cta-sub">(equity gained + rent not paid)</div>
         </div>
         <button class="btn-primary" onclick="handleFindCoOwnerClick()" style="font-size:1rem;padding:1rem 2.25rem;white-space:nowrap;letter-spacing:.5px;">GET PRE-QUALIFIED NOW →</button>
       </div>
 
-      <div class="calc-disclaimer">All calculations are estimates for illustrative purposes only. Actual mortgage payments, taxes, insurance, appreciation, and costs will vary. Property tax estimated at 1.1% annually (California average). Homeowner's insurance estimated at 0.5% annually. PMI applies when down payment is below 20%, estimated at 0.7% annually. Consult Citizens Financial NMLS# 2503947 for a personalized analysis.</div>
+      <div class="calc-disclaimer">All calculations are estimates for illustrative purposes only. Actual mortgage payments, taxes, insurance, appreciation, and costs will vary. Property tax estimated at 1.1% annually (California average). Homeowner's insurance estimated at 0.5% annually. PMI applies when down payment is below 20%, estimated at 0.55% annually. Consult Citizens Financial NMLS# 2503947 for a personalized analysis.</div>
     </div>
   </div>
 
@@ -7290,7 +7284,7 @@ function calcUpdate() {
     : loanAmt / numPayments;
   const monthlyTax = (price * 0.011) / 12;
   const monthlyIns = (price * 0.005) / 12;
-  const monthlyPMI = dpPct < 0.20 ? (loanAmt * 0.007) / 12 : 0;
+  const monthlyPMI = dpPct < 0.20 ? (loanAmt * 0.0055) / 12 : 0;
   const totalPITI = monthlyPI + monthlyTax + monthlyIns + monthlyPMI;
 
   // Per person
@@ -7357,28 +7351,25 @@ function calcUpdate() {
   }
 
   const y3 = calcEquityAtYear(3);
+  const y4 = calcEquityAtYear(4);
   const y5 = calcEquityAtYear(5);
-  const y10 = calcEquityAtYear(10);
 
   document.getElementById('calc-tl-hv3').textContent = calcFmtDollar(y3.futureValue);
-  document.getElementById('calc-tl-sv3').textContent = calcFmtDollar(y3.shareValue);
   document.getElementById('calc-tl-eq3').textContent = '+' + calcFmtDollar(y3.equityGained);
   document.getElementById('calc-tl-rs3').textContent = calcFmtDollar(y3.rentSpent) + ' spent';
 
+  document.getElementById('calc-tl-hv4').textContent = calcFmtDollar(y4.futureValue);
+  document.getElementById('calc-tl-eq4').textContent = '+' + calcFmtDollar(y4.equityGained);
+  document.getElementById('calc-tl-rs4').textContent = calcFmtDollar(y4.rentSpent) + ' spent';
+
   document.getElementById('calc-tl-hv5').textContent = calcFmtDollar(y5.futureValue);
-  document.getElementById('calc-tl-sv5').textContent = calcFmtDollar(y5.shareValue);
   document.getElementById('calc-tl-eq5').textContent = '+' + calcFmtDollar(y5.equityGained);
   document.getElementById('calc-tl-rs5').textContent = calcFmtDollar(y5.rentSpent) + ' spent';
 
-  document.getElementById('calc-tl-hv10').textContent = calcFmtDollar(y10.futureValue);
-  document.getElementById('calc-tl-sv10').textContent = calcFmtDollar(y10.shareValue);
-  document.getElementById('calc-tl-eq10').textContent = '+' + calcFmtDollar(y10.equityGained);
-  document.getElementById('calc-tl-rs10').textContent = calcFmtDollar(y10.rentSpent) + ' spent';
-
-  // 5-year total advantage = equity gained + rent not paid (savings from lower payment over 5 years)
-  const rentSavings5yr = advantage > 0 ? advantage * 60 : 0;
-  const total5yrAdvantage = y5.equityGained + rentSavings5yr;
-  document.getElementById('calc-5yr-advantage').textContent = calcFmtDollar(total5yrAdvantage);
+  // 4-year total advantage = equity gained + rent not paid (savings from lower payment over 4 years)
+  const rentSavings4yr = advantage > 0 ? advantage * 48 : 0;
+  const total4yrAdvantage = y4.equityGained + rentSavings4yr;
+  document.getElementById('calc-4yr-advantage').textContent = calcFmtDollar(total4yrAdvantage);
 }
 
 // Initialize co-borrower blocks on page load
