@@ -1887,6 +1887,7 @@ a.pr-card{cursor:pointer;}
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
       <button onclick="handleFindCoOwnerClick()" style="background:#16a34a;color:#fff;border:none;padding:.9rem 2.25rem;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:background .2s;">Find My Co-Owner →</button>
       <button onclick="document.getElementById('how-ownership-works').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.35);padding:.85rem 2rem;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;">See How It Works ↓</button>
+       <button onclick="document.getElementById('nexus-calculator').scrollIntoView({behavior:'smooth'})" style="background:rgba(22,163,74,.18);color:#34d399;border:2px solid rgba(22,163,74,.55);padding:.85rem 2rem;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;">Calculate My Share ↓</button>
     </div>
   </div>
 
@@ -2174,7 +2175,7 @@ a.pr-card{cursor:pointer;}
         <button class="btn-primary" onclick="handleFindCoOwnerClick()" style="font-size:1rem;padding:1rem 2.25rem;white-space:nowrap;letter-spacing:.5px;">GET PRE-QUALIFIED NOW →</button>
       </div>
 
-      <div class="calc-disclaimer">All calculations are estimates for illustrative purposes only. Actual mortgage payments, taxes, insurance, appreciation, and costs will vary. Property tax estimated at 1.1% annually (California average). Homeowner's insurance estimated at 0.5% annually. PMI applies when down payment is below 20%, estimated at 0.55% annually. Consult Citizens Financial NMLS# 2503947 for a personalized analysis.</div>
+      <div class="calc-disclaimer">All calculations are estimates for illustrative purposes only. Actual mortgage payments, taxes, insurance, appreciation, and costs will vary. Property tax estimated at 1.1% annually (California average). Homeowner's insurance estimated at 0.5% annually. PMI applies when down payment is below 20%, estimated at 0.55% annually. Area rent figures are market asking rents from the Zillow Observed Rent Index (ZORI), county level, all property types, as of July 2026. Consult Citizens Financial NMLS# 2503947 for a personalized analysis.</div>
     </div>
   </div>
 
@@ -7162,65 +7163,79 @@ function printLoanResult() {
 
 // Average monthly rents by county and bedroom config
 // Keys: 1b1b, 2b1b, 2b2b, 3b2b, 4b2b
+// ---------------------------------------------------------------------------
+// COUNTY_RENTS - market asking rents by CA county and unit size.
+// Source: Zillow Observed Rent Index (ZORI), county level, all property types
+//         (SFR + condo + multifamily), smoothed. Values as of July 2026.
+// Method: county ZORI is a blended all-bedroom figure. Bedroom multipliers
+//         (0.78 / 0.94 / 1.00 / 1.33 / 1.55) are derived from Zillow's CA
+//         statewide by-bedroom series and cross-checked against RentCafe and
+//         Rentometer. 2b1b carries a ~6% one-bath discount vs 2b2b.
+// Note:   8 rural counties are not covered by ZORI (Alpine, Colusa, Inyo,
+//         Mariposa, Modoc, Plumas, Sierra, Trinity); each uses its nearest
+//         comparable county as a proxy.
+// Refresh annually from https://www.zillow.com/research/data/
+// ---------------------------------------------------------------------------
+const COUNTY_RENTS_META = { source: 'Zillow Observed Rent Index (ZORI)', asOf: 'July 2026' };
 const COUNTY_RENTS = {
-  "Alameda":       {_1b1b:2450,_2b1b:2900,_2b2b:3150,_3b2b:3700,_4b2b:4200},
-  "Alpine":        {_1b1b:1200,_2b1b:1500,_2b2b:1650,_3b2b:1900,_4b2b:2200},
-  "Amador":        {_1b1b:1100,_2b1b:1350,_2b2b:1500,_3b2b:1750,_4b2b:2000},
-  "Butte":         {_1b1b:1050,_2b1b:1300,_2b2b:1450,_3b2b:1700,_4b2b:1950},
-  "Calaveras":     {_1b1b:1100,_2b1b:1350,_2b2b:1500,_3b2b:1800,_4b2b:2100},
-  "Colusa":        {_1b1b:950,_2b1b:1150,_2b2b:1300,_3b2b:1550,_4b2b:1800},
-  "Contra Costa":  {_1b1b:2200,_2b1b:2650,_2b2b:2900,_3b2b:3400,_4b2b:3900},
-  "Del Norte":     {_1b1b:900,_2b1b:1100,_2b2b:1250,_3b2b:1500,_4b2b:1750},
-  "El Dorado":     {_1b1b:1500,_2b1b:1800,_2b2b:2000,_3b2b:2350,_4b2b:2700},
-  "Fresno":        {_1b1b:1050,_2b1b:1300,_2b2b:1450,_3b2b:1700,_4b2b:1950},
-  "Glenn":         {_1b1b:900,_2b1b:1100,_2b2b:1250,_3b2b:1450,_4b2b:1700},
-  "Humboldt":      {_1b1b:1050,_2b1b:1300,_2b2b:1450,_3b2b:1700,_4b2b:1950},
-  "Imperial":      {_1b1b:850,_2b1b:1050,_2b2b:1200,_3b2b:1400,_4b2b:1650},
-  "Inyo":          {_1b1b:1100,_2b1b:1350,_2b2b:1500,_3b2b:1750,_4b2b:2050},
-  "Kern":          {_1b1b:950,_2b1b:1200,_2b2b:1350,_3b2b:1550,_4b2b:1800},
-  "Kings":         {_1b1b:900,_2b1b:1100,_2b2b:1250,_3b2b:1450,_4b2b:1700},
-  "Lake":          {_1b1b:950,_2b1b:1150,_2b2b:1300,_3b2b:1550,_4b2b:1800},
-  "Lassen":        {_1b1b:850,_2b1b:1050,_2b2b:1200,_3b2b:1400,_4b2b:1650},
-  "Los Angeles":   {_1b1b:2100,_2b1b:2650,_2b2b:2900,_3b2b:3400,_4b2b:3950},
-  "Madera":        {_1b1b:1000,_2b1b:1250,_2b2b:1400,_3b2b:1600,_4b2b:1850},
-  "Marin":         {_1b1b:2500,_2b1b:3000,_2b2b:3300,_3b2b:3900,_4b2b:4500},
-  "Mariposa":      {_1b1b:1100,_2b1b:1350,_2b2b:1500,_3b2b:1750,_4b2b:2050},
-  "Mendocino":     {_1b1b:1150,_2b1b:1400,_2b2b:1550,_3b2b:1800,_4b2b:2100},
-  "Merced":        {_1b1b:1000,_2b1b:1250,_2b2b:1400,_3b2b:1600,_4b2b:1850},
-  "Modoc":         {_1b1b:750,_2b1b:900,_2b2b:1050,_3b2b:1250,_4b2b:1450},
-  "Mono":          {_1b1b:1400,_2b1b:1700,_2b2b:1900,_3b2b:2200,_4b2b:2550},
-  "Monterey":      {_1b1b:1800,_2b1b:2200,_2b2b:2450,_3b2b:2850,_4b2b:3300},
-  "Napa":          {_1b1b:1900,_2b1b:2300,_2b2b:2550,_3b2b:2950,_4b2b:3400},
-  "Nevada":        {_1b1b:1350,_2b1b:1650,_2b2b:1850,_3b2b:2150,_4b2b:2500},
-  "Orange":        {_1b1b:2200,_2b1b:2700,_2b2b:2950,_3b2b:3450,_4b2b:4000},
-  "Placer":        {_1b1b:1600,_2b1b:1950,_2b2b:2150,_3b2b:2500,_4b2b:2900},
-  "Plumas":        {_1b1b:950,_2b1b:1150,_2b2b:1300,_3b2b:1550,_4b2b:1800},
-  "Riverside":     {_1b1b:1550,_2b1b:1900,_2b2b:2100,_3b2b:2450,_4b2b:2850},
-  "Sacramento":    {_1b1b:1500,_2b1b:1800,_2b2b:2000,_3b2b:2350,_4b2b:2700},
-  "San Benito":    {_1b1b:1700,_2b1b:2050,_2b2b:2250,_3b2b:2650,_4b2b:3050},
-  "San Bernardino":{_1b1b:1400,_2b1b:1700,_2b2b:1900,_3b2b:2200,_4b2b:2550},
-  "San Diego":     {_1b1b:2100,_2b1b:2550,_2b2b:2800,_3b2b:3300,_4b2b:3800},
-  "San Francisco": {_1b1b:2800,_2b1b:3400,_2b2b:3800,_3b2b:4500,_4b2b:5200},
-  "San Joaquin":   {_1b1b:1300,_2b1b:1600,_2b2b:1750,_3b2b:2050,_4b2b:2350},
-  "San Luis Obispo":{_1b1b:1700,_2b1b:2100,_2b2b:2300,_3b2b:2700,_4b2b:3100},
-  "San Mateo":     {_1b1b:2600,_2b1b:3200,_2b2b:3500,_3b2b:4100,_4b2b:4750},
-  "Santa Barbara": {_1b1b:2000,_2b1b:2450,_2b2b:2700,_3b2b:3150,_4b2b:3650},
-  "Santa Clara":   {_1b1b:2700,_2b1b:3300,_2b2b:3600,_3b2b:4200,_4b2b:4850},
-  "Santa Cruz":    {_1b1b:2100,_2b1b:2550,_2b2b:2800,_3b2b:3250,_4b2b:3750},
-  "Shasta":        {_1b1b:1000,_2b1b:1250,_2b2b:1400,_3b2b:1600,_4b2b:1850},
-  "Sierra":        {_1b1b:850,_2b1b:1050,_2b2b:1200,_3b2b:1400,_4b2b:1600},
-  "Siskiyou":      {_1b1b:850,_2b1b:1050,_2b2b:1200,_3b2b:1400,_4b2b:1650},
-  "Solano":        {_1b1b:1550,_2b1b:1900,_2b2b:2100,_3b2b:2450,_4b2b:2850},
-  "Sonoma":        {_1b1b:1850,_2b1b:2250,_2b2b:2500,_3b2b:2900,_4b2b:3350},
-  "Stanislaus":    {_1b1b:1200,_2b1b:1450,_2b2b:1600,_3b2b:1900,_4b2b:2200},
-  "Sutter":        {_1b1b:1050,_2b1b:1300,_2b2b:1450,_3b2b:1700,_4b2b:1950},
-  "Tehama":        {_1b1b:900,_2b1b:1100,_2b2b:1250,_3b2b:1450,_4b2b:1700},
-  "Trinity":       {_1b1b:850,_2b1b:1050,_2b2b:1200,_3b2b:1400,_4b2b:1600},
-  "Tulare":        {_1b1b:950,_2b1b:1200,_2b2b:1350,_3b2b:1550,_4b2b:1800},
-  "Tuolumne":      {_1b1b:1050,_2b1b:1300,_2b2b:1450,_3b2b:1700,_4b2b:1950},
-  "Ventura":       {_1b1b:2000,_2b1b:2450,_2b2b:2700,_3b2b:3150,_4b2b:3650},
-  "Yolo":          {_1b1b:1500,_2b1b:1850,_2b2b:2050,_3b2b:2400,_4b2b:2750},
-  "Yuba":          {_1b1b:1050,_2b1b:1300,_2b2b:1450,_3b2b:1700,_4b2b:1950}
+  "Alameda":         {_1b1b:2290,_2b1b:2760,_2b2b:2935,_3b2b:3905,_4b2b:4550},
+  "Alpine":          {_1b1b:1510,_2b1b:1820,_2b2b:1935,_3b2b:2575,_4b2b:3000},
+  "Amador":          {_1b1b:1510,_2b1b:1820,_2b2b:1935,_3b2b:2575,_4b2b:3000},
+  "Butte":           {_1b1b:1190,_2b1b:1435,_2b2b:1525,_3b2b:2030,_4b2b:2365},
+  "Calaveras":       {_1b1b:1715,_2b1b:2065,_2b2b:2195,_3b2b:2920,_4b2b:3405},
+  "Colusa":          {_1b1b:1075,_2b1b:1295,_2b2b:1380,_3b2b:1835,_4b2b:2135},
+  "Contra Costa":    {_1b1b:2275,_2b1b:2740,_2b2b:2915,_3b2b:3875,_4b2b:4520},
+  "Del Norte":       {_1b1b:1540,_2b1b:1855,_2b2b:1975,_3b2b:2625,_4b2b:3060},
+  "El Dorado":       {_1b1b:1935,_2b1b:2335,_2b2b:2480,_3b2b:3300,_4b2b:3845},
+  "Fresno":          {_1b1b:1610,_2b1b:1940,_2b2b:2060,_3b2b:2740,_4b2b:3195},
+  "Glenn":           {_1b1b:1075,_2b1b:1295,_2b2b:1380,_3b2b:1835,_4b2b:2135},
+  "Humboldt":        {_1b1b:1265,_2b1b:1520,_2b2b:1620,_3b2b:2155,_4b2b:2510},
+  "Imperial":        {_1b1b:1310,_2b1b:1580,_2b2b:1680,_3b2b:2235,_4b2b:2605},
+  "Inyo":            {_1b1b:2280,_2b1b:2750,_2b2b:2925,_3b2b:3890,_4b2b:4535},
+  "Kern":            {_1b1b:1405,_2b1b:1695,_2b2b:1805,_3b2b:2400,_4b2b:2795},
+  "Kings":           {_1b1b:1565,_2b1b:1885,_2b2b:2005,_3b2b:2665,_4b2b:3110},
+  "Lake":            {_1b1b:1355,_2b1b:1635,_2b2b:1740,_3b2b:2315,_4b2b:2695},
+  "Lassen":          {_1b1b:790,_2b1b:955,_2b2b:1015,_3b2b:1350,_4b2b:1570},
+  "Los Angeles":     {_1b1b:2195,_2b1b:2645,_2b2b:2815,_3b2b:3745,_4b2b:4365},
+  "Madera":          {_1b1b:1675,_2b1b:2020,_2b2b:2145,_3b2b:2855,_4b2b:3330},
+  "Marin":           {_1b1b:2990,_2b1b:3600,_2b2b:3830,_3b2b:5095,_4b2b:5940},
+  "Mariposa":        {_1b1b:1145,_2b1b:1375,_2b2b:1465,_3b2b:1950,_4b2b:2270},
+  "Mendocino":       {_1b1b:1500,_2b1b:1810,_2b2b:1925,_3b2b:2560,_4b2b:2980},
+  "Merced":          {_1b1b:1620,_2b1b:1950,_2b2b:2075,_3b2b:2760,_4b2b:3215},
+  "Modoc":           {_1b1b:790,_2b1b:955,_2b2b:1015,_3b2b:1350,_4b2b:1570},
+  "Mono":            {_1b1b:2280,_2b1b:2750,_2b2b:2925,_3b2b:3890,_4b2b:4535},
+  "Monterey":        {_1b1b:2210,_2b1b:2665,_2b2b:2835,_3b2b:3770,_4b2b:4395},
+  "Napa":            {_1b1b:2240,_2b1b:2700,_2b2b:2875,_3b2b:3820,_4b2b:4455},
+  "Nevada":          {_1b1b:2135,_2b1b:2575,_2b2b:2740,_3b2b:3645,_4b2b:4245},
+  "Orange":          {_1b1b:2510,_2b1b:3025,_2b2b:3220,_3b2b:4285,_4b2b:4990},
+  "Placer":          {_1b1b:2030,_2b1b:2445,_2b2b:2600,_3b2b:3460,_4b2b:4030},
+  "Plumas":          {_1b1b:790,_2b1b:955,_2b2b:1015,_3b2b:1350,_4b2b:1570},
+  "Riverside":       {_1b1b:2030,_2b1b:2450,_2b2b:2605,_3b2b:3465,_4b2b:4040},
+  "Sacramento":      {_1b1b:1705,_2b1b:2060,_2b2b:2190,_3b2b:2910,_4b2b:3395},
+  "San Benito":      {_1b1b:2185,_2b1b:2635,_2b2b:2805,_3b2b:3730,_4b2b:4345},
+  "San Bernardino":  {_1b1b:1950,_2b1b:2345,_2b2b:2495,_3b2b:3320,_4b2b:3870},
+  "San Diego":       {_1b1b:2345,_2b1b:2830,_2b2b:3010,_3b2b:4000,_4b2b:4660},
+  "San Francisco":   {_1b1b:3540,_2b1b:4265,_2b2b:4540,_3b2b:6035,_4b2b:7035},
+  "San Joaquin":     {_1b1b:1925,_2b1b:2320,_2b2b:2465,_3b2b:3280,_4b2b:3825},
+  "San Luis Obispo": {_1b1b:2250,_2b1b:2710,_2b2b:2880,_3b2b:3835,_4b2b:4465},
+  "San Mateo":       {_1b1b:3015,_2b1b:3635,_2b2b:3865,_3b2b:5145,_4b2b:5995},
+  "Santa Barbara":   {_1b1b:2540,_2b1b:3065,_2b2b:3260,_3b2b:4335,_4b2b:5050},
+  "Santa Clara":     {_1b1b:2955,_2b1b:3560,_2b2b:3785,_3b2b:5035,_4b2b:5870},
+  "Santa Cruz":      {_1b1b:2760,_2b1b:3325,_2b2b:3540,_3b2b:4705,_4b2b:5485},
+  "Shasta":          {_1b1b:1315,_2b1b:1585,_2b2b:1690,_3b2b:2245,_4b2b:2615},
+  "Sierra":          {_1b1b:2135,_2b1b:2575,_2b2b:2740,_3b2b:3645,_4b2b:4245},
+  "Siskiyou":        {_1b1b:1325,_2b1b:1600,_2b2b:1700,_3b2b:2260,_4b2b:2635},
+  "Solano":          {_1b1b:1900,_2b1b:2290,_2b2b:2435,_3b2b:3240,_4b2b:3775},
+  "Sonoma":          {_1b1b:2105,_2b1b:2540,_2b2b:2700,_3b2b:3590,_4b2b:4185},
+  "Stanislaus":      {_1b1b:1595,_2b1b:1925,_2b2b:2045,_3b2b:2720,_4b2b:3170},
+  "Sutter":          {_1b1b:1585,_2b1b:1910,_2b2b:2035,_3b2b:2705,_4b2b:3150},
+  "Tehama":          {_1b1b:1220,_2b1b:1470,_2b2b:1565,_3b2b:2085,_4b2b:2425},
+  "Trinity":         {_1b1b:1325,_2b1b:1600,_2b2b:1700,_3b2b:2260,_4b2b:2635},
+  "Tulare":          {_1b1b:1390,_2b1b:1675,_2b2b:1785,_3b2b:2375,_4b2b:2765},
+  "Tuolumne":        {_1b1b:1145,_2b1b:1375,_2b2b:1465,_3b2b:1950,_4b2b:2270},
+  "Ventura":         {_1b1b:2310,_2b1b:2785,_2b2b:2965,_3b2b:3940,_4b2b:4595},
+  "Yolo":            {_1b1b:1925,_2b1b:2320,_2b2b:2470,_3b2b:3280,_4b2b:3825},
+  "Yuba":            {_1b1b:1575,_2b1b:1900,_2b2b:2020,_3b2b:2685,_4b2b:3130},
 };
 
 function initCalc() {
