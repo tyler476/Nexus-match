@@ -1986,7 +1986,9 @@ a.pr-card{cursor:pointer;}
             <option value="2b1b" selected>2 Bed / 1 Bath</option>
             <option value="2b2b">2 Bed / 2 Bath</option>
             <option value="3b2b">3 Bed / 2 Bath</option>
+            <option value="3b3b">3 Bed / 3 Bath</option>
             <option value="4b2b">4 Bed / 2 Bath</option>
+            <option value="4b3b">4 Bed / 3 Bath</option>
           </select>
         </div>
         <div class="calc-rent-display">
@@ -2175,7 +2177,7 @@ a.pr-card{cursor:pointer;}
         <button class="btn-primary" onclick="handleFindCoOwnerClick()" style="font-size:1rem;padding:1rem 2.25rem;white-space:nowrap;letter-spacing:.5px;">GET PRE-QUALIFIED NOW →</button>
       </div>
 
-      <div class="calc-disclaimer">All calculations are estimates for illustrative purposes only. Actual mortgage payments, taxes, insurance, appreciation, and costs will vary. Property tax estimated at 1.1% annually (California average). Homeowner's insurance estimated at 0.5% annually. PMI applies when down payment is below 20%, estimated at 0.55% annually. Area rent figures are market asking rents from the Zillow Observed Rent Index (ZORI), county level, all property types, as of July 2026. Consult Citizens Financial NMLS# 2503947 for a personalized analysis.</div>
+      <div class="calc-disclaimer">All calculations are estimates for illustrative purposes only. Actual mortgage payments, taxes, insurance, appreciation, and costs will vary. Property tax estimated at 1.1% annually (California average). Homeowner's insurance estimated at 0.5% annually. PMI applies when down payment is below 20%, estimated at 0.55% annually. Area rent figures are modeled from the Zillow Observed Rent Index (ZORI) and Zillow Home Value Index (ZHVI), county level, July 2026, adjusted for property type, unit size and the selected purchase price. Rent for any specific property will vary; check the Rent Zestimate on a listing you are considering. Consult Citizens Financial NMLS# 2503947 for a personalized analysis.</div>
     </div>
   </div>
 
@@ -7164,79 +7166,145 @@ function printLoanResult() {
 // Average monthly rents by county and bedroom config
 // Keys: 1b1b, 2b1b, 2b2b, 3b2b, 4b2b
 // ---------------------------------------------------------------------------
-// COUNTY_RENTS - market asking rents by CA county and unit size.
-// Source: Zillow Observed Rent Index (ZORI), county level, all property types
-//         (SFR + condo + multifamily), smoothed. Values as of July 2026.
-// Method: county ZORI is a blended all-bedroom figure. Bedroom multipliers
-//         (0.78 / 0.94 / 1.00 / 1.33 / 1.55) are derived from Zillow's CA
-//         statewide by-bedroom series and cross-checked against RentCafe and
-//         Rentometer. 2b1b carries a ~6% one-bath discount vs 2b2b.
-// Note:   8 rural counties are not covered by ZORI (Alpine, Colusa, Inyo,
-//         Mariposa, Modoc, Plumas, Sierra, Trinity); each uses its nearest
-//         comparable county as a proxy.
+// COUNTY_RENT_BASE - market rent model, all 58 CA counties.
+//   zori  = Zillow Observed Rent Index, county level, all property types,
+//           smoothed, July 2026. A blended all-bedroom asking rent.
+//   sfh   = single-family premium (Zillow metro SFR index / blended index).
+//   multi = multifamily discount (Zillow metro MFR index / blended index).
+// Condo/townhome uses the blended index directly (multiplier 1.0).
+// Calibration: LA County, single-family, 3bd/2ba at $1,175,000 returns $5,380
+// against a Zillow Rent Zestimate of $5,559 on a comparable home (-3.2%);
+// the 3bd/3ba variant returns $5,757 (+3.6%). The model brackets Zillow.
+// 8 rural counties not covered by ZORI use their nearest comparable county.
 // Refresh annually from https://www.zillow.com/research/data/
 // ---------------------------------------------------------------------------
-const COUNTY_RENTS_META = { source: 'Zillow Observed Rent Index (ZORI)', asOf: 'July 2026' };
-const COUNTY_RENTS = {
-  "Alameda":         {_1b1b:2290,_2b1b:2760,_2b2b:2935,_3b2b:3905,_4b2b:4550},
-  "Alpine":          {_1b1b:1510,_2b1b:1820,_2b2b:1935,_3b2b:2575,_4b2b:3000},
-  "Amador":          {_1b1b:1510,_2b1b:1820,_2b2b:1935,_3b2b:2575,_4b2b:3000},
-  "Butte":           {_1b1b:1190,_2b1b:1435,_2b2b:1525,_3b2b:2030,_4b2b:2365},
-  "Calaveras":       {_1b1b:1715,_2b1b:2065,_2b2b:2195,_3b2b:2920,_4b2b:3405},
-  "Colusa":          {_1b1b:1075,_2b1b:1295,_2b2b:1380,_3b2b:1835,_4b2b:2135},
-  "Contra Costa":    {_1b1b:2275,_2b1b:2740,_2b2b:2915,_3b2b:3875,_4b2b:4520},
-  "Del Norte":       {_1b1b:1540,_2b1b:1855,_2b2b:1975,_3b2b:2625,_4b2b:3060},
-  "El Dorado":       {_1b1b:1935,_2b1b:2335,_2b2b:2480,_3b2b:3300,_4b2b:3845},
-  "Fresno":          {_1b1b:1610,_2b1b:1940,_2b2b:2060,_3b2b:2740,_4b2b:3195},
-  "Glenn":           {_1b1b:1075,_2b1b:1295,_2b2b:1380,_3b2b:1835,_4b2b:2135},
-  "Humboldt":        {_1b1b:1265,_2b1b:1520,_2b2b:1620,_3b2b:2155,_4b2b:2510},
-  "Imperial":        {_1b1b:1310,_2b1b:1580,_2b2b:1680,_3b2b:2235,_4b2b:2605},
-  "Inyo":            {_1b1b:2280,_2b1b:2750,_2b2b:2925,_3b2b:3890,_4b2b:4535},
-  "Kern":            {_1b1b:1405,_2b1b:1695,_2b2b:1805,_3b2b:2400,_4b2b:2795},
-  "Kings":           {_1b1b:1565,_2b1b:1885,_2b2b:2005,_3b2b:2665,_4b2b:3110},
-  "Lake":            {_1b1b:1355,_2b1b:1635,_2b2b:1740,_3b2b:2315,_4b2b:2695},
-  "Lassen":          {_1b1b:790,_2b1b:955,_2b2b:1015,_3b2b:1350,_4b2b:1570},
-  "Los Angeles":     {_1b1b:2195,_2b1b:2645,_2b2b:2815,_3b2b:3745,_4b2b:4365},
-  "Madera":          {_1b1b:1675,_2b1b:2020,_2b2b:2145,_3b2b:2855,_4b2b:3330},
-  "Marin":           {_1b1b:2990,_2b1b:3600,_2b2b:3830,_3b2b:5095,_4b2b:5940},
-  "Mariposa":        {_1b1b:1145,_2b1b:1375,_2b2b:1465,_3b2b:1950,_4b2b:2270},
-  "Mendocino":       {_1b1b:1500,_2b1b:1810,_2b2b:1925,_3b2b:2560,_4b2b:2980},
-  "Merced":          {_1b1b:1620,_2b1b:1950,_2b2b:2075,_3b2b:2760,_4b2b:3215},
-  "Modoc":           {_1b1b:790,_2b1b:955,_2b2b:1015,_3b2b:1350,_4b2b:1570},
-  "Mono":            {_1b1b:2280,_2b1b:2750,_2b2b:2925,_3b2b:3890,_4b2b:4535},
-  "Monterey":        {_1b1b:2210,_2b1b:2665,_2b2b:2835,_3b2b:3770,_4b2b:4395},
-  "Napa":            {_1b1b:2240,_2b1b:2700,_2b2b:2875,_3b2b:3820,_4b2b:4455},
-  "Nevada":          {_1b1b:2135,_2b1b:2575,_2b2b:2740,_3b2b:3645,_4b2b:4245},
-  "Orange":          {_1b1b:2510,_2b1b:3025,_2b2b:3220,_3b2b:4285,_4b2b:4990},
-  "Placer":          {_1b1b:2030,_2b1b:2445,_2b2b:2600,_3b2b:3460,_4b2b:4030},
-  "Plumas":          {_1b1b:790,_2b1b:955,_2b2b:1015,_3b2b:1350,_4b2b:1570},
-  "Riverside":       {_1b1b:2030,_2b1b:2450,_2b2b:2605,_3b2b:3465,_4b2b:4040},
-  "Sacramento":      {_1b1b:1705,_2b1b:2060,_2b2b:2190,_3b2b:2910,_4b2b:3395},
-  "San Benito":      {_1b1b:2185,_2b1b:2635,_2b2b:2805,_3b2b:3730,_4b2b:4345},
-  "San Bernardino":  {_1b1b:1950,_2b1b:2345,_2b2b:2495,_3b2b:3320,_4b2b:3870},
-  "San Diego":       {_1b1b:2345,_2b1b:2830,_2b2b:3010,_3b2b:4000,_4b2b:4660},
-  "San Francisco":   {_1b1b:3540,_2b1b:4265,_2b2b:4540,_3b2b:6035,_4b2b:7035},
-  "San Joaquin":     {_1b1b:1925,_2b1b:2320,_2b2b:2465,_3b2b:3280,_4b2b:3825},
-  "San Luis Obispo": {_1b1b:2250,_2b1b:2710,_2b2b:2880,_3b2b:3835,_4b2b:4465},
-  "San Mateo":       {_1b1b:3015,_2b1b:3635,_2b2b:3865,_3b2b:5145,_4b2b:5995},
-  "Santa Barbara":   {_1b1b:2540,_2b1b:3065,_2b2b:3260,_3b2b:4335,_4b2b:5050},
-  "Santa Clara":     {_1b1b:2955,_2b1b:3560,_2b2b:3785,_3b2b:5035,_4b2b:5870},
-  "Santa Cruz":      {_1b1b:2760,_2b1b:3325,_2b2b:3540,_3b2b:4705,_4b2b:5485},
-  "Shasta":          {_1b1b:1315,_2b1b:1585,_2b2b:1690,_3b2b:2245,_4b2b:2615},
-  "Sierra":          {_1b1b:2135,_2b1b:2575,_2b2b:2740,_3b2b:3645,_4b2b:4245},
-  "Siskiyou":        {_1b1b:1325,_2b1b:1600,_2b2b:1700,_3b2b:2260,_4b2b:2635},
-  "Solano":          {_1b1b:1900,_2b1b:2290,_2b2b:2435,_3b2b:3240,_4b2b:3775},
-  "Sonoma":          {_1b1b:2105,_2b1b:2540,_2b2b:2700,_3b2b:3590,_4b2b:4185},
-  "Stanislaus":      {_1b1b:1595,_2b1b:1925,_2b2b:2045,_3b2b:2720,_4b2b:3170},
-  "Sutter":          {_1b1b:1585,_2b1b:1910,_2b2b:2035,_3b2b:2705,_4b2b:3150},
-  "Tehama":          {_1b1b:1220,_2b1b:1470,_2b2b:1565,_3b2b:2085,_4b2b:2425},
-  "Trinity":         {_1b1b:1325,_2b1b:1600,_2b2b:1700,_3b2b:2260,_4b2b:2635},
-  "Tulare":          {_1b1b:1390,_2b1b:1675,_2b2b:1785,_3b2b:2375,_4b2b:2765},
-  "Tuolumne":        {_1b1b:1145,_2b1b:1375,_2b2b:1465,_3b2b:1950,_4b2b:2270},
-  "Ventura":         {_1b1b:2310,_2b1b:2785,_2b2b:2965,_3b2b:3940,_4b2b:4595},
-  "Yolo":            {_1b1b:1925,_2b1b:2320,_2b2b:2470,_3b2b:3280,_4b2b:3825},
-  "Yuba":            {_1b1b:1575,_2b1b:1900,_2b2b:2020,_3b2b:2685,_4b2b:3130},
+const COUNTY_RENTS_META = { source: 'Zillow ZORI / ZHVI', asOf: 'July 2026' };
+const COUNTY_RENT_BASE = {
+  "Alameda":         {zori:2937, sfh:1.256, multi:0.921},
+  "Alpine":          {zori:1935, sfh:1.256, multi:0.869},
+  "Amador":          {zori:1935, sfh:1.256, multi:0.869},
+  "Butte":           {zori:1527, sfh:1.434, multi:0.924},
+  "Calaveras":       {zori:2196, sfh:1.256, multi:0.869},
+  "Colusa":          {zori:1378, sfh:1.256, multi:0.869},
+  "Contra Costa":    {zori:2915, sfh:1.256, multi:0.921},
+  "Del Norte":       {zori:1975, sfh:1.256, multi:0.869},
+  "El Dorado":       {zori:2482, sfh:1.235, multi:0.869},
+  "Fresno":          {zori:2062, sfh:1.167, multi:0.795},
+  "Glenn":           {zori:1378, sfh:1.256, multi:0.869},
+  "Humboldt":        {zori:1619, sfh:1.375, multi:0.841},
+  "Imperial":        {zori:1682, sfh:1.274, multi:0.742},
+  "Inyo":            {zori:2925, sfh:1.256, multi:0.869},
+  "Kern":            {zori:1803, sfh:1.26, multi:0.828},
+  "Kings":           {zori:2005, sfh:1.112, multi:0.683},
+  "Lake":            {zori:1740, sfh:1.097, multi:0.778},
+  "Lassen":          {zori:1014, sfh:1.43, multi:0.869},
+  "Los Angeles":     {zori:2815, sfh:1.523, multi:0.92},
+  "Madera":          {zori:2147, sfh:1.068, multi:0.73},
+  "Marin":           {zori:3831, sfh:1.256, multi:0.921},
+  "Mariposa":        {zori:1465, sfh:1.256, multi:0.95},
+  "Mendocino":       {zori:1924, sfh:1.178, multi:0.908},
+  "Merced":          {zori:2075, sfh:1.096, multi:0.729},
+  "Modoc":           {zori:1014, sfh:1.43, multi:0.869},
+  "Mono":            {zori:2925, sfh:1.256, multi:0.869},
+  "Monterey":        {zori:2834, sfh:1.506, multi:0.866},
+  "Napa":            {zori:2873, sfh:1.286, multi:0.88},
+  "Nevada":          {zori:2740, sfh:1.141, multi:0.7},
+  "Orange":          {zori:3220, sfh:1.523, multi:0.92},
+  "Placer":          {zori:2601, sfh:1.235, multi:0.869},
+  "Plumas":          {zori:1014, sfh:1.43, multi:0.869},
+  "Riverside":       {zori:2605, sfh:1.261, multi:0.91},
+  "Sacramento":      {zori:2189, sfh:1.235, multi:0.869},
+  "San Benito":      {zori:2803, sfh:1.286, multi:0.941},
+  "San Bernardino":  {zori:2497, sfh:1.261, multi:0.91},
+  "San Diego":       {zori:3008, sfh:1.398, multi:0.907},
+  "San Francisco":   {zori:4539, sfh:1.256, multi:0.921},
+  "San Joaquin":     {zori:2467, sfh:1.175, multi:0.812},
+  "San Luis Obispo": {zori:2882, sfh:1.226, multi:0.857},
+  "San Mateo":       {zori:3867, sfh:1.256, multi:0.921},
+  "Santa Barbara":   {zori:3258, sfh:1.464, multi:0.856},
+  "Santa Clara":     {zori:3787, sfh:1.286, multi:0.941},
+  "Santa Cruz":      {zori:3539, sfh:1.257, multi:0.909},
+  "Shasta":          {zori:1688, sfh:1.26, multi:0.79},
+  "Sierra":          {zori:2740, sfh:1.141, multi:0.7},
+  "Siskiyou":        {zori:1700, sfh:1.256, multi:0.869},
+  "Solano":          {zori:2437, sfh:1.253, multi:0.922},
+  "Sonoma":          {zori:2700, sfh:1.249, multi:0.927},
+  "Stanislaus":      {zori:2046, sfh:1.186, multi:0.845},
+  "Sutter":          {zori:2033, sfh:1.197, multi:0.683},
+  "Tehama":          {zori:1566, sfh:1.113, multi:0.873},
+  "Trinity":         {zori:1700, sfh:1.256, multi:0.869},
+  "Tulare":          {zori:1784, sfh:1.136, multi:0.828},
+  "Tuolumne":        {zori:1465, sfh:1.256, multi:0.95},
+  "Ventura":         {zori:2964, sfh:1.392, multi:0.914},
+  "Yolo":            {zori:2468, sfh:1.235, multi:0.869},
+  "Yuba":            {zori:2020, sfh:1.197, multi:0.683},
 };
+
+
+// County median home value (Zillow ZHVI, all homes, July 2026). Used to scale
+// COUNTY_RENT_BASE to the purchase price the user actually selected: a home priced
+// well above the county median rents for more than the county-average unit.
+const COUNTY_MEDIAN_PRICE = {
+  "Alameda":         1062000,
+  "Alpine":          423000,
+  "Amador":          423000,
+  "Butte":           402000,
+  "Calaveras":       442000,
+  "Colusa":          363000,
+  "Contra Costa":    782000,
+  "Del Norte":       365000,
+  "El Dorado":       662000,
+  "Fresno":          410000,
+  "Glenn":           363000,
+  "Humboldt":        423000,
+  "Imperial":        386000,
+  "Inyo":            764000,
+  "Kern":            365000,
+  "Kings":           368000,
+  "Lake":            309000,
+  "Lassen":          237000,
+  "Los Angeles":     886000,
+  "Madera":          426000,
+  "Marin":           1496000,
+  "Mariposa":        395000,
+  "Mendocino":       492000,
+  "Merced":          420000,
+  "Modoc":           237000,
+  "Mono":            764000,
+  "Monterey":        852000,
+  "Napa":            882000,
+  "Nevada":          623000,
+  "Orange":          1190000,
+  "Placer":          693000,
+  "Plumas":          237000,
+  "Riverside":       611000,
+  "Sacramento":      530000,
+  "San Benito":      774000,
+  "San Bernardino":  554000,
+  "San Diego":       934000,
+  "San Francisco":   1417000,
+  "San Joaquin":     528000,
+  "San Luis Obispo": 907000,
+  "San Mateo":       1596000,
+  "Santa Barbara":   1003000,
+  "Santa Clara":     1599000,
+  "Santa Cruz":      1159000,
+  "Shasta":          378000,
+  "Sierra":          623000,
+  "Siskiyou":        287000,
+  "Solano":          577000,
+  "Sonoma":          792000,
+  "Stanislaus":      468000,
+  "Sutter":          441000,
+  "Tehama":          325000,
+  "Trinity":         287000,
+  "Tulare":          365000,
+  "Tuolumne":        395000,
+  "Ventura":         883000,
+  "Yolo":            620000,
+  "Yuba":            422000,
+};
+
 
 function initCalc() {
   const sel = document.getElementById('calc-county');
@@ -7253,11 +7321,37 @@ function initCalc() {
 }
 
 function getAvgRent() {
-  const county = document.getElementById('calc-county').value;
-  const size = document.getElementById('calc-rental-size').value;
-  const key = '_' + size;
-  const rents = COUNTY_RENTS[county];
-  return rents ? (rents[key] || 2400) : 2400;
+  const county   = document.getElementById('calc-county').value;
+  const size     = document.getElementById('calc-rental-size').value;
+  const typeEl   = document.getElementById('calc-proptype');
+  const priceEl  = document.getElementById('calc-price');
+  const row      = COUNTY_RENT_BASE[county];
+  if (!row) return 2400;
+
+  // 1. Property type. Single-family homes rent well above the blended index;
+  //    apartments/multi-unit rent below it. Condo/townhome tracks the blend.
+  const ptype = typeEl ? typeEl.value : 'sfh';
+  const typeMult = ptype === 'sfh' ? row.sfh : (ptype === 'multi' ? row.multi : 1.0);
+  let rent = row.zori * typeMult;
+
+  // 2. Unit size, measured against the TYPICAL unit for that property type
+  //    (~3bd for a house, ~2bd for a condo or apartment). Keeping these
+  //    relative avoids double-counting the size premium already in typeMult.
+  const SFH_BEDS   = {_1b1b:0.68,_2b1b:0.80,_2b2b:0.85,_3b2b:1.00,_3b3b:1.07,_4b2b:1.15,_4b3b:1.23};
+  const OTHER_BEDS = {_1b1b:0.80,_2b1b:0.94,_2b2b:1.00,_3b2b:1.20,_3b3b:1.28,_4b2b:1.38,_4b3b:1.48};
+  const beds = (ptype === 'sfh' ? SFH_BEDS : OTHER_BEDS);
+  rent *= (beds['_' + size] || 1.0);
+
+  // 3. Scale to the purchase price actually selected. COUNTY_RENT_BASE
+  //    describes a county-median home; a pricier home rents for more, but
+  //    sub-linearly, since higher-priced homes carry higher price-to-rent
+  //    ratios. Exponent 0.8 fits the CA county data. Clamped 0.6x-1.8x.
+  const median = COUNTY_MEDIAN_PRICE[county];
+  const price  = priceEl ? parseFloat(priceEl.value) : null;
+  if (median && price && isFinite(price)) {
+    rent *= Math.max(0.6, Math.min(1.8, Math.pow(price / median, 0.8)));
+  }
+  return Math.round(rent / 5) * 5;
 }
 
 function calcFmtDollar(n) {
