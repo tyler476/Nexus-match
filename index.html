@@ -434,6 +434,16 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);padding:2.5rem 1.5rem;f
 .mil-vet-grid .mil-card h3{margin-bottom:.5rem;}
 .mil-vet-grid .mil-card p{color:#334155;font-size:.95rem;line-height:1.6;}
 .mil-compliance{max-width:1060px;margin:0 auto;padding:0 1.5rem 2.5rem;font-size:.74rem;color:var(--gray-text);line-height:1.5;}
+.mil-modal{position:fixed;inset:0;background:rgba(11,29,62,.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:1rem;}
+.mil-modal.on{display:flex;}
+.mil-modal-card{background:#fff;border-radius:14px;max-width:480px;width:100%;max-height:92vh;overflow-y:auto;padding:1.5rem;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;}
+.mil-modal-card h3{font-family:'Plus Jakarta Sans',sans-serif;color:var(--navy);font-size:1.3rem;font-weight:800;margin-bottom:.25rem;}
+.mil-modal-card .sub{color:var(--gray-text);font-size:.92rem;margin-bottom:1rem;}
+.mil-x{position:absolute;top:.75rem;right:.9rem;border:none;background:none;font-size:1.5rem;color:var(--gray-text);cursor:pointer;line-height:1;}
+.mil-consent{display:flex;gap:.6rem;align-items:flex-start;font-size:.78rem;color:#475569;line-height:1.45;margin:.5rem 0 1rem;}
+.mil-consent input{margin-top:.2rem;width:auto;}
+.mil-err{color:#B42318;font-size:.85rem;margin-bottom:.6rem;display:none;}
+.mil-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
 </style>
 <style id="part2-styles">
 /* ── FORM VIEW ── */
@@ -2010,7 +2020,7 @@ a.pr-card{cursor:pointer;}
             <div style="font-size:.92rem;color:#334155;line-height:1.6;" id="mil-explain">Build a group with people you trust on NEXUS., get pre-approved with Citizens Financial, and buy together. Each co-owner is on title and builds equity.</div>
             <div class="mil-ctas">
               <button class="btn-primary" onclick="handleFindCoOwnerClick()">Start your group &rarr;</button>
-              <a class="btn-outline" href="https://citizensfinancial.co" target="_blank" rel="noopener">Talk to Citizens Financial</a>
+              <button class="btn-outline" type="button" onclick="openMilCallback()">Request a call back</button>
             </div>
           </div>
           <div class="mil-note">BAH is an active-duty housing allowance. Rates shown are 2026 Department of Defense BAH rates for California housing areas; your actual BAH can differ (rate protection, government quarters, special circumstances), so confirm with your Leave and Earnings Statement. Joint VA financing requires review of each borrower&rsquo;s eligibility, entitlement, occupancy and funding fee, and zero-down financing is not guaranteed, especially with non-veteran co-borrowers. An even share is a budgeting example only: every borrower on the loan is fully responsible for the entire payment. Estimates only, not a loan offer, rate quote or commitment to lend; payments exclude HOA, utilities and maintenance.</div>
@@ -2026,7 +2036,7 @@ a.pr-card{cursor:pointer;}
         <div class="mil-card"><h3>Co-owning with a VA loan</h3><p>Veterans can buy together on a joint VA loan, and spouses can be co-borrowers. When a co-borrower isn&rsquo;t a veteran, the VA guaranty covers only the veteran&rsquo;s portion, so a down payment may be needed for the rest. Your loan officer will walk through what fits your group.</p></div>
         <div class="mil-card"><h3>Start with people you trust</h3><p>NEXUS. is built for co-owning with family, friends and fellow service members. Build your group, then get pre-approved with Citizens Financial, a licensed California mortgage broker.</p>
           <div class="mil-ctas"><button class="btn-primary" onclick="handleFindCoOwnerClick()">Start your group &rarr;</button>
-            <a class="btn-outline" href="https://citizensfinancial.co" target="_blank" rel="noopener">Talk to Citizens Financial</a></div></div>
+            <button class="btn-outline" type="button" onclick="openMilCallback()">Request a call back</button></div></div>
       </div>
       <div class="mil-note">Eligibility, entitlement, funding fee and down payment requirements are determined by the VA and the lender. Information here is general and not a commitment to lend.</div>
     </div>
@@ -18684,6 +18694,72 @@ function milCalc(){
   };
   put('mil-solo', total); put('mil-tog', share);
   if (bah && price > 0) $('mil-explain').innerHTML = 'Alone, this home would take <b>' + (total/bah*100).toFixed(0) + '%</b> of your BAH. Shared evenly with ' + (co-1) + ' co-owner' + (co>2?'s':'') + ', your part is <b>' + milFmt(share) + '/mo</b>, about <b>' + (share/bah*100).toFixed(0) + '%</b> of your BAH. Build your group on NEXUS., get pre-approved with Citizens Financial, and buy together. Each co-owner is on title and builds equity.';
+}
+</script>
+
+<!-- Veterans: request a call back -->
+<div class="mil-modal" id="mil-cb" onclick="if(event.target===this)closeMilCallback()">
+  <div class="mil-modal-card" role="dialog" aria-modal="true" aria-labelledby="mil-cb-title">
+    <button class="mil-x" onclick="closeMilCallback()" aria-label="Close">&times;</button>
+    <div id="mil-cb-form">
+      <h3 id="mil-cb-title">Request a call back</h3>
+      <div class="sub">A Citizens Financial loan officer will call you to walk through your numbers. No cost, no obligation.</div>
+      <div class="mil-row"><div class="mil-field"><label for="cb-first">First name</label><input id="cb-first" autocomplete="given-name"></div>
+        <div class="mil-field"><label for="cb-last">Last name</label><input id="cb-last" autocomplete="family-name"></div></div>
+      <div class="mil-row"><div class="mil-field"><label for="cb-phone">Phone</label><input id="cb-phone" type="tel" autocomplete="tel" placeholder="(707) 555-0123"></div>
+        <div class="mil-field"><label for="cb-email">Email (optional)</label><input id="cb-email" type="email" autocomplete="email"></div></div>
+      <div class="mil-row"><div class="mil-field"><label for="cb-status">I am</label><select id="cb-status"><option>Active duty</option><option>Veteran</option><option>Military spouse</option><option>Co-buying with someone who serves</option></select></div>
+        <div class="mil-field"><label for="cb-time">Best time to call</label><select id="cb-time"><option>Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div></div>
+      <div class="mil-row one"><div class="mil-field"><label for="cb-msg">Anything we should know? (optional)</label><input id="cb-msg" maxlength="600" placeholder="Timeline, who you'd buy with, questions"></div></div>
+      <div class="mil-hp" aria-hidden="true"><label>Website<input id="cb-website" tabindex="-1" autocomplete="off"></label></div>
+      <label class="mil-consent"><input type="checkbox" id="cb-consent"><span id="cb-consent-text">By checking this box, I agree that Citizens Financial Group, Inc. (NMLS #2503947) may contact me by phone, text or email about this request, including with automated technology. Consent is not a condition of any purchase. Message and data rates may apply. Reply STOP to opt out of texts.</span></label>
+      <div class="mil-err" id="cb-err"></div>
+      <button class="btn-primary" id="cb-submit" style="width:100%;" onclick="submitMilCallback()">Request my call back</button>
+    </div>
+    <div id="mil-cb-done" style="display:none;text-align:center;padding:1rem 0;">
+      <div style="font-size:2.2rem;">&#10003;</div>
+      <h3>You&rsquo;re all set</h3>
+      <div class="sub" style="margin-bottom:1.25rem;">A Citizens Financial loan officer will reach out soon. In the meantime, you can start building your group on NEXUS.</div>
+      <button class="btn-primary" onclick="closeMilCallback();handleFindCoOwnerClick()">Start your group &rarr;</button>
+    </div>
+  </div>
+</div>
+<script>
+function openMilCallback(){
+  const vet = document.getElementById('mil-panel-veteran').classList.contains('on');
+  document.getElementById('cb-status').value = vet ? 'Veteran' : 'Active duty';
+  document.getElementById('mil-cb-form').style.display = ''; document.getElementById('mil-cb-done').style.display = 'none';
+  document.getElementById('cb-err').style.display = 'none';
+  document.getElementById('mil-cb').classList.add('on');
+  setTimeout(() => document.getElementById('cb-first').focus(), 50);
+}
+function closeMilCallback(){ document.getElementById('mil-cb').classList.remove('on'); }
+async function submitMilCallback(){
+  const $ = id => document.getElementById(id), err = $('cb-err'), btn = $('cb-submit');
+  const showErr = m => { err.textContent = m; err.style.display = 'block'; };
+  err.style.display = 'none';
+  const phone = $('cb-phone').value.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
+  if (!$('cb-first').value.trim()) return showErr('Please enter your first name.');
+  if (phone.length !== 10) return showErr('Please enter a 10-digit phone number.');
+  if (!$('cb-consent').checked) return showErr('Please check the box so we can contact you.');
+  const mha = $('mil-mha'), gi = $('mil-grade');
+  const bahTxt = ($('mil-bah-out').textContent.match(/\$[\d,]+/) || [''])[0].replace(/[$,]/g, '');
+  const shareTxt = ($('mil-tog-amt').textContent.match(/\$[\d,]+/) || [''])[0].replace(/[$,]/g, '');
+  const calc = mha && mha.value ? { base: ($('mil-base').selectedOptions[0] || {}).text && $('mil-base').value ? $('mil-base').selectedOptions[0].text : '',
+    area: mha.selectedOptions[0] ? mha.selectedOptions[0].text : '', grade: gi ? gi.value : '', deps: $('mil-deps').selectedOptions[0].text,
+    bah: Number(bahTxt) || null, price: Number($('mil-price').value) || null, co: Number($('mil-co').value) || null, share: Number(shareTxt) || null } : {};
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const res = await fetch('https://tiwsuwbalvnrqsmudjfy.supabase.co/functions/v1/nexus-callback', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: $('cb-first').value, last_name: $('cb-last').value, phone: $('cb-phone').value, email: $('cb-email').value,
+        status: $('cb-status').value, best_time: $('cb-time').value, message: $('cb-msg').value, website: $('cb-website').value,
+        consent: true, consent_text: $('cb-consent-text').textContent, page: 'veterans', calc }) });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) { showErr(d.error || 'Something went wrong. Please try again.'); return; }
+    $('mil-cb-form').style.display = 'none'; $('mil-cb-done').style.display = '';
+    try { trackPageView('veterans-callback-submitted'); } catch (_) {}
+  } catch (_) { showErr('Could not send. Please check your connection and try again.'); }
+  finally { btn.disabled = false; btn.textContent = 'Request my call back'; }
 }
 </script>
 </body>
