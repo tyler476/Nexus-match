@@ -1455,12 +1455,6 @@ a.pr-card{cursor:pointer;}
 @media(max-width:600px){.pr-shots{grid-template-columns:1fr;}}
 
 /* ── WALKTHROUGHS ── */
-.nav-dd{position:relative;display:flex;}
-.nav-dd-menu{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 14px 36px rgba(11,29,62,.18);padding:.45rem;min-width:250px;z-index:1001;}
-@media(hover:hover){.nav-dd:hover .nav-dd-menu{display:block;}}
-.nav-dd-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:.65rem .85rem;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.92rem;color:var(--navy);cursor:pointer;}
-.nav-dd-menu button:hover{background:#F0F6FF;color:var(--blue);}
-.nav-dd-menu button small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:.76rem;color:var(--gray-text);margin-top:.1rem;}
 .wt-hero{background:linear-gradient(135deg,#0B1D3E 0%,#14305f 68%,#1d4ed8 100%);color:#fff;padding:4rem 1.5rem 3rem;text-align:center;}
 .wt-hero .section-label{color:#86efac;}
 .wt-hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:clamp(1.8rem,4.5vw,2.7rem);margin:.4rem 0 .75rem;line-height:1.15;}
@@ -1578,13 +1572,8 @@ body.wt-open{overflow:hidden;}
 
 <!-- ══════════════════════ NAV ══════════════════════ -->
 <nav id="main-nav">
-  <div class="nav-dd">
-    <span class="nav-tab" id="nav-how" onclick="showView('learn');setNavActive('nav-how')">How It Works</span>
-    <div class="nav-dd-menu">
-      <button type="button" onclick="showView('learn');setNavActive('nav-how')">How co-ownership works<small>The process, the math and the calculator</small></button>
-      <button type="button" onclick="showView('walkthroughs')">Walkthroughs<small>Narrated examples, start to finish</small></button>
-    </div>
-  </div>
+  <span class="nav-tab" id="nav-how" onclick="showView('learn');setNavActive('nav-how')">How It Works</span>
+  <span class="nav-tab" id="nav-wt" onclick="showView('walkthroughs')">Walkthroughs</span>
   <span class="nav-tab" id="nav-why" onclick="showView('learn');setNavActive('nav-why');setTimeout(()=>{const el=document.getElementById('why-nexus-anchor');if(el)el.scrollIntoView({behavior:'smooth'})},80)">Why NEXUS.</span>
   <span class="nav-tab" id="nav-press" onclick="showView('press');setNavActive('nav-press')">Press</span>
   <span class="nav-tab" id="nav-mil" onclick="openMilitary('active')">Veterans</span>
@@ -2041,7 +2030,7 @@ body.wt-open{overflow:hidden;}
 <!-- ══════════════════════ VIEW: WALKTHROUGHS ══════════════════════ -->
 <div id="view-walkthroughs" class="view">
   <section class="wt-hero">
-    <div class="section-label">How It Works &middot; Walkthroughs</div>
+    <div class="section-label">Walkthroughs</div>
     <h1>Watch co-ownership work, start to finish.</h1>
     <p>Each walkthrough follows one example buyer through NEXUS.: the real numbers, building a group, pre-approval and the co-ownership documents. Press play and it narrates itself.</p>
     <div class="wt-filters" role="tablist">
@@ -6193,7 +6182,7 @@ function showView(viewName) {
     window.scrollTo(0, 0);
   }
   // Sync nav active state
-  const navMap = { learn: 'nav-how', walkthroughs: 'nav-how', register: 'nav-cta', press: 'nav-press', military: 'nav-mil' };
+  const navMap = { learn: 'nav-how', walkthroughs: 'nav-wt', register: 'nav-cta', press: 'nav-press', military: 'nav-mil' };
   if (viewName === 'military') { try { milSetup(); } catch (_) {} }
   if (viewName === 'press') { try { renderPressRoom(); } catch (_) {} }
   if (viewName === 'walkthroughs') { try { wtRender(); } catch (_) {} }
@@ -8519,7 +8508,7 @@ showView = function(viewName) {
     target.classList.add('active');
     window.scrollTo(0, 0);
   }
-  const navMap = { learn: 'nav-how', walkthroughs: 'nav-how', register: 'nav-cta', press: 'nav-press', military: 'nav-mil' };
+  const navMap = { learn: 'nav-how', walkthroughs: 'nav-wt', register: 'nav-cta', press: 'nav-press', military: 'nav-mil' };
   if (viewName === 'military') { try { milSetup(); } catch (_) {} }
   if (viewName === 'press') { try { renderPressRoom(); } catch (_) {} }
   if (viewName === 'walkthroughs') { try { wtRender(); } catch (_) {} }
